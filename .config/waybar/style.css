@@ -1,0 +1,286 @@
+@import '/home/idea/.cache/wal/colors-waybar.css';
+* {
+    /* `otf-font-awesome` is required to be installed for icons */
+    font-family: JetBrainsMono Nerd Font;
+    font-size: 13px;
+}
+
+window#waybar {
+    background-color: @background;
+    color: @foreground;
+    transition-property: background-color;
+    transition-duration: .5s;
+    border-radius: 0px;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+#workspaces {
+    background: @background;
+    margin: 5px 1px 6px 1px;
+    padding: 0px 1px;
+    border-radius: 15px;
+    border: 0px;
+    font-weight: bold;
+    font-style: normal;
+    opacity: 0.8;
+    font-size: 16px;
+    color: @textcolor1;
+}
+
+#workspaces button {
+    padding: 0px 5px;
+    margin: 4px 3px;
+    border-radius: 15px;
+    border: 0px;
+    color: @textcolor1;
+    background-color: @color5;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.4;
+}
+
+#workspaces button.active {
+    color: @textcolor1;
+    background: @color5;
+    border-radius: 15px;
+    min-width: 40px;
+    transition: all 0.3s ease-in-out;
+    opacity:1.0;
+}
+
+#workspaces button:hover {
+    color: @textcolor1;
+    background: @color2;
+    border-radius: 15px;
+    opacity:0.7;
+}
+
+menu,
+tooltip {
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid lighter(@color5);
+  background: alpha(@background, 0.6);
+
+  color: lighter(@color5);
+}
+
+menu label,
+tooltip label {
+  font-size: 14px;
+  color: lighter(@color5);
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#backlight,
+#pulseaudio,
+#custom-media,
+#tray,
+#mpd {
+    padding: 0 10px;
+    color: #ffffff;
+}
+
+#window,
+#workspaces {
+    margin: 0 4px;
+}
+
+/* If workspaces is the leftmost module, omit left margin */
+.modules-left > widget:first-child > #workspaces {
+    margin-left: 0;
+}
+
+/* If workspaces is the rightmost module, omit right margin */
+.modules-right > widget:last-child > #workspaces {
+    margin-right: 0;
+}
+
+#clock {
+    background-color: @color5;
+    color: #000;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#battery {
+    background-color: @color5;
+    color: #000;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#battery.charging, #battery.plugged {
+    color: #000;
+    background-color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+@keyframes blink {
+    to {
+    color: #000;
+    background-color: @color5;
+        border-radius: 15px;
+        margin: 3px;
+    }
+}
+
+/* Using steps() instead of linear as a timing function to limit cpu usage */
+#battery.critical:not(.charging) {
+    color: #000;
+    background-color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+#cpu {
+    background-color: @background;
+    color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#memory {
+    background-color: @background;
+    color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+#backlight {
+    background-color: @background;
+    color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#network {
+        color: #000;
+    background-color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#network.disconnected {
+       color: #000;
+    background-color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#pulseaudio {
+    background-color: @background;
+    color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+
+#pulseaudio.muted {
+    background-color: @background;
+    color: @color5;
+    border-radius: 15px;
+    margin: 3px;
+}
+#custom-media {
+    background-color: @color5;
+    color: #000;
+    border-radius: 15px;
+    margin: 3px;
+}
+#tray {
+    background-color: @background;
+    border-radius: 15px;
+    margin: 3px;
+   
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #eb4d4b;
+}
+#custom-power-menu {
+    background-color: @color5;
+    color : #000000;
+    border-radius: 15px;
+    margin: 4px;
+}
+#custom-wall {
+    background-color: @color5;
+    color : #000000;
+    border-radius: 15px;
+    margin: 4px;
+}
+#custom-start {
+    background-color: @color5;
+    color : #000000;
+    border-radius: 15px;
+    margin:2px;
+}
+#custom-weather {
+     background: @background;
+     color: @color5;
+     border-radius: 15px;
+     margin:4px;
+}
+#custom-updates {
+        color: #000;
+    background-color: @color5;
+      border-radius: 15px;
+  margin: 4px;
+}
+#custom-quit {
+  background: @background;
+  color: @color5;
+  border-radius: 15px;
+  margin: 4px;
+}
+#custom-lock {
+  background: @background;
+  color: @color5;
+  border-radius: 15px;
+  margin: 4px;
+}
+#custom-reboot {
+  background: @background;
+  color: @color5;
+  border-radius: 15px;
+  margin: 4px;
+}
+#custom-power {
+  background: @background;
+  color: @color5;
+  border-radius: 15px;
+  margin: 4px;
+}
+#custom-swaync {
+    color: #000;
+    background-color: @color3;
+  border-radius: 15px;
+  margin: 4px;
+}
+#custom-theme {
+    color: #000;
+    background-color: @color5;
+  border-radius: 15px;
+  margin: 4px;
+}
+#window {
+        color: #000;
+    background-color: @color5;
+      border-radius: 15px;
+  margin: 4px;
+}
+
+

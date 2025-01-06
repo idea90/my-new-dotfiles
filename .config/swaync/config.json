@@ -80,7 +80,7 @@
                 },
                 {
                     "label": " gamemode",
-                    "command":"/home/idea/Downloads/scripts/gamemode.sh"
+                    "command":"~/.config/hypr/scripts/gamemode.sh"
 
                     
                 }

@@ -17,10 +17,11 @@ This repository contains my personal dotfiles, which are the customization files
    > **Warning**: This script only installs dependencies. You need to copy configuration files manually.
 
 # Srceenshot 📸
-![Screenshot_2025-01-03-20-29-03_21471](https://github.com/user-attachments/assets/f7549f16-9110-4868-846a-8fa37e0755ab)
-![Screenshot_2025-01-03-20-28-10_31210](https://github.com/user-attachments/assets/b806219f-731e-434c-a6b3-1d300aefbb08)
-![Screenshot_2025-01-03-20-27-49_28916](https://github.com/user-attachments/assets/214ac19a-5bf6-4ebb-a23b-858b4f35d4da)
-![Screenshot_2025-01-03-20-27-20_16968](https://github.com/user-attachments/assets/e6e197a7-a130-4e90-b608-b1ce2f3088b7)
+#![Screenshot_2025-01-06-20-34-33_2676](https://github.com/user-attachments/assets/a7fbc3df-3b41-4706-9d8f-a175323cbd28)
+![Screenshot_2025-01-06-20-34-18_2952](https://github.com/user-attachments/assets/9d8891e2-cae8-428c-ae38-3ef55548de9f)
+![Screenshot_2025-01-06-20-28-50_32669](https://github.com/user-attachments/assets/225a7748-dfb5-4830-aa03-fcf9449b174f)
+![Screenshot_2025-01-06-20-28-32_31607](https://github.com/user-attachments/assets/3a0f6bed-16d6-4e45-80ed-c97f6d9b45ad)
+
 
 
 # Give This Repository a Star ⭐

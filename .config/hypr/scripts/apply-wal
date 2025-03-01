@@ -1,89 +1,110 @@
 #!/bin/bash
 #
-# This script manages the desktop wallpaper, allowing you to choose from a thumbnail grid
-# of images found in the wallpapers directory (default to "$HOME/Pictures/Wallpapers").
+# Unified desktop configuration script with wallpaper selection and color scheme handling
 #
-# Dependencies: rofi, swww, pywal, mako, waybar
-# Optional: feh
+# Dependencies: rofi, swww, pywal, mako, waybar, imagemagick, matugen
 
-SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit; pwd -P )"
+SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 
-ROFI_CMD="${ROFI_CMD:-rofi -dmenu -i}"
+# Configuration
+ROFI_CMD="${ROFI_CMD:-rofi -dmenu -i -show-icons}"
 ROFI_CONFIG_DIR="${ROFI_CONFIG_DIR:-$SCRIPT_PATH/config}"
-WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/Pictures/Wallpapers}"  # Updated to new directory
-WALLPAPER_CACHE="$ROFI_CONFIG_DIR/wallpapers"
-GRID_ROWS=${GRID_ROWS:-2}   # Number of rows
-GRID_COLS=${GRID_COLS:-6}   # Number of columns
+WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
+CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
+ENV_FILE="$SCRIPT_PATH/.env"
+GRID_ROWS=2
+GRID_COLS=6
+
+# Load or initialize environment settings
+mkdir -p "$(dirname "$ENV_FILE")"
+[ -f "$ENV_FILE" ] && source "$ENV_FILE"
+MODE="${MODE:-dark}"
+TYPE="${TYPE:-scheme-tonal-spot}"
+
+# Ensure required directories
+mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
 
 # Function to build rofi theme string
 build_theme() {
-    rows=$1
-    cols=$2
-    icon_size=6  # Size of the icon
-    echo "element {orientation: vertical;} element-text {horizontal-align: 0.5;} element-icon {size: ${icon_size}.0000em;} listview {lines: ${rows}; columns: ${cols};}"
+    echo "element {orientation: vertical;} element-text {horizontal-align: 0.5;} element-icon {size: 6.0000em;} listview {lines: $1; columns: $2;}"
 }
 
-# Find images and format for rofi
+# Generate options list
 images=$(find "$WALLPAPERS_DIR" -type f -maxdepth 1 -printf "%T@ %f\x00icon\x1f$WALLPAPERS_DIR/%f\n" | sort -rn | cut -d' ' -f2-)
+all_options="Switch Dark/Light Mode\nSelect Color Scheme Type\nRandom Choice\n$images"
 
-# Show rofi menu and get user's choice
-choice=$(echo -en "Random Choice\n$images" | $ROFI_CMD -show-icons -theme-str "$(build_theme $GRID_ROWS $GRID_COLS)" -p "Wallpaper")
+# Show rofi menu
+choice=$(echo -en "$all_options" | $ROFI_CMD -theme-str "$(build_theme $GRID_ROWS $GRID_COLS)" -p "Desktop Settings")
 
-if [ -z "$choice" ]; then
-    echo "No wallpaper selected. Exiting."
-    exit 1
+# Handle user selection
+case "$choice" in
+    "Switch Dark/Light Mode")
+        [ "$MODE" == "dark" ] && MODE="light" || MODE="dark"
+        notify-send "Mode Switched" "Now using $MODE mode"
+        ;;
+    "Select Color Scheme Type")
+        scheme_options="scheme-content\nscheme-expressive\nscheme-fidelity\nscheme-fruit-salad\nscheme-monochrome\nscheme-neutral\nscheme-rainbow\nscheme-tonal-spot"
+        selected_scheme=$(echo -e "$scheme_options" | $ROFI_CMD -p "Color Scheme")
+        if [ -n "$selected_scheme" ]; then
+            TYPE="$selected_scheme"
+            notify-send "Color Scheme Updated" "Now using $TYPE"
+        fi
+        ;;
+    "Random Choice")
+        selected_wallpaper=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1)
+        ;;
+    "")
+        exit 1
+        ;;
+    *)
+        selected_wallpaper="$WALLPAPERS_DIR/$choice"
+        ;;
+esac
+
+# Persist environment settings
+echo "MODE=$MODE" > "$ENV_FILE"
+echo "TYPE=$TYPE" >> "$ENV_FILE"
+
+# Variables for cached images
+normal_image="$HOME/.cache/normal-wallpaper.png"
+blurred_image="$HOME/.cache/blurred-wallpaper.png"
+
+# Determine wallpaper to use
+if [ -n "$selected_wallpaper" ]; then
+    if [ ! -f "$selected_wallpaper" ]; then
+        notify-send "Error" "Selected wallpaper not found: $selected_wallpaper"
+        exit 1
+    fi
+    echo "$selected_wallpaper" > "$CURRENT_WALLPAPER_FILE"
+elif [ -f "$CURRENT_WALLPAPER_FILE" ]; then
+    selected_wallpaper=$(cat "$CURRENT_WALLPAPER_FILE")
 fi
 
-# Determine the selected wallpaper
-if [ "$choice" == "Random Choice" ]; then
-    selected_wallpaper=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1)
+# Apply wallpaper and color scheme if valid wallpaper exists
+if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
+    if ! cp "$selected_wallpaper" "$normal_image"; then
+        notify-send "Error" "Failed to copy wallpaper to cache"
+        exit 1
+    fi
+
+    if ! matugen image "$selected_wallpaper" -m "$MODE" -t "$TYPE"; then
+        notify-send "Error" "Failed to generate color scheme"
+        exit 1
+    fi
+
+    swww img "$selected_wallpaper" --transition-type center
+
+    magick "$selected_wallpaper" -resize 1280x720 -blur 0x8 "$blurred_image"
+
+    notify-send "Success" "Desktop configuration updated"
 else
-    selected_wallpaper="$WALLPAPERS_DIR/$choice"
+    notify-send "Warning" "No valid wallpaper selected - using existing configuration"
+    if [ -f "$normal_image" ]; then
+        if ! matugen image "$normal_image" -m "$MODE" -t "$TYPE"; then
+            notify-send "Error" "Failed to generate color scheme from cached wallpaper"
+            exit 1
+        fi
+    fi
 fi
 
-# Input wallpaper
-input_image="$selected_wallpaper"
-
-# Paths for the normal and blurred wallpapers
-normal_image="/home/idea/.cache/normal-wallpaper.png"
-output_image="/home/idea/.cache/blurred-wallpaper.png"
-
-# Copy the input wallpaper to .cache/normal-wallpaper.png
-echo "Copying the input wallpaper to $normal_image..."
-cp "$input_image" "$normal_image"
-
-# Apply the colors from the provided image
-echo "Applying wallpaper: $input_image"
-wal -i "$input_image"
-
-# Restart Waybar
-echo "Restarting Waybar..."
-killall waybar
-nohup waybar </dev/null >/dev/null 2>&1 & disown
-
-# Resize the image to 1280x720
-echo "Resizing the image to 1280x720..."
-magick "$input_image" -resize 1280x720 "$output_image"
-
-# Blur the wallpaper
-echo "Blurring wallpaper..."
-magick "$output_image" -blur 0x8 "$output_image"
-
-# Set the blurred wallpaper with wpgtk
-#echo "Setting wallpaper with wpgtk..."
-#wpg -s /home/idea/.cache/normal-wallpaper.png -n --noterminal
-
-# Update Firefox theme with pywalfox
-echo "Updating Firefox theme with pywalfox..."
-pywalfox update
-
-# swwnc reload
-swaync-client -C
-swaync-client -rs
-swaync-client -R
-
-# Notify the user
-notify-send "Wallpaper Set" "The selected wallpaper has been applied successfully. Enjoy your new look!"
-
-echo "Done! Original wallpaper saved as $normal_image, blurred wallpaper saved as $output_image."
-
+exit 0

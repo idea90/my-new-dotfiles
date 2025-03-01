@@ -1,0 +1,56 @@
+[config]
+reload_apps = true
+
+[config.wallpaper]
+command = "swww"
+arguments = [ "img", "-t", "outer", "--transition-duration", "1.5", "--transition-step", "255", "--transition-fps", "60", "-f", "Nearest",]
+set = true
+
+[templates.waybar]
+input_path = "/home/idea/.config/matugen/template/colors.css"
+output_path = "~/.config/waybar/colors.css"
+post_hook = "pkill -SIGUSR2 waybar"
+
+[templates.hyprland]
+input_path = "/home/idea/.config/matugen/template/hyprland-colors.conf"
+output_path = "~/.config/hypr/colors.conf"
+post_hook = "hyprctl reload"
+
+[templates.alacritty]
+input_path = "/home/idea/.config/matugen/template/alacritty.toml"
+output_path = "~/.config/alacritty/colors.toml"
+
+[templates.pywalfox]
+input_path = "/home/idea/.config/matugen/template/pywalfox-colors.json"
+output_path = "~/.cache/wal/colors.json"
+post_hook = "pywalfox update"
+
+[templates.rofi]
+input_path = "/home/idea/.config/matugen/template/rofi-colors.rasi"
+output_path = "~/.config/rofi/colors.rasi"
+
+[templates.gtk3]
+input_path = "/home/idea/.config/matugen/template/gtk-colors.css"
+output_path = "~/.config/gtk-3.0/colors.css"
+
+[templates.gtk4]
+input_path = "/home/idea/.config/matugen/template/gtk-colors.css"
+output_path = "~/.config/gtk-4.0/colors.css"
+
+[templates.qt6ct]
+input_path = "/home/idea/.config/matugen/template/qtct-colors.conf"
+output_path = "~/.config/qt6ct/colors/matugen.conf"
+
+[templates.q5ct]
+input_path = "/home/idea/.config/matugen/template/qtct-colors.conf"
+output_path = "~/.config/qt5ct/colors/matugen.conf"
+
+[templates.swaync]
+input_path = '~/.config/matugen/template/matugen-swaync.css'
+output_path = '~/.config/swaync/matugen-swaync.css'
+post_hook = 'swaync-client -rs'
+
+[templates.spicetify]
+input_path = '~/.config/matugen/template/spotify-colors.ini'
+output_path = '~/.config/spicetify/Themes/Comfy/color.ini'
+post_hook = '~/.spicetify/spicetify apply'

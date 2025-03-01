@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+# Unified desktop configuration script with error handling
+#
+# Dependencies: rofi, swww, pywal, mako, waybar, imagemagick, matugen
+
+SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+
+# Configuration
+ROFI_CMD="${ROFI_CMD:-rofi -dmenu -theme /home/idea/.config/rofi/config.rasi}"
+WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
+CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
+ENV_FILE="$SCRIPT_PATH/.env"
+GRID_ROWS=2
+GRID_COLS=6
+
+# Load or initialize environment settings
+mkdir -p "$(dirname "$ENV_FILE")"
+[ -f "$ENV_FILE" ] && source "$ENV_FILE"
+MODE="${MODE:-dark}"
+TYPE="${TYPE:-scheme-tonal-spot}"
+
+# Ensure required directories
+mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
+
+# Generate options list
+wallpaper_list=$(find "$WALLPAPERS_DIR" -type f -exec basename {} \; 2>/dev/null)
+all_options="Switch Dark/Light Mode\nSelect Color Scheme Type\nRandom Choice\n$wallpaper_list"
+
+# Show grid interface
+choice=$(echo -e "$all_options" | $ROFI_CMD -p "Desktop Settings" -lines $((GRID_ROWS * GRID_COLS)) -columns $GRID_COLS)
+
+# Handle user selection
+case "$choice" in
+    "Switch Dark/Light Mode")
+        [ "$MODE" == "dark" ] && MODE="light" || MODE="dark"
+        notify-send "Mode Switched" "Now using $MODE mode"
+        ;;
+    "Select Color Scheme Type")
+        scheme_options="scheme-content\nscheme-expressive\nscheme-fidelity\nscheme-fruit-salad\nscheme-monochrome\nscheme-neutral\nscheme-rainbow\nscheme-tonal-spot"
+        selected_scheme=$(echo -e "$scheme_options" | $ROFI_CMD -p "Color Scheme")
+        if [ -n "$selected_scheme" ]; then
+            TYPE="$selected_scheme"
+            notify-send "Color Scheme Updated" "Now using $TYPE"
+        fi
+        ;;
+    "Random Choice")
+        selected_wallpaper=$(find "$WALLPAPERS_DIR" -type f 2>/dev/null | shuf -n 1)
+        ;;
+    "")
+        exit 1
+        ;;
+    *)
+        selected_wallpaper="$WALLPAPERS_DIR/$choice"
+        ;;
+esac
+
+# Persist environment settings
+echo "MODE=$MODE" > "$ENV_FILE"
+echo "TYPE=$TYPE" >> "$ENV_FILE"
+
+notify-send "Updating Desktop" "Applying new wallpaper and color scheme..."
+
+# Variables for cached images
+normal_image="$HOME/.cache/normal-wallpaper.png"
+blurred_image="$HOME/.cache/blurred-wallpaper.png"
+
+# Determine wallpaper to use
+if [ -n "$selected_wallpaper" ]; then
+    # Validate new wallpaper selection
+    if [ ! -f "$selected_wallpaper" ]; then
+        notify-send "Error" "Selected wallpaper not found: $selected_wallpaper"
+        exit 1
+    fi
+    echo "$selected_wallpaper" > "$CURRENT_WALLPAPER_FILE"
+elif [ -f "$CURRENT_WALLPAPER_FILE" ]; then
+    # Fallback to cached wallpaper
+    selected_wallpaper=$(cat "$CURRENT_WALLPAPER_FILE")
+    notify-send "Using Cached Wallpaper" "No new wallpaper selected, using previous one."
+fi
+
+# Apply changes if a valid wallpaper exists
+if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
+    # Process images: copy the selected wallpaper to cache
+    if ! cp "$selected_wallpaper" "$normal_image"; then
+        notify-send "Error" "Failed to copy wallpaper to cache"
+        exit 1
+    fi
+
+    notify-send "Wallpaper Set" "New wallpaper applied."
+
+    # Generate color scheme from the selected wallpaper
+    notify-send "Applying Theme" "Generating color scheme for the new wallpaper..."
+    if ! matugen image "$selected_wallpaper" -m "$MODE" -t "$TYPE"; then
+        notify-send "Error" "Failed to generate color scheme"
+        exit 1
+    fi
+    notify-send "Theme Applied" "New color scheme set."
+
+    # Apply wallpaper with transition
+    swww img "$selected_wallpaper" --transition-type center
+
+    # Create blurred version of the wallpaper
+    magick "$selected_wallpaper" -resize 1280x720 -blur 0x8 "$blurred_image"
+
+    notify-send "Success" "Desktop configuration updated"
+else
+    notify-send "Warning" "No valid wallpaper selected - using existing configuration"
+    # If no new wallpaper is selected but we have a cached image, generate the color scheme from it.
+    if [ -f "$normal_image" ]; then
+        if ! matugen image "$normal_image" -m "$MODE" -t "$TYPE"; then
+            notify-send "Error" "Failed to generate color scheme from cached wallpaper"
+            exit 1
+        fi
+    fi
+fi
+
+exit 0
+

@@ -1,0 +1,89 @@
+
+(waybar:40496): Gtk-WARNING **: 09:40:25.237: Theme parsing error: gtk.css:2:0: expected semicolon
+[2025-02-08 09:40:25.385] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 09:40:25.392] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable
+[2025-02-08 09:40:25.392] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 09:40:25.435] [info] Hyprland IPC starting
+[2025-02-08 09:40:25.458] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 09:40:25.460] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 09:40:25.485] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 09:40:25.752] [warning] Requested height: 30 is less than the minimum height: 39 required by the modules
+[2025-02-08 09:40:25.752] [info] Bar configured (width: 1366, height: 39) for output: eDP-1
+
+(waybar:41444): Gtk-WARNING **: 09:44:16.908: Theme parsing error: gtk.css:2:0: expected semicolon
+[2025-02-08 09:44:16.996] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 09:44:17.002] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable
+[2025-02-08 09:44:17.002] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 09:44:17.019] [info] Hyprland IPC starting
+[2025-02-08 09:44:17.021] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 09:44:17.022] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 09:44:17.036] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 09:44:17.121] [warning] Requested height: 30 is less than the minimum height: 34 required by the modules
+[2025-02-08 09:44:17.121] [info] Bar configured (width: 1366, height: 34) for output: eDP-1
+
+(waybar:41783): Gtk-WARNING **: 09:45:15.369: Theme parsing error: gtk.css:2:0: expected semicolon
+[2025-02-08 09:45:15.526] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 09:45:15.530] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable
+[2025-02-08 09:45:15.532] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 09:45:15.575] [info] Hyprland IPC starting
+[2025-02-08 09:45:15.586] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 09:45:15.588] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 09:45:15.621] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 09:45:15.954] [warning] Requested height: 30 is less than the minimum height: 34 required by the modules
+[2025-02-08 09:45:15.954] [info] Bar configured (width: 1366, height: 34) for output: eDP-1
+[2025-02-08 09:45:52.522] [info] Reloading...
+[2025-02-08 09:45:52.530] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 09:45:52.531] [info] Using CSS file /etc/xdg/waybar/style.css
+[2025-02-08 09:45:52.782] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 09:45:52.782] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 09:45:52.782] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 09:45:53.071] [info] Bar configured (width: 1366, height: 30) for output: eDP-1
+
+(waybar:51612): Gtk-WARNING **: 10:29:19.094: Theme parsing error: gtk.css:2:0: expected semicolon
+[2025-02-08 10:29:19.253] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 10:29:19.261] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable
+[2025-02-08 10:29:19.262] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 10:29:19.318] [info] Hyprland IPC starting
+[2025-02-08 10:29:19.330] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:29:19.330] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:29:19.363] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 10:29:19.730] [warning] Requested height: 30 is less than the minimum height: 39 required by the modules
+[2025-02-08 10:29:19.731] [info] Bar configured (width: 1366, height: 39) for output: eDP-1
+
+(waybar:51814): Gtk-WARNING **: 10:31:13.594: Theme parsing error: gtk.css:2:0: expected semicolon
+[2025-02-08 10:31:13.731] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 10:31:13.734] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name is not activatable
+[2025-02-08 10:31:13.734] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 10:31:13.797] [info] Hyprland IPC starting
+[2025-02-08 10:31:13.826] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:31:13.827] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:31:13.844] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 10:31:13.972] [warning] Requested height: 30 is less than the minimum height: 39 required by the modules
+[2025-02-08 10:31:13.972] [info] Bar configured (width: 1366, height: 39) for output: eDP-1
+[2025-02-08 10:32:00.452] [info] Reloading...
+[2025-02-08 10:32:00.476] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 10:32:00.477] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 10:32:00.753] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:32:00.753] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:32:00.757] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 10:32:00.816] [warning] Requested height: 30 is less than the minimum height: 39 required by the modules
+[2025-02-08 10:32:00.816] [info] Bar configured (width: 1366, height: 39) for output: eDP-1
+[2025-02-08 10:33:54.898] [info] Hyprland config reloaded, reinitializing hyprland/workspaces module...
+[2025-02-08 10:33:55.016] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:33:55.017] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:33:55.027] [info] Hyprland config reloaded, reinitializing hyprland/workspaces module...
+[2025-02-08 10:33:55.030] [info] Reloading...
+[2025-02-08 10:33:55.032] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:33:55.032] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:33:55.053] [info] Using configuration file /home/idea/.config/waybar/config.jsonc
+[2025-02-08 10:33:55.054] [info] Using CSS file /home/idea/.config/waybar/style.css
+[2025-02-08 10:33:55.092] [info] Loading persistent workspaces from Waybar config
+[2025-02-08 10:33:55.092] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-02-08 10:33:55.093] [warning] Timezone: auto. std::chrono::tzdb: cannot locate zone: auto
+[2025-02-08 10:33:55.151] [warning] Requested height: 30 is less than the minimum height: 39 required by the modules
+[2025-02-08 10:33:55.151] [info] Bar configured (width: 1366, height: 39) for output: eDP-1
+
+(wlogout:52310): Gtk-WARNING **: 10:35:30.730: Theme parsing error: gtk.css:2:0: expected semicolon
+
+(wlogout:52326): Gtk-WARNING **: 10:35:45.068: Theme parsing error: gtk.css:2:0: expected semicolon
+:: Reboot

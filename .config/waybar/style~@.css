@@ -1,0 +1,145 @@
+@import 'colors.css';
+
+/* Pastel Blue Color Scheme */
+@define-color primary_container #B0C4DE;  /* Light Steel Blue */
+@define-color on_primary_container #2F4F4F;  /* Dark Slate Gray */
+@define-color surface_container #E3E8F2;
+@define-color surface_container_low #E0E3EB;
+@define-color surface_container_lowest #F0F4FC;
+@define-color outline #A4B3C6;
+@define-color shadow #8A99AA;
+@define-color error #FF5252;
+
+* {
+    font-family: RobotoMono Nerd Font;
+    font-size: 14px;
+    margin: 0;
+    border: none;
+    min-height: 0;
+}
+
+window#waybar {
+    background: linear-gradient(
+        to bottom,
+        alpha(@surface_container_lowest, 0.9),
+        alpha(@surface_container_low, 0.9)
+    );
+    color: @on_primary_container;
+    border: 1px solid alpha(@outline, 0.2);
+    transition: background 0.3s ease;
+}
+
+.module {
+    padding: 4px 12px;
+    margin: 4px 2px;
+    background: linear-gradient(
+        145deg,
+        alpha(@primary_container, 0.95),
+        alpha(@primary_container, 0.85)
+    );
+    color: @on_primary_container;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px alpha(@shadow, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.module:hover {
+    background: linear-gradient(
+        145deg,
+        alpha(@primary_container, 1),
+        alpha(@primary_container, 0.9)
+    );
+    box-shadow: 0 4px 6px alpha(@shadow, 0.15);
+    transform: translateY(-1px);
+}
+
+#workspaces {
+    padding: 2px;
+    border-radius: 8px;
+    background: alpha(@surface_container, 0.4);
+    margin-left: 8px;
+}
+
+#workspaces button {
+    color: alpha(@on_primary_container, 0.6);
+    padding: 4px 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+}
+
+#workspaces button.active {
+    color: @on_primary_container;
+    background: linear-gradient(
+        to right,
+        alpha(@primary_container, 0.8),
+        alpha(@primary_container, 0.6)
+    );
+    box-shadow: inset 0 0 0 1px alpha(@outline, 0.1);
+    font-weight: 500;
+}
+
+#workspaces button:hover {
+    color: alpha(@on_primary_container, 0.8);
+    background: alpha(@primary_container, 0.3);
+}
+
+#tray {
+    margin-right: 8px;
+    padding: 0 12px;
+    background: alpha(@primary_container, 0.8);
+}
+
+#clock {
+    padding: 4px 12px;
+    margin: 4px 2px;
+    background: linear-gradient(
+        145deg,
+        alpha(@primary_container, 0.95),
+        alpha(@primary_container, 0.85)
+    );
+    color: @on_primary_container;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+#battery {
+    padding-right: 16px;
+    background: alpha(@primary_container, 0.9);
+}
+
+#battery.critical {
+    color: @error;
+    animation: pulse 1.5s infinite;
+}
+
+#network, #pulseaudio {
+    padding-left: 8px;
+    background: alpha(@primary_container, 0.85);
+}
+
+#pulseaudio.muted {
+    color: alpha(@on_primary_container, 0.5);
+    background: alpha(@primary_container, 0.7);
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+tooltip {
+    background: alpha(@surface_container_lowest, 0.95);
+    border: 1px solid alpha(@outline, 0.3);
+    border-radius: 8px;
+    color: @on_primary_container;
+    padding: 8px;
+    box-shadow: 0 4px 8px alpha(@shadow, 0.1);
+}
+
+#custom-launcher {
+    margin-left: 8px;
+    padding: 0 14px;
+    background: alpha(@primary_container, 0.9);
+    border-radius: 8px 0 0 8px;
+}

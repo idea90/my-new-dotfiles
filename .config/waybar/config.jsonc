@@ -1,72 +1,42 @@
 {
-    "layer": "left", // Waybar at top layer
-    "position": "top", // Waybar position (top|bottom|left|right)
-    "height": 30, // Waybar height (to be removed for auto height)
-   // "width": 899, // Waybar width
-    "spacing": 4, // Gaps between modules (4px)
-    // Choose the order of the modules
-    "modules-left": [
-        "hyprland/workspaces",
-    ],
-    "modules-center": [
-        "custom/media",
-    ],
+    "$schema": "https://raw.githubusercontent.com/Alexays/Waybar/master/schemas/waybar.schema.json",
+    "layer": "top",
+    "position": "top",
+    "spacing": 4,
+    "height": 30,
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["clock"],
     "modules-right": [
-        "custom/updates",
+        "tray",
+        "network",
+        "backlight",
+        "pulseaudio",
         "battery",
-        "clock",
-        "custom/swaync",
-        "tray"
-],
-    // Modules configuration
+        "custom/power"
+    ],
+    
     "hyprland/workspaces": {
         "on-scroll-up": "hyprctl dispatch workspace r-1",
-        "on-scroll-down": "hyprctl dispatch workspace r+1",        
-        "on-click": "activate",
-        "active-only": false,
-        "all-outputs": true,
-        "format": "{}",
+        "on-scroll-down": "hyprctl dispatch workspace r+1",
+        "format": "{name}",
+        "persistent-workspaces": {"*": 5},
         "format-icons": {
-            "urgent": "",
-            "active": "",
-            "default": ""
+            "default": "",
+            "active": "",
+            "urgent": "󱂬"
         },
-        "persistent-workspaces": {
-            "*": 3
-        }
+        "tooltip": false,
+        "all-outputs": true,
+        "disable-scroll": false
     },
-    "tray": {
-        // "icon-size": 21,
-        "spacing": 10
-    },
+
     "clock": {
-        "interval": 60,
-        "align": 0,
-        "rotate": 0,
-        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-        "format": "{:%I:%M %p}",
-        "format-alt": "{:%a %b %d, %G}"
+        "interval": 1,
+        "format": "󰃭 {:%I:%M %p}",
+        "tooltip-format": "<big>{:%A, %d %B %Y}</big>",
+        "timezone": "auto"
     },
-    "cpu": {
-        "format": "{usage}%  ",
-        "tooltip": false
-    },
-    "memory": {
-        "format": "{}%  "
-    },
-    "temperature": {
-        // "thermal-zone": 2,
-        // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
-        "critical-threshold": 80,
-        // "format-critical": "{temperatureC}°C {icon}",
-        "format": "{temperatureC}°C {icon}",
-        "format-icons": ["", "", ""]
-    },
-    "backlight": {
-        // "device": "acpi_video1",
-        "format": "{percent}% {icon}",
-        "format-icons": ["󰃞", "󰃟", "󰃝", "󰃠"]
-    },
+
     "battery": {
         "bat": "BAT0",
         "interval": 5,
@@ -75,73 +45,54 @@
             "critical": 15
         },
         "format": "{icon} {capacity}%",
-        "format-charging": "{icon}󱐋 {capacity}%",
-        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-        "max-length": 25,
-        "tooltip": true,
-        "tooltip-format": "{time} left\nCapacity: {health}%\n{power} watts"
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-icons": [
+            "󰁺", "󰁻", "󰁼",
+            "󰁽", "󰁾", "󰁿",
+            "󰂀", "󰂁", "󰂂"
+        ]
     },
-    "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
-        "format-wifi": "   Connected ({signalStrength}%)",
-        "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
-        "on-click": "/home/idea/rofi-wifi-menu/rofi-wifi-menu.sh",
-        
-    },
-    "pulseaudio": {
-        // "scroll-step": 1, // %, can be a float
-        "format": "{volume}% {icon}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": " {format_source}",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol"
-    },
-    "custom/media": {
-        "exec": "python3 .config/waybar/mediaplayer.py --max-length 60",
-        "format": "  {}",
-        "return-type": "json",
-        "on-click": "playerctl play-pause",
-        "on-scroll-up": "playerctl next",
-        "on-scroll-down": "playerctl previous"
-    },
-    "custom/updates": {
-        "format":  " {} {icon}",
-        "return-type": "json",
-        "format-icons": {
-            "has-updates": "󱍷 ",
-            "updated": "󰂪 ",
-            "on-click": "alacritty -e yay -Syu"
-        },
-        "exec-if": "which waybar-module-pacman-updates",
-        "exec": "waybar-module-pacman-updates  --interval-seconds 5 --network-interval-seconds 300"
-    },
-"hyprland/window": {
-    "format": "{}",
-    "max-length": 30,
-    "separate-outputs": true
-},
-"custom/swaync": {
-    "format": "  󰂚  ",
-    "tooltip": false,
-    "on-click": "swaync-client -t",
-},
- "custom/theme": {
-    "format": "   ",
-    "tooltip": false,
-    "on-click": "/home/idea/Downloads/apply-wal",
-},
-  },
 
+    "custom/power": {
+        "format": "󰐥",
+        "on-click": "wlogout",
+        "tooltip": false
+    },
+
+    "custom/start": {
+        "format": " ",
+        "on-click": "rofi -show drun",
+        "tooltip": false
+    },
+    
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol",
+        "scroll-step": 2
+    },
+
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "󰃠 {percent}%",
+        "scroll-step": 2,
+        "on-scroll-up": "brightnessctl set 5%+",
+        "on-scroll-down": "brightnessctl set 5%-"
+    },
+
+    "network": {
+        "format-wifi": "󰖩 {essid}",
+        "format-ethernet": "󰈁 Connected",
+        "format-disconnected": "󰖪 Disconnected",
+        "tooltip": false
+    },
+
+    "tray": {
+        "spacing": 8,
+        "icon-size": 18,
+    }
+}

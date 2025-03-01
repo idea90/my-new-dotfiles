@@ -1,0 +1,21 @@
+[font]
+size = 12.0
+
+[font.bold]
+family = "RobotoMono Nerd Font"
+style = "Bold"
+
+[font.bold_italic]
+family = "RobotoMono Nerd Font"
+style = "Bold Italic"
+
+[font.italic]
+family = "RobotoMono Nerd Font"
+style = "Italic"
+
+[font.normal]
+family = "RobotoMono Nerd Font"
+style = "Regular"
+
+[general]
+import=["/home/idea/.cache/wal/colors-alacritty.toml"]

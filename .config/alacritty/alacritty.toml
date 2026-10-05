@@ -18,5 +18,9 @@ family = "RobotoMono Nerd Font"
 style = "Regular"
 
 
+[window]
+padding = { x = 10, y = 8 }
+dynamic_padding = true
+
 [general]
 import=["colors.toml"]

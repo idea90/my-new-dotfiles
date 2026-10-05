@@ -3,7 +3,7 @@
     "layer": "top",
     "position": "top",
     "spacing": 4,
-    "height": 30,
+    "height": 34,
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock"],
     "modules-right": [
@@ -68,7 +68,7 @@
     
     "pulseaudio": {
         "format": "{icon} {volume}%",
-        "format-muted": "󰝟",
+        "format-muted": "󰝟 muted",
         "format-icons": {
             "default": ["󰕿", "󰖀", "󰕾"]
         },
@@ -93,6 +93,6 @@
 
     "tray": {
         "spacing": 8,
-        "icon-size": 18,
+        "icon-size": 16
     }
 }

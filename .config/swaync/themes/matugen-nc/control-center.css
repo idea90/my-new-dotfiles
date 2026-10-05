@@ -12,16 +12,15 @@
 @define-color background-sec  	    alpha(@surface, 0.55);
 @define-color selected        	    @primary;
 @define-color accent                @tertiary;
-@define-color text-alt              @surface;
+@define-color text-alt              @on_primary;
 @define-color hover           	    alpha(@selected, .55);
 @define-color urgent          	    @error;
 
 * {
-  color: @text;
   all: unset;
-  font-size: 16px;
+  color: @text;
+  font-size: 14px;
   font-family: "RobotoMono Nerd Font";
-  font-weight: bold;
   transition: 200ms;
 
 }
@@ -37,7 +36,7 @@
   background: @background;
   border-radius: 24px;
   border: 1px solid @selected;
-  box-shadow: 0 0 10px 0 rgba(0,0,0,.6);
+  box-shadow: 0 2px 10px 0 alpha(@shadow, .5);
   margin: 18px;
   padding: 12px;
 }
@@ -45,14 +44,14 @@
 /* Notifications  */
 .control-center .notification-row .notification-background,
 .control-center .notification-row .notification-background .notification.critical {
-  background-color: alpha(@accent, .55);
-  border-radius: 16px;
+  background-color: @surface_container_high;
+  border-radius: 8px;
   margin: 4px 0px;
   padding: 4px;
 }
 
 .control-center .notification-row .notification-background .notification.critical {
-  color: @urgent;
+  border: 1px solid @urgent;
 }
 
 .control-center .notification-row .notification-background .notification .notification-content {
@@ -65,18 +64,19 @@
 }
 
 .control-center .notification-row .notification-background .notification > *:last-child > * .notification-action {
-  background: alpha(@selected, .6);
+  background: @surface_container_highest;
   color: @text;
-  border-radius: 12px;
+  border-radius: 8px;
   margin: 6px;
 }
 
 .control-center .notification-row .notification-background .notification > *:last-child > * .notification-action:hover {
-  background: @selected;
+  background: @hover;
 }
 
 .control-center .notification-row .notification-background .notification > *:last-child > * .notification-action:active {
   background-color: @selected;
+  color: @text-alt;
 }
 
  /* Buttons */
@@ -140,13 +140,14 @@
 /* Notification clear button */
 .widget-title {
   color: @text;
+  font-weight: bold;
   font-size: 1.2em;
   margin: 6px;
 }
 
 .widget-title button {
   background: @background-alt;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 4px 16px;
 }
 
@@ -168,7 +169,7 @@
 .widget-dnd > switch {
   background: @background-alt;
   font-size: initial;
-  border-radius: 8px;
+  border-radius: 999px;
   box-shadow: none;
   padding: 2px;
 }
@@ -187,7 +188,11 @@
 
 .widget-dnd > switch slider {
   background: @text;
-  border-radius: 6px;
+  border-radius: 999px;
+}
+
+.widget-dnd > switch:checked slider {
+  background: @text-alt;
 }
 
   /* Buttons menu */
@@ -222,31 +227,33 @@
 /* Music player */
 .widget-mpris {
     background: alpha(@selected, .2);
-    border-radius: 16px;
-    color: @text-alt;
+    border-radius: 12px;
+    color: @text;
     padding: 6px;
-    margin:  20px 6px;
+    margin: 12px 6px;
 }
  
 .widget-mpris button {
-  color: alpha(@text-alt, .9);
+  color: alpha(@on_tertiary, .8);
   border-radius: 6px;
 }
 
 .widget-mpris button:hover {
-  color: @text;
+  color: @on_tertiary;
+  background: alpha(@on_tertiary, .15);
 }
 
   /* NOTE: Background need *opacity 1* otherwise will turn into the album art blurred  */
 .widget-mpris-player {
     background: @accent;
+    color: @on_tertiary;
     padding: 6px 10px;
-    margin: 10px;
-    border-radius: 14px;
+    margin: 6px;
+    border-radius: 8px;
 }
 
 .widget-mpris-album-art {
-  border-radius: 16px;
+  border-radius: 8px;
 }
  
 .widget-mpris-title {
@@ -266,20 +273,20 @@ progressbar,
 progress,
 trough {
     border-radius: 20px;
-    background: transparent;
+    background: @background-alt;
 }
 
 trough highlight {
     padding: 4px;
     background: @selected;
     border-radius: 20px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, .5);
+    box-shadow: none;
 }
 trough highlight:hover {
     padding: 4px;
     background: @selected;
     border-radius: 20px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 1);
+    box-shadow: none;
 }
 
 trough slider {

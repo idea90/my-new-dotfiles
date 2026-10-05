@@ -30,7 +30,7 @@ What it does:
 - installs every package the configs and scripts use
 - symlinks every folder in `.config/` into `~/.config`
 - moves anything it would overwrite into `~/.dotfiles-backup/<timestamp>/`
-- copies wallpapers to `~/wallpapers` and prepares the lock screen background
+- prepares the lock screen background from `~/wallpapers` (copies `Wallpapers/` there if the repo has one)
 - sets GTK theme/icons/cursor/fonts, points qt5ct/qt6ct at the matugen palette
 - offers to set fish as your shell and enable sddm
 
@@ -43,7 +43,7 @@ Safe to run again. Useful flags:
 ./install.sh --help
 ```
 
-After install: log in to Hyprland and press `Super+W` to pick a wallpaper and generate colors.
+After install: put some images in `~/wallpapers`, log in to Hyprland and press `Super+W` to pick one and generate colors.
 
 Optional: `./setup-git.sh` sets your global git name/email.
 
@@ -85,3 +85,4 @@ Waybar: left click / right click / scroll on modules do things (volume mute, wif
 - Generated color files (`hypr/colors.conf`, `waybar/colors.css`, `rofi/colors.rasi`, ...) are committed so a fresh
   install looks right before the first `Super+W`; matugen overwrites them.
 - `hypr/scripts/.env` (dark/light + scheme choice) is local state and not tracked.
+- Wallpapers are not tracked (they bloated the repo); older ones are still in git history.

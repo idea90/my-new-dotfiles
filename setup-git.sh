@@ -8,9 +8,6 @@ read -p "Enter your email for Git: " git_email
 git config --global user.name "$git_name"
 git config --global user.email "$git_email"
 
-# Optional: Set up default editor (vim in this case)
-git config --global core.editor "vim"
-
 # Set up default branch name to 'main'
 git config --global init.defaultBranch main
 

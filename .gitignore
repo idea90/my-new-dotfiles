@@ -3,4 +3,9 @@
 .config/fish/fish_variables
 nohup.out
 *.bak
+*~*
+*(copy *)*
 __pycache__/
+
+# wallpapers live outside the repo (default: ~/wallpapers)
+Wallpapers/

@@ -41,7 +41,8 @@ PACKAGES=(
     # files
     nemo gvfs
     # scripts: screenshots, audio, brightness, network, notifications
-    grim slurp wl-clipboard playerctl pavucontrol brightnessctl
+    grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
+    pipewire pipewire-pulse wireplumber
     networkmanager network-manager-applet libnotify jq
     python python-gobject
     # editor

@@ -2,97 +2,232 @@
     "$schema": "https://raw.githubusercontent.com/Alexays/Waybar/master/schemas/waybar.schema.json",
     "layer": "top",
     "position": "top",
-    "spacing": 4,
     "height": 34,
-    "modules-left": ["hyprland/workspaces"],
-    "modules-center": ["clock"],
+    "spacing": 0,
+    "reload_style_on_change": true,
+    "modules-left": [
+        "custom/launcher",
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "clock",
+        "mpris"
+    ],
     "modules-right": [
         "tray",
-        "network",
-        "backlight",
+        "group/hardware",
+        "idle_inhibitor",
         "pulseaudio",
+        "backlight",
+        "network",
         "battery",
+        "custom/notification",
         "custom/power"
     ],
-    
+    "custom/launcher": {
+        "format": "",
+        "on-click": "rofi -show drun",
+        "on-click-right": "~/.config/hypr/scripts/apply-wal",
+        "tooltip-format": "Apps (right click: wallpaper)"
+    },
     "hyprland/workspaces": {
+        "format": "{name}",
+        "persistent-workspaces": {
+            "*": 5
+        },
         "on-scroll-up": "hyprctl dispatch workspace r-1",
         "on-scroll-down": "hyprctl dispatch workspace r+1",
-        "format": "{name}",
-        "persistent-workspaces": {"*": 5},
-        "format-icons": {
-            "default": "",
-            "active": "",
-            "urgent": "󱂬"
-        },
-        "tooltip": false,
+        "on-click": "activate",
         "all-outputs": true,
-        "disable-scroll": false
+        "tooltip": false
     },
-
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 40,
+        "separate-outputs": true,
+        "rewrite": {
+            "": ""
+        }
+    },
     "clock": {
         "interval": 1,
-        "format": "󰃭 {:%I:%M %p}",
-        "tooltip-format": "<big>{:%A, %d %B %Y}</big>",
-        "timezone": "auto"
+        "format": "󰅐  {:%I:%M %p}",
+        "format-alt": "󰃭  {:%a %d %b}",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "",
+            "on-scroll": 1,
+            "format": {
+                "months": "<b>{}</b>",
+                "weekdays": "<span alpha='60%'>{}</span>",
+                "today": "<b><u>{}</u></b>"
+            }
+        },
+        "actions": {
+            "on-scroll-up": "shift_down",
+            "on-scroll-down": "shift_up",
+            "on-click-right": "mode"
+        }
     },
-
-    "battery": {
-        "bat": "BAT0",
+    "mpris": {
+        "format": "{player_icon}  {title}",
+        "format-paused": "{status_icon}  <i>{title}</i>",
+        "format-stopped": "",
+        "title-len": 28,
+        "player-icons": {
+            "default": "󰝚",
+            "spotify": "󰓇",
+            "firefox": "󰈹"
+        },
+        "status-icons": {
+            "paused": "󰏤"
+        },
+        "tooltip-format": "{player}: {artist} - {title}",
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous"
+    },
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+    "group/hardware": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 300,
+            "transition-left-to-right": false
+        },
+        "modules": [
+            "cpu",
+            "memory",
+            "temperature"
+        ]
+    },
+    "cpu": {
+        "interval": 3,
+        "format": "󰻠  {usage}%",
+        "states": {
+            "warning": 70,
+            "critical": 90
+        },
+        "on-click": "alacritty -e btop"
+    },
+    "memory": {
         "interval": 5,
+        "format": "󰍛  {percentage}%",
+        "states": {
+            "warning": 75,
+            "critical": 90
+        },
+        "tooltip-format": "{used:0.1f} / {total:0.1f} GiB used"
+    },
+    "temperature": {
+        "critical-threshold": 85,
+        "format": "󰔏  {temperatureC}°C"
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "󰈈",
+            "deactivated": "󰈉"
+        },
+        "tooltip-format-activated": "Staying awake",
+        "tooltip-format-deactivated": "Idle lock on"
+    },
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  muted",
+        "format-bluetooth": "󰋋  {volume}%",
+        "format-icons": {
+            "headphone": "󰋋",
+            "default": [
+                "󰕿",
+                "󰖀",
+                "󰕾"
+            ]
+        },
+        "scroll-step": 2,
+        "max-volume": 150,
+        "on-click": "pavucontrol",
+        "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "tooltip-format": "{desc}: {volume}%"
+    },
+    "backlight": {
+        "format": "{icon}  {percent}%",
+        "format-icons": [
+            "󰃞",
+            "󰃟",
+            "󰃠"
+        ],
+        "on-scroll-up": "brightnessctl set 5%+",
+        "on-scroll-down": "brightnessctl set 5%-",
+        "tooltip": false
+    },
+    "network": {
+        "format-wifi": "{icon}  {essid}",
+        "format-ethernet": "󰈀  wired",
+        "format-disconnected": "󰤮  offline",
+        "format-icons": [
+            "󰤟",
+            "󰤢",
+            "󰤥",
+            "󰤨"
+        ],
+        "max-length": 22,
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}  ⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}  ⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}",
+        "tooltip-format-disconnected": "Disconnected",
+        "interval": 5,
+        "on-click": "~/.config/hypr/scripts/rofi-wifi-menu.sh",
+        "on-click-right": "nm-connection-editor"
+    },
+    "battery": {
+        "interval": 10,
         "states": {
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon} {capacity}%",
-        "format-charging": "󰂄 {capacity}%",
-        "format-plugged": "󰚥 {capacity}%",
+        "format": "{icon}  {capacity}%",
+        "format-charging": "󰂄  {capacity}%",
+        "format-plugged": "󰚥  {capacity}%",
         "format-icons": [
-            "󰁺", "󰁻", "󰁼",
-            "󰁽", "󰁾", "󰁿",
-            "󰂀", "󰂁", "󰂂"
-        ]
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂"
+        ],
+        "tooltip-format": "{timeTo}\n{power:.1f} W"
     },
-
+    "custom/notification": {
+        "tooltip": false,
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "󱅫",
+            "none": "󰂚",
+            "dnd-notification": "󰂛",
+            "dnd-none": "󰂛",
+            "inhibited-notification": "󱅫",
+            "inhibited-none": "󰂚",
+            "dnd-inhibited-notification": "󰂛",
+            "dnd-inhibited-none": "󰂛"
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
     "custom/power": {
         "format": "󰐥",
         "on-click": "wlogout",
-        "tooltip": false
-    },
-
-    "custom/start": {
-        "format": " ",
-        "on-click": "rofi -show drun",
-        "tooltip": false
-    },
-    
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-muted": "󰝟 muted",
-        "format-icons": {
-            "default": ["󰕿", "󰖀", "󰕾"]
-        },
-        "on-click": "pavucontrol",
-        "scroll-step": 2
-    },
-
-    "backlight": {
-        "device": "intel_backlight",
-        "format": "󰃠 {percent}%",
-        "scroll-step": 2,
-        "on-scroll-up": "brightnessctl set 5%+",
-        "on-scroll-down": "brightnessctl set 5%-"
-    },
-
-    "network": {
-        "format-wifi": "󰖩 {essid}",
-        "format-ethernet": "󰈁 Connected",
-        "format-disconnected": "󰖪 Disconnected",
-        "tooltip": false
-    },
-
-    "tray": {
-        "spacing": 8,
-        "icon-size": 16
+        "tooltip-format": "Power menu"
     }
 }

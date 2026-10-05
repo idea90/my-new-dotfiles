@@ -1,9 +1,10 @@
 @import 'colors.css';
 
-/* Shared scale: radius 8 (modules) / 6 (inner), padding 4x12, one font */
+/* Shared scale: radius 8 (pills) / 6 (inner), height 26 inside a 34px bar */
 * {
     font-family: "RobotoMono Nerd Font";
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 500;
     margin: 0;
     border: none;
     border-radius: 0;
@@ -28,62 +29,87 @@ tooltip label {
     padding: 4px;
 }
 
-/* Every module gets the same pill */
+/* ---- Pills -------------------------------------------------------------- */
+
+#custom-launcher,
 #workspaces,
+#window,
 #clock,
+#mpris,
 #tray,
-#network,
-#backlight,
+#hardware,
+#idle_inhibitor,
 #pulseaudio,
+#backlight,
+#network,
 #battery,
+#custom-notification,
 #custom-power {
+    margin: 4px 3px;
     padding: 0 12px;
-    margin: 4px 2px;
-    background: alpha(@primary_container, 0.9);
-    color: @on_primary_container;
     border-radius: 8px;
-    transition: background 0.2s ease-in-out;
+    background: alpha(@surface_container_high, 0.9);
+    color: @on_surface;
+    transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-#network:hover,
-#backlight:hover,
+#idle_inhibitor:hover,
 #pulseaudio:hover,
+#backlight:hover,
+#network:hover,
 #battery:hover,
-#custom-power:hover {
-    background: @primary_container;
+#mpris:hover,
+#clock:hover,
+#custom-notification:hover {
+    background: @surface_container_highest;
 }
 
-.modules-left > widget:first-child > #workspaces {
-    margin-left: 6px;
+/* Outer edges */
+#custom-launcher { margin-left: 6px; }
+#custom-power    { margin-right: 6px; }
+
+/* Icon-only pills stay square-ish */
+#custom-launcher,
+#idle_inhibitor,
+#custom-notification,
+#custom-power {
+    padding: 0 11px;
+    font-size: 15px;
 }
 
-.modules-right > widget:last-child > #custom-power {
-    margin-right: 6px;
+/* ---- Left --------------------------------------------------------------- */
+
+#custom-launcher {
+    color: @on_primary;
+    background: @primary;
 }
 
-/* Workspaces */
+#custom-launcher:hover {
+    background: alpha(@primary, 0.85);
+}
+
 #workspaces {
-    padding: 2px;
-    background: alpha(@surface_container_high, 0.8);
+    padding: 0 3px;
 }
 
 #workspaces button {
     color: alpha(@on_surface, 0.5);
-    padding: 0 8px;
-    margin: 0 1px;
+    padding: 0 7px;
+    margin: 3px 1px;
     border-radius: 6px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #workspaces button:hover {
     color: @on_surface;
-    background: alpha(@primary_container, 0.5);
+    background: alpha(@primary_container, 0.6);
     box-shadow: none;
 }
 
 #workspaces button.active {
     color: @on_primary;
     background: @primary;
+    padding: 0 12px;
     font-weight: bold;
 }
 
@@ -92,12 +118,80 @@ tooltip label {
     background: @error;
 }
 
-/* Clock */
+#window {
+    color: @on_surface_variant;
+    background: transparent;
+}
+
+window#waybar.empty #window {
+    padding: 0;
+    margin: 0;
+}
+
+/* ---- Center ------------------------------------------------------------- */
+
 #clock {
+    color: @on_primary_container;
+    background: alpha(@primary_container, 0.9);
     font-weight: bold;
 }
 
-/* States */
+#mpris {
+    color: @on_tertiary_container;
+    background: alpha(@tertiary_container, 0.9);
+}
+
+#mpris.paused {
+    color: alpha(@on_tertiary_container, 0.6);
+}
+
+/* ---- Right -------------------------------------------------------------- */
+
+#tray {
+    padding: 0 10px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    background: alpha(@error, 0.5);
+    border-radius: 6px;
+}
+
+/* cpu shows, memory + temperature slide out on hover */
+#hardware {
+    padding: 0 4px;
+}
+
+#cpu,
+#memory,
+#temperature {
+    padding: 0 8px;
+}
+
+#cpu.warning,
+#memory.warning {
+    color: @tertiary;
+}
+
+#cpu.critical,
+#memory.critical,
+#temperature.critical {
+    color: @error;
+}
+
+#idle_inhibitor.activated {
+    color: @on_tertiary_container;
+    background: @tertiary_container;
+}
+
+#pulseaudio.muted,
+#network.disconnected {
+    color: alpha(@on_surface, 0.45);
+}
+
 #battery.charging,
 #battery.plugged {
     color: @on_tertiary_container;
@@ -115,14 +209,20 @@ tooltip label {
     animation: pulse 1.5s ease-in-out infinite;
 }
 
-#network.disconnected,
-#pulseaudio.muted {
-    color: alpha(@on_primary_container, 0.5);
-    background: alpha(@primary_container, 0.5);
+#custom-notification.notification,
+#custom-notification.inhibited-notification {
+    color: @on_primary_container;
+    background: alpha(@primary_container, 0.9);
+}
+
+#custom-notification.dnd-none,
+#custom-notification.dnd-notification,
+#custom-notification.dnd-inhibited-none,
+#custom-notification.dnd-inhibited-notification {
+    color: alpha(@on_surface, 0.45);
 }
 
 #custom-power {
-    padding: 0 14px 0 12px;
     color: @on_error_container;
     background: alpha(@error_container, 0.9);
 }
@@ -130,11 +230,6 @@ tooltip label {
 #custom-power:hover {
     color: @on_error;
     background: @error;
-}
-
-#tray > .needs-attention {
-    background: alpha(@error, 0.5);
-    border-radius: 6px;
 }
 
 @keyframes pulse {

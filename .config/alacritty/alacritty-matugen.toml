@@ -18,4 +18,4 @@ family = "RobotoMono Nerd Font"
 style = "Regular"
 
 [general]
-import=["/home/idea/.cache/wal/colors-alacritty.toml"]
+import=["~/.cache/wal/colors-alacritty.toml"]

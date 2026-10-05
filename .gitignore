@@ -1,0 +1,10 @@
+# runtime / machine-specific
+nohup.out
+*.bak
+*~*
+*(copy *)*
+.config/hypr/scripts/.env
+.config/fish/fish_variables
+
+# wallpapers live outside the repo (default: ~/wallpapers)
+Wallpapers/

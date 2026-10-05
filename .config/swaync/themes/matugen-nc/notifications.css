@@ -1,119 +1,163 @@
-/***
- *    ┳┓┏┓┏┳┓┳┏┓┳┏┓┏┓┏┳┓┳┏┓┳┓
- *    ┃┃┃┃ ┃ ┃┣ ┃┃ ┣┫ ┃ ┃┃┃┃┃
- *    ┛┗┗┛ ┻ ┻┻ ┻┗┛┛┗ ┻ ┻┗┛┛┗
- *                           
- */
+/* Popup notifications + the notification cards shared with the control center.
+ * Scale: radius 12 (cards) / 8 (inner), padding 12. */
 
-@define-color text            @on_surface;
-@define-color background-alt  @surface_bright;
-@define-color selected        @primary;
-@define-color hover           alpha(@selected, .4);
-@define-color urgent          @error;
+@define-color text      @on_surface;
+@define-color text-dim  @on_surface_variant;
+@define-color card      @surface_container;
+@define-color card-hi   @surface_container_high;
+@define-color border    @outline_variant;
+@define-color accent    @primary;
+@define-color on-accent @on_primary;
+@define-color urgent    @error;
 
 * {
   all: unset;
   color: @text;
-  font-size: 14px;
   font-family: "RobotoMono Nerd Font";
-  transition: 200ms;
-
+  font-size: 13px;
+  transition: background-color 150ms ease, color 150ms ease;
 }
+
+.blank-window {
+  background: transparent;
+}
+
+/* ---- Card ---- */
 
 .notification-row {
-  color: @text;
   outline: none;
+}
+
+.notification-row:focus .notification-background,
+.notification-row:hover .notification-background {
+  background-color: @card-hi;
+}
+
+.notification-background {
+  margin: 6px 12px;
+  border-radius: 12px;
+  background-color: @card;
+  border: 1px solid @border;
+}
+
+.floating-notifications .notification-background {
+  box-shadow: 0 4px 12px alpha(@shadow, .35);
+}
+
+.notification {
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.notification.critical {
+  border-left: 3px solid @urgent;
+}
+
+.notification.low {
+  opacity: .85;
+}
+
+.notification-content {
   margin: 0;
-  padding: 0px;
-}
-
-.floating-notifications.background .notification-row .notification-background {
-  background: @background;
-  box-shadow: 0 2px 10px 0 alpha(@shadow, .5);
-  border: 1px solid @outline_variant;
-  border-radius: 12px;
-  margin: 12px;
-  padding: 0;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification {
-  padding: 6px;
-  border-radius: 12px;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification:hover {
-  background-color: alpha(@surface_container_high, .6);
-}
-
-.floating-notifications.background .notification-row .notification-background .notification.critical {
-  border: 1px solid @urgent;
-  background-color: alpha(@error_container, .35);
-}
-
-.floating-notifications.background .notification-row .notification-background .notification .notification-content {
-  margin: 12px;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification > *:last-child > * {
-  min-height: 3.4em;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification > *:last-child > * .notification-action {
-  border-radius: 8px;
-  background-color: @background-alt;
-  margin: 6px;
-  border: 1px solid transparent;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification > *:last-child > * .notification-action:hover {
-  background-color: @hover;
-  border: 1px solid @selected;
-}
-
-.floating-notifications.background .notification-row .notification-background .notification > *:last-child > * .notification-action:active {
-  background-color: @selected;
-  color: @on_primary;
 }
 
 .image {
-  margin: 4px 14px 4px 0px;
+  margin-right: 12px;
   border-radius: 8px;
 }
 
+.app-icon {
+  margin: 6px;
+}
+
 .summary {
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.time {
+  font-size: 11px;
+  color: @text-dim;
+  margin-right: 28px;
 }
 
 .body {
-  font-size: 0.85rem;
-  color: @on_surface_variant;
+  margin-top: 2px;
+  color: @text-dim;
 }
 
-.floating-notifications.background .notification-row .notification-background .close-button {
-  margin: 6px;
+.body-image {
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
+/* ---- Close button ---- */
+
+.close-button {
+  margin: 8px;
   padding: 2px;
-  border-radius: 6px;
-  background-color: transparent;
-  border: 1px solid transparent;
+  min-width: 20px;
+  min-height: 20px;
+  border-radius: 999px;
+  background-color: @card-hi;
+  color: @text-dim;
 }
 
-.floating-notifications.background .notification-row .notification-background .close-button:hover {
-  background-color: @selected;
-  color: @on_primary;
+.close-button:hover {
+  background-color: @urgent;
+  color: @on_error;
 }
 
-.floating-notifications.background .notification-row .notification-background .close-button:active {
-  background-color: @selected;
-  color: @on_primary;
+/* ---- Actions ---- */
+
+.notification-default-action {
+  border-radius: 12px;
 }
 
-.notification.critical progress {
+.notification-action {
+  margin: 0 4px 4px;
+  padding: 6px;
+  border-radius: 8px;
+  background-color: @card-hi;
+}
+
+.notification-action:first-child { margin-left: 12px; }
+.notification-action:last-child  { margin-right: 12px; }
+
+.notification-action:hover {
+  background-color: @primary_container;
+  color: @on_primary_container;
+}
+
+.notification-action:active {
+  background-color: @accent;
+  color: @on-accent;
+}
+
+.inline-reply-entry {
+  margin: 0 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background-color: @surface_container_highest;
+}
+
+/* Progress bar (volume/brightness OSD-style notifications) */
+progressbar {
+  margin-top: 8px;
+}
+
+progressbar trough {
+  min-height: 6px;
+  border-radius: 999px;
+  background-color: @surface_container_highest;
+}
+
+progressbar progress {
+  min-height: 6px;
+  border-radius: 999px;
+  background-color: @accent;
+}
+
+.critical progressbar progress {
   background-color: @urgent;
 }
-
-.notification.low progress,
-.notification.normal progress {
-  background-color: @selected;
-}
-

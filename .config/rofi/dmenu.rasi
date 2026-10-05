@@ -1,0 +1,23 @@
+/* Plain pick-a-line menus (Wi-Fi, scheme picker, password prompt) */
+@import "config.rasi"
+
+window {
+    width: 440px;
+}
+
+mainbox {
+    children: [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    children: [ "prompt", "entry" ];
+}
+
+listview {
+    lines:        8;
+    fixed-height: false;
+}
+
+element-icon {
+    enabled: false;
+}

@@ -1,11 +1,4 @@
-/***
- *    ┏┓┓ ┏┏┓┓┏┳┓┏┓
- *    ┗┓┃┃┃┣┫┗┫┃┃┃ 
- *    ┗┛┗┻┛┛┗┗┛┛┗┗┛
- *                 
- */
-
-
+/* swaync: colors from matugen, layout in themes/matugen-nc */
 @import 'matugen-swaync.css';
 @import 'themes/matugen-nc/notifications.css';
 @import 'themes/matugen-nc/control-center.css';

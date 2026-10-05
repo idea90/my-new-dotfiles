@@ -1,0 +1,41 @@
+/* Wallpaper picker (Super+W): grid of large previews */
+@import "config.rasi"
+
+window {
+    width: 1100px;
+}
+
+mainbox {
+    children: [ "inputbar", "listview" ];
+}
+
+inputbar {
+    children: [ "prompt", "entry" ];
+}
+
+listview {
+    columns:      5;
+    lines:        3;
+    spacing:      10px;
+    flow:         horizontal;
+    fixed-height: true;
+}
+
+element {
+    orientation: vertical;
+    padding:     8px;
+    spacing:     6px;
+}
+
+element-icon {
+    size: 180px;
+}
+
+element-text {
+    horizontal-align: 0.5;
+}
+
+element selected.normal {
+    background-color: @accent-soft;
+    text-color:       @on-soft;
+}

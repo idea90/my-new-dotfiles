@@ -1,10 +1,11 @@
-# runtime / machine-specific
+# machine-specific / runtime state
+.config/hypr/scripts/.env
+.config/fish/fish_variables
 nohup.out
 *.bak
 *~*
 *(copy *)*
-.config/hypr/scripts/.env
-.config/fish/fish_variables
+__pycache__/
 
 # wallpapers live outside the repo (default: ~/wallpapers)
 Wallpapers/

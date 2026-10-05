@@ -1,90 +1,72 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Screenshots: copy to clipboard, save to ~/Pictures/Screenshots, notify
+# with a thumbnail and an "Open" action.
+#
+#   screenshot.sh --now      focused monitor
+#   screenshot.sh --area     select a region
+#   screenshot.sh --win      active window
+#   screenshot.sh --in5      all monitors after 5s (also --in10)
 
-iDIR="$HOME/.config/swaync/icons"
+dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Screenshots"
+file="$dir/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+mkdir -p "$dir"
 
-time=$(date +%Y-%m-%d-%H-%M-%S)
-dir="$(xdg-user-dir PICTURES)/Screenshots"
-file="Screenshot_${time}_${RANDOM}.png"
+# Selection colors follow matugen when colors.conf has them
+colors="$HOME/.config/hypr/colors.conf"
+hex() { sed -n "s/^\$$1 = rgba(\([0-9a-f]\{6\}\)ff)/\1/p" "$colors" 2>/dev/null | head -n 1; }
+accent="$(hex primary)"; accent="${accent:-89b4fa}"
+scrim="$(hex scrim)"; scrim="${scrim:-000000}"
 
-# notify and view screenshot
-notify_cmd_shot="notify-send -h string:x-canonical-private-synchronous:shot-notify -u low -i ${iDIR}/picture.png"
-notify_view() {
-	${notify_cmd_shot} "Copied to clipboard."
-	viewnior ${dir}/"$file"
-	if [[ -e "$dir/$file" ]]; then
-		${notify_cmd_shot} "Screenshot Saved."
-	else
-		${notify_cmd_shot} "Screenshot Deleted."
-	fi
-}
-
-# countdown
 countdown() {
-	for sec in $(seq $1 -1 1); do
-		notify-send -h string:x-canonical-private-synchronous:shot-notify -t 1000 -i "$iDIR"/timer.png "Taking shot in : $sec"
-		sleep 1
-	done
+    local sec
+    for (( sec = $1; sec > 0; sec-- )); do
+        notify-send -h string:x-canonical-private-synchronous:shot -t 1000 -i camera-timer "Screenshot in $sec"
+        sleep 1
+    done
 }
 
-# take shots
-shotnow() {
-	active_workspace_monitor=$(hyprctl -j activeworkspace | jq -r '(.monitor)')
-	screenshot_filename="$HOME/Pictures/screenshots/$(date +"%d-%m-%Y-%H%S")-$active_workspace_monitor.png"
-
-	cd ${dir} && grim -o $active_workspace_monitor - | tee "$file" | wl-copy
-	notify_view
+capture() {
+    case "$1" in
+        --now)
+            local monitor
+            monitor="$(hyprctl -j activeworkspace | jq -r '.monitor')"
+            grim -o "$monitor" "$file"
+            ;;
+        --area)
+            local region
+            region="$(slurp -b "${scrim}66" -c "${accent}ff" -s "${accent}22" -w 2)" || return 1
+            sleep 0.1  # let the selection overlay fade before capturing
+            grim -g "$region" "$file"
+            ;;
+        --win)
+            local geometry
+            geometry="$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')"
+            [[ "$geometry" == "null"* ]] && return 1
+            grim -g "$geometry" "$file"
+            ;;
+        --in5|--in10)
+            countdown "${1#--in}"
+            grim "$file"
+            ;;
+        *)
+            echo "Usage: $0 --now | --area | --win | --in5 | --in10" >&2
+            exit 1
+            ;;
+    esac
 }
 
-shotmonitor() {
-	active_workspace_monitor=$(hyprctl -j activeworkspace | jq -r '(.monitor)')
-	screenshot_filename="$HOME/Pictures/screenshots/$(date +"%d-%m-%Y-%H%S")-$active_workspace_monitor.png"
+# Cancelled selection or failed capture: no file, no notification
+capture "$1" || exit 0
+[[ -s "$file" ]] || exit 0
 
-	cd ${dir} && grim -o $active_workspace_monitor - | tee "$file" | wl-copy
-	notify_view
-}
+wl-copy --type image/png < "$file"
 
-shot5() {
-	countdown '5'
-	sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
-	notify_view
-}
+action="$(notify-send -a Screenshot -i "$file" -h string:x-canonical-private-synchronous:shot \
+    --action=open=Open --action=folder="Show in folder" \
+    "Screenshot copied" "${file/#$HOME/\~}")"
 
-shot10() {
-	countdown '10'
-	sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
-	notify_view
-}
-
-shotwin() {
-	w_pos=$(hyprctl activewindow | grep 'at:' | cut -d':' -f2 | tr -d ' ' | tail -n1)
-	w_size=$(hyprctl activewindow | grep 'size:' | cut -d':' -f2 | tr -d ' ' | tail -n1 | sed s/,/x/g)
-	cd ${dir} && grim -g "$w_pos $w_size" - | tee "$file" | wl-copy
-	notify_view
-}
-
-shotarea() {
-	cd ${dir} && grim -g "$(slurp -b 1B1F28CC -c E06B74ff -s C778DD0D -w 2)" - | tee "$file" | wl-copy
-	notify_view
-}
-
-if [[ ! -d "$dir" ]]; then
-	mkdir -p "$dir"
-fi
-
-if [[ "$1" == "--now" ]]; then
-	shotnow
-elif [[ "$1" == "--monitor" ]]; then
-	shotmonitor
-elif [[ "$1" == "--in5" ]]; then
-	shot5
-elif [[ "$1" == "--in10" ]]; then
-	shot10
-elif [[ "$1" == "--win" ]]; then
-	shotwin
-elif [[ "$1" == "--area" ]]; then
-	shotarea
-else
-	echo -e "Available Options : --now --in5 --in10 --win --area"
-fi
-
-exit 0
+case "$action" in
+    open)   xdg-open "$file" ;;
+    folder) xdg-open "$dir" ;;
+esac

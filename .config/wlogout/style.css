@@ -1,53 +1,63 @@
 @import '../waybar/colors.css';
+
+/* Icons are symbolic SVGs (Material Design Icons via Nerd Fonts);
+ * -gtk-recolor() paints them with the button's text color, so they follow matugen. */
+
 * {
-	background-image: none;
-	box-shadow: none;
+    background-image: none;
+    box-shadow: none;
+    font-family: "RobotoMono Nerd Font";
+    font-size: 14px;
 }
 
 window {
-	background-color: rgba(0, 0, 0, 0);
+    background-color: alpha(@scrim, 0.6);
 }
 
 button {
-    border-radius: 0;
+    color: @on_surface_variant;
+    background-color: @surface_container;
+    border: 1px solid @outline_variant;
+    border-radius: 12px;
+    min-width: 146px;   /* + GTK padding/border = 180px wide; launch.sh sizes margins around that */
+    background-repeat: no-repeat;
+    background-position: center 40%;
+    background-size: 40%;
+    padding-bottom: 18px;
+    transition: background-color 0.15s ease, color 0.15s ease, background-size 0.15s ease, border-color 0.15s ease;
+}
+
+button:focus,
+button:hover {
+    color: @on_primary_container;
+    background-color: @primary_container;
     border-color: @primary;
-	text-decoration-color: #FFFFFF;
-    color: @on_background;
-	background-color: @background;
-	border-style: solid;
-	border-width: 1px;
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 25%;
-    margin:10px;
-    border-radius:7px;
+    background-size: 46%;
+    outline-style: none;
 }
 
-button:focus, button:active, button:hover {
-	background-color: @primary;
-	outline-style: none;
+button:active {
+    color: @on_primary;
+    background-color: @primary;
 }
 
-#lock {
-    background-image: image(url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
+/* Destructive actions turn red */
+#reboot:focus,  #reboot:hover,
+#shutdown:focus, #shutdown:hover {
+    color: @on_error_container;
+    background-color: @error_container;
+    border-color: @error;
 }
 
-#logout {
-    background-image: image(url("/usr/share/wlogout/icons/logout.png"), url("/usr/local/share/wlogout/icons/logout.png"));
+#reboot:active,
+#shutdown:active {
+    color: @on_error;
+    background-color: @error;
 }
 
-#suspend {
-    background-image: image(url("/usr/share/wlogout/icons/suspend.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
-}
-
-#hibernate {
-    background-image: image(url("/usr/share/wlogout/icons/hibernate.png"), url("/usr/local/share/wlogout/icons/hibernate.png"));
-}
-
-#shutdown {
-    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"), url("/usr/local/share/wlogout/icons/shutdown.png"));
-}
-
-#reboot {
-    background-image: image(url("/usr/share/wlogout/icons/reboot.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
-}
+#lock      { background-image: -gtk-recolor(url("icons/lock-symbolic.svg")); }
+#logout    { background-image: -gtk-recolor(url("icons/logout-symbolic.svg")); }
+#suspend   { background-image: -gtk-recolor(url("icons/suspend-symbolic.svg")); }
+#hibernate { background-image: -gtk-recolor(url("icons/hibernate-symbolic.svg")); }
+#reboot    { background-image: -gtk-recolor(url("icons/reboot-symbolic.svg")); }
+#shutdown  { background-image: -gtk-recolor(url("icons/shutdown-symbolic.svg")); }

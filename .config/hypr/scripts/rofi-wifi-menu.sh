@@ -28,7 +28,7 @@ fi
 refresh_option="󰋑  Refresh Wi-Fi"
 
 # Use rofi to select Wi-Fi network
-chosen_network=$(echo -e "$current_display\n$toggle\n$refresh_option\n$wifi_list" | uniq -u | wofi -dmenu -i -selected-row 1 -p "Wi-Fi SSID: " )
+chosen_network=$(echo -e "$current_display\n$toggle\n$refresh_option\n$wifi_list" | uniq -u | rofi -dmenu -i -selected-row 1 -p "Wi-Fi" -theme ~/.config/rofi/dmenu.rasi)
 
 # Extract only the SSID (second column)
 read -r chosen_id <<< "$(echo "$chosen_network" | awk '{print $2}')"
@@ -53,7 +53,7 @@ else
         nmcli connection up id "$chosen_id" | grep "successfully" && notify-send "Connection Established" "$success_message"
     else
         if [[ "$chosen_network" =~ "" ]]; then
-            wifi_password=$(wofi -dmenu -p "Password: " )
+            wifi_password=$(rofi -dmenu -password -p "Password" -theme ~/.config/rofi/dmenu.rasi -theme-str "listview { enabled: false; }")
         fi
         if ! nmcli device wifi connect "$chosen_id" password "$wifi_password"; then
             notify-send "Connection Failed" "Unable to connect to \"$chosen_id\". Please check your password."

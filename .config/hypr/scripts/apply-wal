@@ -8,12 +8,10 @@ SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 
 # Configuration
 ROFI_CMD="${ROFI_CMD:-rofi -dmenu -i -show-icons}"
-ROFI_CONFIG_DIR="${ROFI_CONFIG_DIR:-$SCRIPT_PATH/config}"
+ROFI_THEME_DIR="${ROFI_THEME_DIR:-$HOME/.config/rofi}"
 WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
 CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
 ENV_FILE="$SCRIPT_PATH/.env"
-GRID_ROWS=2
-GRID_COLS=6
 
 # Load or initialize environment settings
 mkdir -p "$(dirname "$ENV_FILE")"
@@ -24,27 +22,23 @@ TYPE="${TYPE:-scheme-tonal-spot}"
 # Ensure required directories
 mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
 
-# Function to build rofi theme string
-build_theme() {
-    echo "element {orientation: vertical;} element-text {horizontal-align: 0.5;} element-icon {size: 6.0000em;} listview {lines: $1; columns: $2;}"
-}
-
 # Generate options list
 images=$(find "$WALLPAPERS_DIR" -type f -maxdepth 1 -printf "%T@ %f\x00icon\x1f$WALLPAPERS_DIR/%f\n" | sort -rn | cut -d' ' -f2-)
-all_options="Switch Dark/Light Mode\nSelect Color Scheme Type\nRandom Choice\n$images"
+all_options="Switch Dark/Light Mode\x00icon\x1fweather-clear-night\nSelect Color Scheme Type\x00icon\x1fpreferences-desktop-color\nRandom Choice\x00icon\x1fmedia-playlist-shuffle\n$images"
 
 # Show rofi menu
-choice=$(echo -en "$all_options" | $ROFI_CMD -theme-str "$(build_theme $GRID_ROWS $GRID_COLS)" -p "Desktop Settings")
+choice=$(echo -en "$all_options" | $ROFI_CMD -theme "$ROFI_THEME_DIR/wallpaper.rasi" -p "Wallpaper")
 
 # Handle user selection
 case "$choice" in
     "Switch Dark/Light Mode")
         [ "$MODE" == "dark" ] && MODE="light" || MODE="dark"
         notify-send "Mode Switched" "Now using $MODE mode"
+        "$SCRIPT_PATH/gtk-settings.sh" "$MODE"
         ;;
     "Select Color Scheme Type")
         scheme_options="scheme-content\nscheme-expressive\nscheme-fidelity\nscheme-fruit-salad\nscheme-monochrome\nscheme-neutral\nscheme-rainbow\nscheme-tonal-spot"
-        selected_scheme=$(echo -e "$scheme_options" | $ROFI_CMD -p "Color Scheme")
+        selected_scheme=$(echo -e "$scheme_options" | $ROFI_CMD -theme "$ROFI_THEME_DIR/dmenu.rasi" -p "Color Scheme")
         if [ -n "$selected_scheme" ]; then
             TYPE="$selected_scheme"
             notify-send "Color Scheme Updated" "Now using $TYPE"
@@ -67,7 +61,7 @@ echo "TYPE=$TYPE" >> "$ENV_FILE"
 
 # Variables for cached images
 normal_image="$HOME/.cache/normal-wallpaper.png"
-blurred_image="$HOME/.cache/blurred-wallpaper.png"
+lock_image="$HOME/.cache/lockscreen.png"   # sharp PNG, hyprlock blurs it itself
 
 # Determine wallpaper to use
 if [ -n "$selected_wallpaper" ]; then
@@ -94,7 +88,7 @@ if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
 
     swww img "$selected_wallpaper" --transition-type center
 
-    magick "$selected_wallpaper" -resize 1280x720 -blur 0x8 "$blurred_image"
+    magick "$selected_wallpaper" -resize "2560x2560>" "$lock_image"
 
     notify-send "Success" "Desktop configuration updated"
 else

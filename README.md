@@ -39,3 +39,9 @@ After install: log in to Hyprland and press `Super+W` to pick a wallpaper and ge
 # Give This Repository a Star ⭐
 I never get a star from any one not even one star so if you give this Repository
 a star i will be really appreciate !! :)
+
+# GTK
+- Theme is `adw-gtk3` (GTK 3) + libadwaita (GTK 4), both recolored by matugen through `~/.config/gtk-{3,4}.0/colors.css`.
+- Theme, icons, cursor, font and dark/light live in gsettings (what GTK reads on Wayland). `~/.config/hypr/scripts/gtk-settings.sh` sets them; it runs on login, on dark/light switch and after each wallpaper change.
+- Change fonts/icons/cursor at the top of `gtk-settings.sh` rather than in nwg-look, or they get reset on next login.
+- Running GTK 4 apps only pick up new colors after a restart; dark/light switches apply live.

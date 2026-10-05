@@ -41,6 +41,7 @@ case "$choice" in
     "Switch Dark/Light Mode")
         [ "$MODE" == "dark" ] && MODE="light" || MODE="dark"
         notify-send "Mode Switched" "Now using $MODE mode"
+        "$SCRIPT_PATH/gtk-settings.sh" "$MODE"
         ;;
     "Select Color Scheme Type")
         scheme_options="scheme-content\nscheme-expressive\nscheme-fidelity\nscheme-fruit-salad\nscheme-monochrome\nscheme-neutral\nscheme-rainbow\nscheme-tonal-spot"

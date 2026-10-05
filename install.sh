@@ -33,7 +33,9 @@ PACKAGES=(
     waybar rofi swaync wlogout swayosd
     # theming
     swww matugen imagemagick papirus-icon-theme nwg-look qt5ct qt6ct
-    bibata-cursor-theme-bin ttf-roboto-mono-nerd
+    bibata-cursor-theme-bin ttf-roboto ttf-roboto-mono-nerd
+    # gtk: theme matugen colors target, settings backend, dark mode portal
+    adw-gtk-theme gsettings-desktop-schemas dconf xdg-desktop-portal-gtk
     # terminal + shell
     alacritty fish starship fastfetch
     # files
@@ -190,9 +192,22 @@ link() {
 
 link_configs() {
     info "Linking configs into ${CONFIG_HOME/#$HOME/\~}"
-    local src
+    local src name
     for src in "$REPO"/.config/*; do
-        link "$src" "$CONFIG_HOME/$(basename "$src")"
+        name="$(basename "$src")"
+        case "$name" in
+            # Apps write their own files here (bookmarks, nwg-look state),
+            # so link our files individually instead of taking the folder
+            gtk-3.0|gtk-4.0)
+                local file
+                for file in "$src"/*; do
+                    link "$file" "$CONFIG_HOME/$name/$(basename "$file")"
+                done
+                ;;
+            *)
+                link "$src" "$CONFIG_HOME/$name"
+                ;;
+        esac
     done
 
     if [[ -d "$REPO/.themes" ]]; then
@@ -238,6 +253,23 @@ seed_lockscreen() {
     if (( ! DRY_RUN )); then echo "$first" > "$HOME/.cache/current_wallpaper"; fi
 }
 
+# Push theme/icons/cursor/font into gsettings (what GTK reads on Wayland) and
+# let Flatpak apps see the generated GTK colors.
+apply_gtk_settings() {
+    local script="$REPO/.config/hypr/scripts/gtk-settings.sh"
+    if command -v gsettings >/dev/null; then
+        info "Applying GTK settings"
+        run "$script" || warn "Couldn't write gsettings (no session bus?). It runs again on Hyprland start."
+    fi
+
+    if command -v flatpak >/dev/null; then
+        info "Letting Flatpak apps read GTK colors"
+        run flatpak override --user \
+            --filesystem=xdg-config/gtk-3.0:ro \
+            --filesystem=xdg-config/gtk-4.0:ro
+    fi
+}
+
 set_fish_shell() {
     local fish_path user
     fish_path="$(command -v fish || true)"
@@ -278,6 +310,7 @@ main() {
     if (( DO_WALLPAPERS )); then copy_wallpapers; fi
     if (( DO_EXTRAS )); then
         seed_lockscreen
+        apply_gtk_settings
         set_fish_shell
         enable_services
     fi

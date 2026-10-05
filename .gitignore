@@ -1,0 +1,6 @@
+# machine-specific / runtime state
+.config/hypr/scripts/.env
+.config/fish/fish_variables
+nohup.out
+*.bak
+__pycache__/

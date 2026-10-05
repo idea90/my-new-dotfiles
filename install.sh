@@ -28,7 +28,7 @@ DO_EXTRAS=1
 # Core: everything the configs and scripts in this repo call
 PACKAGES=(
     # compositor + session
-    hyprland hypridle hyprlock xdg-desktop-portal-hyprland sddm
+    hyprland hypridle hyprlock xdg-desktop-portal-hyprland hyprpolkitagent sddm
     # bar, launcher, notifications, logout, osd
     waybar rofi swaync wlogout swayosd
     # theming
@@ -43,7 +43,7 @@ PACKAGES=(
     # scripts: screenshots, audio, brightness, network, notifications
     grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
     pipewire pipewire-pulse wireplumber
-    networkmanager network-manager-applet libnotify jq
+    networkmanager network-manager-applet libnotify jq xdg-user-dirs xdg-utils
     python python-gobject
     # editor
     vim
@@ -211,13 +211,6 @@ link_configs() {
         esac
     done
 
-    if [[ -d "$REPO/.themes" ]]; then
-        info "Linking GTK themes into ~/.themes"
-        for src in "$REPO"/.themes/*; do
-            link "$src" "$HOME/.themes/$(basename "$src")"
-        done
-    fi
-
     # Scripts must be executable for keybinds to work
     run find "$REPO/.config" -type f \( -name '*.sh' -o -name '*.py' -o -name 'apply-wal' \) -exec chmod +x {} +
 
@@ -271,6 +264,29 @@ apply_gtk_settings() {
     fi
 }
 
+# Point qt5ct/qt6ct at the matugen palette. Written once (needs absolute
+# paths), so later changes made in the qt*ct GUIs are kept.
+setup_qt() {
+    local ver conf
+    for ver in 5 6; do
+        conf="$CONFIG_HOME/qt${ver}ct/qt${ver}ct.conf"
+        [[ -f "$conf" ]] && continue
+        info "Writing ${conf/#$HOME/\~}"
+        if (( DRY_RUN )); then
+            printf '   [dry-run] write %s\n' "$conf"
+            continue
+        fi
+        mkdir -p "$(dirname "$conf")"
+        printf '%s\n' \
+            "[Appearance]" \
+            "color_scheme_path=$CONFIG_HOME/qt${ver}ct/colors/matugen.conf" \
+            "custom_palette=true" \
+            "icon_theme=Papirus-Dark" \
+            "standard_dialogs=default" \
+            "style=Fusion" > "$conf"
+    done
+}
+
 set_fish_shell() {
     local fish_path user
     fish_path="$(command -v fish || true)"
@@ -312,6 +328,7 @@ main() {
     if (( DO_EXTRAS )); then
         seed_lockscreen
         apply_gtk_settings
+        setup_qt
         set_fish_shell
         enable_services
     fi

@@ -227,7 +227,7 @@
     },
     "custom/power": {
         "format": "󰐥",
-        "on-click": "wlogout",
+        "on-click": "~/.config/wlogout/launch.sh",
         "tooltip-format": "Power menu"
     }
 }

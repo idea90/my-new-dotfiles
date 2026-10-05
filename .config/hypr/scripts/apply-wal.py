@@ -31,7 +31,7 @@ def set_wallpaper(wallpaper: Path):
     
     CURRENT_WALLPAPER_FILE.write_text(str(wallpaper))
     subprocess.run(["swww", "img", str(wallpaper), "--transition-type", "center"])
-    subprocess.run(["magick", str(wallpaper), "-resize", "1280x720", "-blur", "0x8", str(CACHE_DIR / "blurred-wallpaper.png")])
+    subprocess.run(["magick", str(wallpaper), "-resize", "2560x2560>", str(CACHE_DIR / "lockscreen.png")])
     
     # Apply color scheme
     subprocess.run(["matugen", "image", str(wallpaper), "-m", MODE, "-t", TYPE])

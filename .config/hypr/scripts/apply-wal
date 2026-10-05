@@ -61,7 +61,7 @@ echo "TYPE=$TYPE" >> "$ENV_FILE"
 
 # Variables for cached images
 normal_image="$HOME/.cache/normal-wallpaper.png"
-blurred_image="$HOME/.cache/blurred-wallpaper.png"
+lock_image="$HOME/.cache/lockscreen.png"   # sharp PNG, hyprlock blurs it itself
 
 # Determine wallpaper to use
 if [ -n "$selected_wallpaper" ]; then
@@ -88,7 +88,7 @@ if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
 
     swww img "$selected_wallpaper" --transition-type center
 
-    magick "$selected_wallpaper" -resize 1280x720 -blur 0x8 "$blurred_image"
+    magick "$selected_wallpaper" -resize "2560x2560>" "$lock_image"
 
     notify-send "Success" "Desktop configuration updated"
 else

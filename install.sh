@@ -235,11 +235,11 @@ copy_wallpapers() {
     run cp -r --update=none "$REPO/Wallpapers/." "$WALLPAPER_DIR/"
 }
 
-# Lock screen reads a blurred copy of the current wallpaper. Create one so
+# Lock screen reads a PNG copy of the current wallpaper (it blurs it itself). Create one so
 # hyprlock has a background before the first Super+W.
 seed_lockscreen() {
-    local blurred="$HOME/.cache/blurred-wallpaper.png"
-    [[ -f "$blurred" ]] && return 0
+    local lock_image="$HOME/.cache/lockscreen.png"
+    [[ -f "$lock_image" ]] && return 0
     [[ -d "$WALLPAPER_DIR" ]] || return 0
     command -v magick >/dev/null || { warn "imagemagick missing, skipping lock screen background"; return 0; }
 
@@ -250,7 +250,7 @@ seed_lockscreen() {
     info "Creating lock screen background from $(basename "$first")"
     run mkdir -p "$HOME/.cache"
     run cp "$first" "$HOME/.cache/normal-wallpaper.png"
-    run magick "$first" -resize 1280x720 -blur 0x8 "$blurred"
+    run magick "$first" -resize "2560x2560>" "$lock_image"
     if (( ! DRY_RUN )); then echo "$first" > "$HOME/.cache/current_wallpaper"; fi
 }
 

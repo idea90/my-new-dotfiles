@@ -1,52 +1,18 @@
+/* Semantic colors for the rofi themes. Raw palette comes from colors.rasi (matugen). */
 * {
-/* Standard Colors */
-normal-background: @surface;
-normal-foreground: @on-surface;
-urgent-background: @surface;
-urgent-foreground: @on-error-container;
-active-background: @primary;
-active-foreground: @on-primary-container;
-selected-normal-background: @primary;
-selected-normal-foreground: @on-primary-container;
-selected-urgent-background: @primary;
-selected-urgent-foreground: @on-primary-container;
-selected-active-background: @primary;
-selected-active-foreground: @on-primary-container;
-alternate-normal-background: @surface;
-alternate-normal-foreground: @on-surface-variant;
-alternate-urgent-background: @surface;
-alternate-urgent-foreground: @on-error-container;
-alternate-active-background: @primary;
-alternate-active-foreground: @on-primary-container;
+    bg:          @surface;
+    bg-alt:      @surface-container;
+    bg-hover:    @surface-container-high;
+    fg:          @on-surface;
+    fg-dim:      @on-surface-variant;
+    accent:      @primary;
+    on-accent:   @on-primary;
+    accent-soft: @primary-container;
+    on-soft:     @on-primary-container;
+    border:      @outline-variant;
+    urgent:      @error;
+    on-urgent:   @on-error;
 
-/* Additional Required Variables */
-selected: @primary;
-foreground: @on-surface;
-background: @surface;
-background-alt: @surface-container;
-separatorcolor: @outline;
-border: @outline;
-border-alt: @outline-variant;
-handle: @on-surface-variant;
-
-/* UI Elements */
-window-background: @background;
-message-border: @separatorcolor;
-textbox-background: @background-alt;
-textbox-foreground: @on-surface;
-listview-border: @separatorcolor;
-listview-foreground: @on-surface;
-scrollbar-handle: @on-surface-variant;
-sidebar-border: @separatorcolor;
-button-selected-background: @selected;
-button-selected-foreground: @on-primary-container;
-button-background: @background-alt;
-inputbar-foreground: @on-surface;
-case-indicator-foreground: @on-primary-container;
-entry-background: @background-alt;
-prompt-foreground: @on-surface;
-textbox-prompt-colon-background: @background-alt;
-mode-switcher-foreground: @on-surface;
-error-message-background: @background;
-error-message-foreground: @on-error-container;
+    background-color: transparent;
+    text-color:       @fg;
 }

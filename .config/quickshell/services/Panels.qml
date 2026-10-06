@@ -10,6 +10,7 @@ Singleton {
     id: root
 
     property string open: ""   // "" | controlcenter | calendar | power | wallpaper | wifi
+    property bool desktopWidgets: true
 
     function toggle(name) {
         open = open === name ? "" : name;
@@ -23,6 +24,12 @@ Singleton {
         target: "controlcenter"
         function toggle(): void {
             root.toggle("controlcenter");
+        }
+    }
+    IpcHandler {
+        target: "desktop"
+        function toggle(): void {
+            root.desktopWidgets = !root.desktopWidgets;
         }
     }
     IpcHandler {

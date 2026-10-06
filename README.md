@@ -9,7 +9,7 @@ Hyprland, the Quickshell shell, hyprlock, alacritty, the prompt, GTK and Qt apps
 | Part | Tool |
 | --- | --- |
 | Compositor | Hyprland (+ hypridle, hyprlock, hyprpolkitagent) |
-| Shell: bar, app launcher, notifications + control center, volume/brightness OSD, power menu, wallpaper picker, Wi-Fi menu | Quickshell (`~/.config/quickshell`) |
+| Shell: bar, desktop widgets, app launcher, notifications + control center, volume/brightness OSD, power menu, wallpaper picker, Wi-Fi menu | Quickshell (`~/.config/quickshell`) |
 | Lock screen / idle | hyprlock, hypridle |
 | Wallpaper + colors | awww + matugen (driven by `hypr/scripts/apply-wal`) |
 | Terminal / shell | alacritty, fish + starship |
@@ -71,7 +71,9 @@ Optional: `./setup-git.sh` sets your global git name/email.
 
 Bar (floating islands): launcher (click: apps, right click: wallpapers), workspaces with the icons of their apps, window title, clock (click: calendar), now playing with album art and progress (click: play/pause, scroll: skip), tray, rings for CPU / volume / brightness / battery (hover for numbers; scroll volume and brightness, right click volume to mute), Wi-Fi (click: network menu), bell with unread count (click: control center, right click: Do Not Disturb), power menu.
 
-Media keys (volume, mic mute, brightness) show an on-screen pop-up. Everything can also be driven from a terminal or keybind with `qs ipc call <target> <function>`; targets: `launcher`, `controlcenter`, `calendar`, `power`, `wallpaper`, `wifi` (`toggle`), `osd` (`volumeUp`, `volumeDown`, `volumeMute`, `micMute`, `brightnessUp`, `brightnessDown`), `notifications` (`toggleDnd`, `clear`).
+Desktop widgets (under your windows): big clock with date and greeting on the left; weather (wttr.in, location from your IP), now playing and system stats (CPU, RAM, disk, battery, uptime) bottom right. `qs ipc call desktop toggle` hides or shows them.
+
+Media keys (volume, mic mute, brightness) show an on-screen pop-up. Everything can also be driven from a terminal or keybind with `qs ipc call <target> <function>`; targets: `launcher`, `controlcenter`, `calendar`, `desktop`, `power`, `wallpaper`, `wifi` (`toggle`), `osd` (`volumeUp`, `volumeDown`, `volumeMute`, `micMute`, `brightnessUp`, `brightnessDown`), `notifications` (`toggleDnd`, `clear`).
 
 # GTK and Qt
 - GTK uses `adw-gtk3` + libadwaita, recolored through `~/.config/gtk-{3,4}.0/colors.css`.

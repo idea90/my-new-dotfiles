@@ -11,6 +11,8 @@ Singleton {
     property int cpu: 0
     property int memory: 0
     property int temperature: -1   // -1 when the machine exposes none
+    property int disk: 0            // % of / used
+    property string uptime: ""      // e.g. "3h 12m"
 
     property var lastIdle: 0
     property var lastTotal: 0
@@ -18,7 +20,8 @@ Singleton {
     Process {
         id: proc
         command: ["sh", "-c", "head -n1 /proc/stat; grep -E '^(MemTotal|MemAvailable):' /proc/meminfo;"
-            + " cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo none"]
+            + " cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo none;"
+            + " df -P / | awk 'NR==2 {print $5+0}'; cut -d' ' -f1 /proc/uptime"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const lines = text.trim().split("\n");
@@ -36,6 +39,11 @@ Singleton {
 
                 const temp = parseInt(lines[3]);
                 root.temperature = isNaN(temp) ? -1 : Math.round(temp / 1000);
+
+                root.disk = parseInt(lines[4]) || 0;
+                const minutes = Math.floor(parseFloat(lines[5]) / 60) || 0;
+                const days = Math.floor(minutes / 1440), hours = Math.floor(minutes % 1440 / 60);
+                root.uptime = (days > 0 ? days + "d " : "") + hours + "h " + minutes % 60 + "m";
             }
         }
     }

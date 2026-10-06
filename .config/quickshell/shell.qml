@@ -6,7 +6,6 @@ import QtQuick
 import Quickshell
 import qs.calendar
 import qs.controlcenter
-import qs.desktop
 import qs.launcher
 import qs.notifications
 import qs.osd
@@ -21,7 +20,6 @@ ShellRoot {
         Bar {}
     }
 
-    DesktopWidgets {}
     LauncherWindow {}
     CalendarPanel {}
     NotificationPopups {}

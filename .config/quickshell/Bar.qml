@@ -26,6 +26,7 @@ PanelWindow {
 
     implicitHeight: Config.barHeight
     color: "transparent"
+    WlrLayershell.namespace: "qs-bar"
 
     // Idle lock off while the eye toggle is on
     IdleInhibitor {

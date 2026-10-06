@@ -15,6 +15,9 @@ Singleton {
     property var items: []          // [{ name, path, thumb }], newest first
     property bool loading: false
     property string current: ""
+    // Bumped a moment after the wallpaper changes, so images built from the cached
+    // copy (launcher side image, lock screen) reload instead of showing the old one
+    property int imageRev: 0
     property string mode: "dark"
     property string scheme: "tonal-spot"
 
@@ -160,5 +163,17 @@ Singleton {
                     root.scheme = value.trim().replace(/^scheme-/, "");
             }
         }
+    }
+
+    FileView {
+        path: Quickshell.env("HOME") + "/.cache/current_wallpaper"
+        watchChanges: true
+        onFileChanged: revTimer.restart()
+    }
+    // apply-wal writes the cached lock/launcher image after matugen finishes
+    Timer {
+        id: revTimer
+        interval: 3500
+        onTriggered: root.imageRev += 1
     }
 }

@@ -2,9 +2,21 @@ import QtQuick
 import qs
 import qs.services
 
-// Notification bell with unread badge, power button
+// Settings gear, notification bell with unread badge, power button
 Row {
     spacing: 0
+
+    Chip {
+        visible: Config.showSettingsButton
+        implicitHeight: 30
+        radius: Theme.chipRadius
+        padding: 9
+        icon: Theme.icon(0xf0493)
+        fg: Theme.textDim
+        hoverFg: Theme.text
+        hoverBg: Theme.surfaceHigh
+        onLeftClicked: Panels.toggle("settings")
+    }
 
     Item {
         width: bell.implicitWidth
@@ -13,7 +25,7 @@ Row {
         Chip {
             id: bell
             implicitHeight: 30
-            radius: 15
+            radius: Theme.chipRadius
             padding: 9
             icon: Notifs.dnd ? Theme.icon(0xf009b) : Theme.icon(0xf009a)
             fg: Notifs.dnd ? Theme.alpha(Theme.text, 0.45) : Theme.text
@@ -49,7 +61,7 @@ Row {
 
     Chip {
         implicitHeight: 30
-        radius: 15
+        radius: Theme.chipRadius
         padding: 9
         icon: Theme.icon(0xf0425)
         fg: Theme.error

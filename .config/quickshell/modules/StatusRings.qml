@@ -3,7 +3,7 @@ import Quickshell
 import qs
 import qs.services
 
-// CPU, volume, brightness and battery as rings (hover for the number), then Wi-Fi
+// CPU, volume, brightness and battery as rings (hover for the number)
 Row {
     spacing: 0
 
@@ -53,21 +53,5 @@ Row {
             NumberAnimation { to: 0.5; duration: Theme.dur(750) }
             NumberAnimation { to: 1; duration: Theme.dur(750) }
         }
-    }
-
-    Chip {
-        readonly property var wifiIcons: [0xf091f, 0xf0922, 0xf0925, 0xf0928]
-
-        implicitHeight: 30
-        radius: 15
-        icon: Network.kind === "wifi" ? Theme.icon(wifiIcons[Math.min(3, Math.floor(Network.signal / 25))])
-            : Network.kind === "ethernet" ? Theme.icon(0xf0200)
-            : Theme.icon(0xf092e)
-        label: Network.kind === "wifi" ? (Network.name.length > 14 ? Network.name.slice(0, 13) + "…" : Network.name)
-             : Network.kind === "ethernet" ? "wired" : "offline"
-        fg: Network.kind === "none" ? Theme.alpha(Theme.text, 0.45) : Theme.text
-        hoverBg: Theme.surfaceHigh
-        onLeftClicked: Panels.toggle("wifi")
-        onRightClicked: Quickshell.execDetached(["nm-connection-editor"])
     }
 }

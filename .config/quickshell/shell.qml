@@ -6,6 +6,8 @@ import QtQuick
 import Quickshell
 import qs.calendar
 import qs.controlcenter
+import qs.dock
+import qs.goodbye
 import qs.launcher
 import qs.lock
 import qs.notifications
@@ -24,6 +26,7 @@ ShellRoot {
     }
 
     LauncherWindow {}
+    Dock {}
     CalendarPanel {}
     NotificationPopups {}
     ControlCenter {}
@@ -33,6 +36,7 @@ ShellRoot {
     WifiMenu {}
     SettingsWindow {}
     LockScreen {}
+    GoodbyeScreen {}
     ShotWindow {}
     ShotPreview {}
 }

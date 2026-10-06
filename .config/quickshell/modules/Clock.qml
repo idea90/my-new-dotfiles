@@ -6,7 +6,7 @@ import qs.services
 Rectangle {
     implicitWidth: row.implicitWidth + 28
     implicitHeight: 30
-    radius: 15
+    radius: Theme.chipRadius
     color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainer : "transparent"
 
     Behavior on color {
@@ -30,7 +30,8 @@ Rectangle {
         }
         BarText {
             anchors.verticalCenter: parent.verticalCenter
-            text: Qt.formatDateTime(Time.now, Config.clock24h ? "ddd d MMM" : "AP · ddd d MMM")
+            text: Config.clockCompact ? "•  " + Qt.formatDateTime(Time.now, "ddd d MMM")
+                : Qt.formatDateTime(Time.now, Config.clock24h ? "ddd d MMM" : "AP · ddd d MMM")
             font.pixelSize: 12
             color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.textDim
         }

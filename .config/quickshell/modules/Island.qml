@@ -12,9 +12,9 @@ Rectangle {
     property bool shown: true
 
     implicitWidth: row.implicitWidth + padding * 2
-    implicitHeight: Config.barHeight
+    implicitHeight: Config.barBackground === "band" ? Config.barHeight - 12 : Config.barHeight
     radius: Math.min(Config.islandRadius, height / 2)
-    readonly property bool plain: Config.barBackground !== "islands"
+    readonly property bool plain: Config.barBackground === "solid" || Config.barBackground === "none"
     color: plain ? "transparent" : Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
     border.width: plain ? 0 : Config.islandBorder
     border.color: Theme.alpha(Theme.byName(Config.borderColor, Theme.outlineVariant), 0.8)

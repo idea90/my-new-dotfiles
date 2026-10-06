@@ -11,11 +11,12 @@ OverlayWindow {
     onDismissed: Panels.close()
 
     ControlCenterContent {
+        // Full height, or just as tall as the content with ccFit
+        height: Config.ccFit ? implicitHeight : parent.height - Config.ccTopMargin - Config.ccBottomMargin
         anchors {
             top: parent.top
             right: Config.ccSide === "left" ? undefined : parent.right
             left: Config.ccSide === "left" ? parent.left : undefined
-            bottom: parent.bottom
             topMargin: Config.ccTopMargin
             rightMargin: Config.ccSideMargin
             leftMargin: Config.ccSideMargin

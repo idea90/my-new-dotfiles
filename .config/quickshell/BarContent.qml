@@ -10,10 +10,12 @@ Item {
     // One continuous bar behind the groups ("solid" style)
     Rectangle {
         anchors.fill: parent
-        visible: Config.barBackground === "solid"
+        visible: Config.barBackground === "solid" || Config.barBackground === "band"
         radius: Math.min(Config.barRadius, height / 2)
-        color: Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
-        border.width: Config.islandBorder
+        color: Config.barBackground === "band"
+            ? Theme.alpha(Theme.byName(Config.bandColor, Theme.primaryContainer), Config.bandOpacity)
+            : Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
+        border.width: Config.barBackground === "band" ? 0 : Config.islandBorder
         border.color: Theme.alpha(Theme.byName(Config.borderColor, Theme.outlineVariant), 0.8)
     }
 
@@ -24,7 +26,7 @@ Item {
         titleLimit: center.x - left.x
         anchors {
             left: parent.left
-            leftMargin: Config.barBackground === "solid" ? 6 : 0
+            leftMargin: Config.barBackground === "solid" || Config.barBackground === "band" ? 6 : 0
             verticalCenter: parent.verticalCenter
         }
     }
@@ -42,7 +44,7 @@ Item {
         name: "right"
         anchors {
             right: parent.right
-            rightMargin: Config.barBackground === "solid" ? 6 : 0
+            rightMargin: Config.barBackground === "solid" || Config.barBackground === "band" ? 6 : 0
             verticalCenter: parent.verticalCenter
         }
     }

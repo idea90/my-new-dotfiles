@@ -10,10 +10,35 @@ import qs.services
 Card {
     id: panel
 
-    implicitWidth: Math.min(780, parent ? parent.width - 40 : 780)
-    implicitHeight: Math.min(parent ? parent.height - 80 : 600, 620)
+    implicitWidth: Math.min(960, parent ? parent.width - 60 : 960)
+    implicitHeight: Math.min(parent ? parent.height - 70 : 660, 680)
 
     property int tab: 0
+    property string query: ""
+
+    Connections {
+        target: Panels
+        function onSettingsTabChanged() {
+            const i = panel.sections.findIndex(sec => sec.name.toLowerCase() === Panels.settingsTab.toLowerCase());
+            if (i >= 0) {
+                panel.tab = i;
+                searchField.text = "";
+            }
+        }
+    }
+
+    // Rows shown on the right: the open section, or matches from every section when searching
+    readonly property var shownRows: {
+        const q = query.trim().toLowerCase();
+        if (q === "")
+            return sections[tab].rows;
+        const out = [];
+        for (const sec of sections)
+            for (const r of sec.rows)
+                if (r.key && r.label && (r.label.toLowerCase().includes(q) || sec.name.toLowerCase().includes(q)))
+                    out.push(Object.assign({ section: sec.name }, r));
+        return out;
+    }
 
     // type: bool | int | real | choice | string
     readonly property var sections: [
@@ -27,16 +52,28 @@ Card {
         ]},
         { name: "Lock & capture", icon: 0xf033e, rows: [
             { type: "actions" },
+            { type: "header", label: "Lock screen" },
+            { type: "lockStyles" },
+            { key: "lockLayout", label: "Layout", type: "choice", options: ["stack", "split"] },
+            { key: "lockClockStyle", label: "Clock style", type: "choice", options: ["big", "stacked", "small"] },
+            { key: "lockClockFont", label: "Clock font", type: "choice", options: ["", "Outfit", "Poppins", "Bebas Neue", "Unbounded", "Space Grotesk", "Sora", "Playfair Display", "Roboto", "Roboto Condensed", "Noto Serif Display"] },
+            { key: "lockClockWeight", label: "Clock weight", type: "int", min: 100, max: 900, step: 100 },
+            { key: "lockClockSpacing", label: "Clock letter spacing", type: "int", min: -8, max: 12, step: 1 },
+            { key: "lockClockAccent", label: "Clock in accent color", type: "bool" },
+            { key: "lockCard", label: "Card behind password", type: "bool" },
+            { key: "lockAvatar", label: "Avatar and name", type: "bool" },
+            { key: "lockCardOpacity", label: "Card opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
             { key: "lockBlur", label: "Lock blur", type: "int", min: 0, max: 64, step: 4 },
             { key: "lockDim", label: "Lock dim", type: "real", min: 0, max: 1, step: 0.05 },
             { key: "lockClockSize", label: "Lock clock size", type: "int", min: 40, max: 200, step: 8 },
             { key: "lockFieldWidth", label: "Password field width", type: "int", min: 200, max: 600, step: 20 },
-            { key: "lockAlign", label: "Lock layout", type: "choice", options: ["center", "left"] },
+            { key: "lockAlign", label: "Position", type: "choice", options: ["center", "left", "corner"] },
             { key: "lockWallpaper", label: "Wallpaper background", type: "bool" },
             { key: "lockShowDate", label: "Show date", type: "bool" },
             { key: "lockShowGreeting", label: "Show greeting", type: "bool" },
             { key: "lockShowMedia", label: "Show now playing", type: "bool" },
             { key: "lockShowBattery", label: "Show battery", type: "bool" },
+            { type: "header", label: "Screenshots" },
             { key: "shotMode", label: "Screenshot mode", type: "choice", options: ["area", "window", "screen"] },
             { key: "shotDelay", label: "Screenshot delay (s)", type: "int", min: 0, max: 30, step: 1 },
             { key: "shotAction", label: "After capture", type: "choice", options: ["copy", "save", "both"] },
@@ -45,7 +82,24 @@ Card {
             { key: "shotPreviewPosition", label: "Preview corner", type: "choice", options: ["bottom-left", "bottom-right", "top-left", "top-right"] },
             { key: "shotPreviewWidth", label: "Preview width", type: "int", min: 180, max: 480, step: 10 }
         ]},
+        { name: "Power menu", icon: 0xf0425, rows: [
+            { type: "powerStyles" },
+            { key: "powerLayout", label: "Arrangement", type: "choice", options: ["row", "grid", "column"] },
+            { key: "powerShape", label: "Button shape", type: "choice", options: ["card", "circle", "pill"] },
+            { key: "powerHeader", label: "Clock and goodbye line", type: "bool" },
+            { key: "powerLabels", label: "Button labels", type: "bool" },
+            { key: "powerKeys", label: "Key hints", type: "bool" },
+            { key: "powerIconSize", label: "Icon size", type: "int", min: 24, max: 80, step: 2 },
+            { key: "powerSpacing", label: "Spacing", type: "int", min: 0, max: 40, step: 2 },
+            { key: "powerOpacity", label: "Button opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
+            { key: "powerBlur", label: "Blur behind power menu", type: "bool" },
+            { key: "goodbyeEnabled", label: "Goodbye message", type: "bool" },
+            { key: "goodbyeSeconds", label: "Goodbye time (s)", type: "real", min: 0.5, max: 6, step: 0.25 },
+            { key: "powerButtonWidth", label: "Power button width", type: "int", min: 90, max: 260, step: 5 },
+            { key: "powerButtonHeight", label: "Power button height", type: "int", min: 90, max: 300, step: 5 }
+        ]},
         { name: "Panels", icon: 0xf0493, rows: [
+            { type: "header", label: "Panels" },
             { key: "panelRadius", label: "Panel radius", type: "int", min: 0, max: 36, step: 1 },
             { key: "itemRadius", label: "Card / tile radius", type: "int", min: 0, max: 28, step: 1 },
             { key: "panelOpacity", label: "Panel opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
@@ -53,22 +107,27 @@ Card {
             { key: "panelColor", label: "Panel color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
             { key: "panelBorderColor", label: "Panel border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
+            { type: "header", label: "Notifications" },
             { key: "notifPosition", label: "Notifications at", type: "choice", options: ["top-right", "top-left", "bottom-right", "bottom-left"] },
+            { key: "notifOpacity", label: "Notification opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
             { key: "notifWidth", label: "Notification width", type: "int", min: 260, max: 600, step: 10 },
             { key: "notifMarginTop", label: "Notification edge gap", type: "int", min: 0, max: 120, step: 2 },
             { key: "notifMarginSide", label: "Notification side gap", type: "int", min: 0, max: 80, step: 2 },
+            { type: "header", label: "Pop-ups" },
             { key: "osdPosition", label: "Volume pop-up at", type: "choice", options: ["bottom", "top"] },
             { key: "osdMargin", label: "Volume pop-up gap", type: "int", min: 0, max: 300, step: 5 },
             { key: "osdWidth", label: "Volume pop-up width", type: "int", min: 200, max: 500, step: 10 },
-            { key: "powerButtonWidth", label: "Power button width", type: "int", min: 90, max: 260, step: 5 },
-            { key: "powerButtonHeight", label: "Power button height", type: "int", min: 90, max: 300, step: 5 }
         ]},
         { name: "Bar", icon: 0xf0e2c, rows: [
-            { key: "barBackground", label: "Background", type: "choice", options: ["islands", "solid", "none"] },
+            { type: "header", label: "Background" },
+            { key: "barBackground", label: "Background", type: "choice", options: ["islands", "band", "solid", "none"] },
+            { key: "bandColor", label: "Strip color (band)", type: "choice", options: ["surfaceLow", "primaryContainer", "tertiaryContainer", "surfaceMid", "surfaceHigh", "primary"] },
+            { key: "bandOpacity", label: "Strip opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
             { key: "barColor", label: "Color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
             { key: "borderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "barRadius", label: "Solid bar radius", type: "int", min: 0, max: 32, step: 1 },
             { key: "barPosition", label: "Position", type: "choice", options: ["top", "bottom"] },
+            { type: "header", label: "Size and spacing" },
             { key: "barHeight", label: "Height", type: "int", min: 24, max: 64, step: 1 },
             { key: "barMarginTop", label: "Edge gap", type: "int", min: 0, max: 40, step: 1 },
             { key: "barMarginSide", label: "Side gap", type: "int", min: 0, max: 60, step: 1 },
@@ -78,32 +137,60 @@ Card {
             { key: "islandRadius", label: "Island radius", type: "int", min: 0, max: 32, step: 1 }
         ]},
         { name: "Modules", icon: 0xf0570, rows: [
+            { type: "header", label: "Bar modules" },
             { key: "showLauncher", label: "Launcher button", type: "bool" },
             { key: "showWorkspaces", label: "Workspaces", type: "bool" },
             { key: "showWindowTitle", label: "Window title", type: "bool" },
+            { type: "header", label: "Clock" },
             { key: "showClock", label: "Clock", type: "bool" },
             { key: "showNowPlaying", label: "Now playing", type: "bool" },
             { key: "showTray", label: "Tray", type: "bool" },
             { key: "showStatus", label: "Status (cpu, wifi, ...)", type: "bool" },
-            { key: "showActions", label: "Actions", type: "bool" },
+            { key: "showWifi", label: "Wi-Fi", type: "bool" },
+            { key: "showActions", label: "Actions (bell, power)", type: "bool" },
+            { key: "showSettingsButton", label: "Settings gear in the bar", type: "bool" },
+            { key: "showShortcuts", label: "Shortcut icons", type: "bool" },
+            { key: "showResources", label: "CPU / MEM bars", type: "bool" },
+            { key: "showControls", label: "Volume / brightness sliders", type: "bool" },
+            { key: "launcherPlain", label: "Plain launcher button", type: "bool" },
+            { key: "clockCompact", label: "Compact clock", type: "bool" },
             { key: "clock24h", label: "24-hour clock", type: "bool" },
             { key: "clockSeconds", label: "Clock seconds", type: "bool" }
         ]},
         { name: "Control center", icon: 0xf0493, rows: [
+            { type: "ccStyles" },
+            { key: "ccToggleStyle", label: "Toggle style", type: "choice", options: ["mixed", "tiles", "icons"] },
+            { key: "ccHeader", label: "Header (name, settings, lock)", type: "bool" },
+            { key: "ccFit", label: "Fit height to content", type: "bool" },
+            { type: "header", label: "Placement" },
             { key: "ccSide", label: "Side", type: "choice", options: ["right", "left"] },
             { key: "ccWidth", label: "Width", type: "int", min: 300, max: 700, step: 10 },
-            { key: "ccColumns", label: "Toggle columns", type: "int", min: 2, max: 6, step: 1 },
+            { key: "ccColumns", label: "Tile columns (tiles style)", type: "int", min: 2, max: 6, step: 1 },
             { key: "ccTopMargin", label: "Top gap", type: "int", min: 0, max: 120, step: 1 },
             { key: "ccSideMargin", label: "Side gap", type: "int", min: 0, max: 60, step: 1 },
             { key: "ccBottomMargin", label: "Bottom gap", type: "int", min: 0, max: 60, step: 1 },
             { key: "ccPadding", label: "Padding", type: "int", min: 4, max: 30, step: 1 },
             { key: "ccSpacing", label: "Spacing", type: "int", min: 0, max: 30, step: 1 },
+            { type: "header", label: "Sections" },
             { key: "ccSliders", label: "Sliders", type: "bool" },
             { key: "ccMedia", label: "Now playing", type: "bool" },
             { key: "ccNotifications", label: "Notifications", type: "bool" },
             { type: "toggles" }
         ]},
         { name: "Launcher", icon: 0xf0349, rows: [
+            { type: "launcherStyles" },
+            { type: "header", label: "Full-screen" },
+            { key: "launcherFullscreen", label: "Full-screen (Launchpad)", type: "bool" },
+            { key: "launcherFsColumns", label: "Full-screen columns", type: "int", min: 3, max: 12, step: 1 },
+            { key: "launcherFsRows", label: "Full-screen rows", type: "int", min: 1, max: 7, step: 1 },
+            { key: "launcherFsIcon", label: "Full-screen icon size", type: "int", min: 32, max: 128, step: 4 },
+            { key: "launcherFsNames", label: "Full-screen app names", type: "bool" },
+            { key: "launcherFsBackground", label: "Full-screen background", type: "choice", options: ["blur", "wallpaper"] },
+            { key: "launcherFsDim", label: "Full-screen dim", type: "real", min: 0, max: 0.9, step: 0.05 },
+            { key: "launcherLayout", label: "Layout", type: "choice", options: ["list", "grid"] },
+            { key: "launcherColumns", label: "Grid columns", type: "int", min: 3, max: 8, step: 1 },
+            { key: "launcherCellHeight", label: "Grid cell height", type: "int", min: 70, max: 150, step: 4 },
+            { type: "header", label: "Card" },
             { key: "launcherWidth", label: "Width", type: "int", min: 360, max: 900, step: 10 },
             { key: "launcherTop", label: "Vertical position", type: "real", min: 0, max: 0.6, step: 0.02 },
             { key: "launcherDim", label: "Backdrop dim", type: "real", min: 0, max: 1, step: 0.05 },
@@ -112,11 +199,18 @@ Card {
             { key: "launcherIconSize", label: "Icon size", type: "int", min: 16, max: 56, step: 1 },
             { key: "launcherSearchHeight", label: "Search height", type: "int", min: 32, max: 70, step: 1 },
             { key: "launcherRadius", label: "Corner radius", type: "int", min: 0, max: 36, step: 1 },
+            { key: "launcherOpacity", label: "Card opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
+            { key: "launcherBlurBackdrop", label: "Blur screen behind", type: "bool" },
+            { key: "launcherSideImage", label: "Wallpaper on the side", type: "bool" },
+            { key: "launcherImageSide", label: "Image side", type: "choice", options: ["left", "right"] },
+            { key: "launcherImageWidth", label: "Image width", type: "int", min: 120, max: 400, step: 10 },
+            { type: "header", label: "Search field" },
             { key: "launcherPlaceholder", label: "Placeholder", type: "string" },
             { key: "launcherCounter", label: "Result counter", type: "bool" },
             { key: "launcherDescriptions", label: "Descriptions", type: "bool" }
         ]},
         { name: "Style", icon: 0xf03d8, rows: [
+            { type: "header", label: "Text" },
             { key: "font", label: "Font family", type: "string" },
             { key: "fontSize", label: "Font size", type: "int", min: 9, max: 24, step: 1 },
             { key: "iconSize", label: "Icon size", type: "int", min: 10, max: 30, step: 1 },
@@ -130,77 +224,245 @@ Card {
     readonly property var allToggles: ["wifi", "sound", "mic", "silent", "game", "awake", "capture", "theme", "settings"]
     readonly property var colorKeys: ["primary", "primaryContainer", "tertiary", "tertiaryContainer", "error", "surfaceLow", "surfaceHigh", "text", "textDim", "outline"]
 
-    ColumnLayout {
+    RowLayout {
         anchors {
             fill: parent
-            margins: 14
+            margins: 12
         }
-        spacing: 10
+        spacing: 12
 
-        RowLayout {
-            Layout.fillWidth: true
+        // ---- sidebar ----------------------------------------------------
+        Rectangle {
+            Layout.fillHeight: true
+            Layout.preferredWidth: 210
+            radius: Math.max(6, Config.panelRadius - 4)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
 
-            BarText {
-                Layout.fillWidth: true
-                text: "Settings"
-                font.bold: true
-                font.pixelSize: 17
-            }
-            Chip {
-                icon: Theme.icon(0xf0450)
-                label: "Reset all"
-                bg: Theme.surfaceHigh
-                hoverBg: Theme.error
-                hoverFg: Theme.errorFg
-                onLeftClicked: Config.reset()
-            }
-        }
+            ColumnLayout {
+                anchors {
+                    fill: parent
+                    margins: 12
+                }
+                spacing: 8
 
-        // Tabs
-        Flow {
-            Layout.fillWidth: true
-            spacing: 6
-            Repeater {
-                model: panel.sections
-                delegate: Chip {
-                    required property var modelData
-                    required property int index
-                    icon: Theme.icon(modelData.icon)
-                    label: modelData.name
-                    bg: panel.tab === index ? Theme.primaryContainer : "transparent"
-                    fg: panel.tab === index ? Theme.primaryContainerFg : Theme.text
-                    onLeftClicked: panel.tab = index
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.bottomMargin: 4
+                    spacing: 10
+                    BarText {
+                        text: Theme.icon(0xf0493)
+                        color: Theme.primary
+                        font.pixelSize: 22
+                    }
+                    BarText {
+                        text: "Settings"
+                        font.bold: true
+                        font.pixelSize: 19
+                    }
+                }
+
+                // Search
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 34
+                    radius: height / 2
+                    color: Theme.surfaceHigh
+                    border.width: 1
+                    border.color: searchField.activeFocus ? Theme.primary : "transparent"
+
+                    BarText {
+                        id: searchIcon
+                        anchors {
+                            left: parent.left
+                            leftMargin: 12
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: Theme.icon(0xf0349)
+                        color: Theme.textDim
+                        font.pixelSize: 14
+                    }
+                    TextField {
+                        id: searchField
+                        anchors {
+                            left: searchIcon.right
+                            right: parent.right
+                            leftMargin: 6
+                            rightMargin: 10
+                            verticalCenter: parent.verticalCenter
+                        }
+                        background: null
+                        color: Theme.text
+                        placeholderText: "Search settings"
+                        placeholderTextColor: Theme.alpha(Theme.text, 0.4)
+                        font.family: Theme.font
+                        font.pixelSize: 13
+                        selectionColor: Theme.primary
+                        selectedTextColor: Theme.primaryFg
+                        onTextChanged: panel.query = text
+                    }
+                }
+
+                // Sections
+                Repeater {
+                    model: panel.sections
+                    delegate: Rectangle {
+                        id: navItem
+                        required property var modelData
+                        required property int index
+                        readonly property bool active: panel.query === "" && panel.tab === index
+
+                        Layout.fillWidth: true
+                        height: 38
+                        radius: Math.max(6, Config.itemRadius)
+                        color: active ? Theme.primaryContainer : navMouse.containsMouse ? Theme.alpha(Theme.text, 0.07) : "transparent"
+
+                        Behavior on color {
+                            ColorAnimation { duration: Theme.dur(120) }
+                        }
+
+                        Rectangle {
+                            visible: navItem.active
+                            width: 3
+                            height: 18
+                            radius: 2
+                            color: Theme.primary
+                            anchors {
+                                left: parent.left
+                                leftMargin: 6
+                                verticalCenter: parent.verticalCenter
+                            }
+                        }
+                        Row {
+                            anchors {
+                                left: parent.left
+                                leftMargin: 18
+                                verticalCenter: parent.verticalCenter
+                            }
+                            spacing: 12
+                            BarText {
+                                width: 20
+                                text: Theme.icon(navItem.modelData.icon)
+                                font.pixelSize: 16
+                                color: navItem.active ? Theme.primaryContainerFg : Theme.textDim
+                            }
+                            BarText {
+                                text: navItem.modelData.name
+                                font.bold: navItem.active
+                                color: navItem.active ? Theme.primaryContainerFg : Theme.text
+                            }
+                        }
+                        MouseArea {
+                            id: navMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                searchField.text = "";
+                                panel.tab = navItem.index;
+                            }
+                        }
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+
+                Chip {
+                    Layout.fillWidth: true
+                    icon: Theme.icon(0xf0450)
+                    label: "Reset everything"
+                    bg: Theme.surfaceHigh
+                    hoverBg: Theme.error
+                    hoverFg: Theme.errorFg
+                    onLeftClicked: Config.reset()
+                }
+                BarText {
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "Saved automatically"
+                    color: Theme.alpha(Theme.textDim, 0.8)
+                    font.pixelSize: 11
                 }
             }
         }
 
-        ListView {
-            id: list
+        // ---- content ----------------------------------------------------
+        ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
-            spacing: 4
-            model: panel.sections[panel.tab].rows
-            boundsBehavior: Flickable.StopAtBounds
-            ScrollBar.vertical: ScrollBar {}
+            spacing: 10
 
-            delegate: Loader {
-                required property var modelData
-                width: list.width - 10
-                sourceComponent: modelData.type === "actions" ? actionsEditor
-                    : modelData.type === "looks" ? looksEditor
-                    : modelData.type === "layout" ? layoutEditor
-                    : modelData.type === "styles" ? stylesEditor
-                    : modelData.type === "toggles" ? togglesEditor
-                    : modelData.type === "colors" ? colorsEditor : rowEditor
-                onLoaded: if (item && "row" in item) item.row = modelData
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 6
+                spacing: 12
+                BarText {
+                    text: panel.query === "" ? Theme.icon(panel.sections[panel.tab].icon) : Theme.icon(0xf0349)
+                    color: Theme.primary
+                    font.pixelSize: 24
+                }
+                BarText {
+                    Layout.fillWidth: true
+                    text: panel.query === "" ? panel.sections[panel.tab].name : "Results for \"" + panel.query + "\""
+                    font.bold: true
+                    font.pixelSize: 22
+                }
+                BarText {
+                    visible: panel.query !== ""
+                    text: panel.shownRows.length + " found"
+                    color: Theme.textDim
+                    font.pixelSize: 13
+                }
+            }
+
+            ListView {
+                id: list
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                spacing: 6
+                model: panel.shownRows
+                boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: ScrollBar {}
+
+                delegate: Loader {
+                    required property var modelData
+                    width: list.width - 12
+                    sourceComponent: modelData.type === "header" ? headerRow
+                    : modelData.type === "ccStyles" ? ccStylesEditor
+                    : modelData.type === "powerStyles" ? powerStylesEditor
+                    : modelData.type === "lockStyles" ? lockStylesEditor
+                        : modelData.type === "launcherStyles" ? launcherStylesEditor
+                        : modelData.type === "actions" ? actionsEditor
+                        : modelData.type === "looks" ? looksEditor
+                        : modelData.type === "layout" ? layoutEditor
+                        : modelData.type === "styles" ? stylesEditor
+                        : modelData.type === "toggles" ? togglesEditor
+                        : modelData.type === "colors" ? colorsEditor : rowEditor
+                    onLoaded: if (item && "row" in item) item.row = modelData
+                }
+
+                BarText {
+                    anchors.centerIn: parent
+                    visible: panel.shownRows.length === 0
+                    text: "No settings match"
+                    color: Theme.textDim
+                }
             }
         }
+    }
+
+    // Group heading inside a section
+    Component {
+        id: headerRow
 
         BarText {
-            text: "Saved to ~/.config/quickshell/config.json"
-            color: Theme.textDim
+            property var row: ({ label: "" })
+            topPadding: 10
+            text: row.label.toUpperCase()
+            color: Theme.primary
             font.pixelSize: 11
+            font.bold: true
+            font.letterSpacing: 1.2
         }
     }
 
@@ -214,42 +476,65 @@ Card {
             readonly property var cfg: row
             readonly property var value: cfg.key ? Config[cfg.key] : undefined
 
-            implicitHeight: 40
-            radius: Theme.innerRadius
-            color: Theme.surfaceMid
+            // Choice rows with many options put the chips under the label
+            readonly property bool wide: cfg.type === "choice" && (cfg.options ?? []).length > 4
 
-            BarText {
+            implicitHeight: wide ? labelBox.implicitHeight + ctl.implicitHeight + 42 : 50
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: labelBox
                 anchors {
                     left: parent.left
-                    leftMargin: 12
-                    verticalCenter: parent.verticalCenter
+                    leftMargin: 14
+                    top: setting.wide ? parent.top : undefined
+                    topMargin: 10
+                    verticalCenter: setting.wide ? undefined : parent.verticalCenter
                 }
-                text: setting.cfg.label
+                BarText {
+                    text: setting.cfg.label
+                }
+                BarText {
+                    visible: !!setting.cfg.section
+                    text: setting.cfg.section ?? ""
+                    color: Theme.alpha(Theme.textDim, 0.8)
+                    font.pixelSize: 11
+                }
             }
 
             Loader {
+                id: ctl
                 anchors {
-                    right: parent.right
-                    rightMargin: 10
-                    verticalCenter: parent.verticalCenter
+                    right: setting.wide ? undefined : parent.right
+                    rightMargin: 12
+                    verticalCenter: setting.wide ? undefined : parent.verticalCenter
+                    left: setting.wide ? parent.left : undefined
+                    leftMargin: 14
+                    top: setting.wide ? labelBox.bottom : undefined
+                    topMargin: 8
                 }
                 sourceComponent: setting.cfg.type === "bool" ? switchCtl
-                    : setting.cfg.type === "choice" ? choiceCtl
-                    : setting.cfg.type === "string" ? stringCtl : stepperCtl
+                    : setting.cfg.type === "choice" ? (setting.wide ? choiceFlow : choiceCtl)
+                    : setting.cfg.type === "string" ? stringCtl : sliderCtl
             }
 
             Component {
                 id: switchCtl
                 Rectangle {
-                    width: 44
-                    height: 24
-                    radius: 12
+                    width: 48
+                    height: 26
+                    radius: 13
                     color: setting.value ? Theme.primary : Theme.surfaceHighest
 
+                    Behavior on color {
+                        ColorAnimation { duration: Theme.dur(150) }
+                    }
+
                     Rectangle {
-                        width: 18
-                        height: 18
-                        radius: 9
+                        width: 20
+                        height: 20
+                        radius: 10
                         y: 3
                         x: setting.value ? parent.width - width - 3 : 3
                         color: setting.value ? Theme.primaryFg : Theme.textDim
@@ -273,12 +558,111 @@ Card {
                         model: setting.cfg?.options ?? []
                         delegate: Chip {
                             required property string modelData
-                            label: modelData
+                            label: modelData === "" ? "default" : modelData
                             bg: setting.value === modelData ? Theme.primary : Theme.surfaceHigh
                             fg: setting.value === modelData ? Theme.primaryFg : Theme.text
                             hoverBg: setting.value === modelData ? Theme.primary : Theme.surfaceHighest
                             onLeftClicked: Config.set(setting.cfg.key, modelData)
                         }
+                    }
+                }
+            }
+
+            Component {
+                id: choiceFlow
+                Flow {
+                    width: setting.width - 28
+                    spacing: 6
+                    Repeater {
+                        model: setting.cfg?.options ?? []
+                        delegate: Chip {
+                            required property string modelData
+                            label: modelData === "" ? "default" : modelData
+                            bg: setting.value === modelData ? Theme.primary : Theme.surfaceHigh
+                            fg: setting.value === modelData ? Theme.primaryFg : Theme.text
+                            hoverBg: setting.value === modelData ? Theme.primary : Theme.surfaceHighest
+                            onLeftClicked: Config.set(setting.cfg.key, modelData)
+                        }
+                    }
+                }
+            }
+
+            // Slider with the value next to it; click or drag, snaps to the step
+            Component {
+                id: sliderCtl
+                Row {
+                    spacing: 12
+
+                    Item {
+                        id: sl
+                        width: 210
+                        height: 30
+                        anchors.verticalCenter: parent.verticalCenter
+                        readonly property real min: setting.cfg?.min ?? 0
+                        readonly property real max: setting.cfg?.max ?? 1
+                        readonly property real frac: setting.value === undefined || max === min ? 0
+                            : Math.max(0, Math.min(1, (setting.value - min) / (max - min)))
+
+                        function setFrom(x) {
+                            const f = Math.max(0, Math.min(1, x / width));
+                            const c = setting.cfg;
+                            let v = min + f * (max - min);
+                            v = Math.round(v / c.step) * c.step;
+                            v = Math.max(min, Math.min(max, v));
+                            Config.set(c.key, c.type === "real" ? Math.round(v * 100) / 100 : Math.round(v));
+                        }
+
+                        Rectangle {
+                            id: slTrack
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width
+                            height: 6
+                            radius: 3
+                            color: Theme.surfaceHighest
+
+                            Rectangle {
+                                width: Math.max(6, slTrack.width * sl.frac)
+                                height: parent.height
+                                radius: 3
+                                color: Theme.primary
+                            }
+                        }
+                        Rectangle {
+                            x: slTrack.width * sl.frac - width / 2
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: slMouse.pressed ? 20 : 16
+                            height: width
+                            radius: width / 2
+                            color: Theme.primaryContainerFg
+                            border.width: 3
+                            border.color: Theme.primary
+                            Behavior on width {
+                                NumberAnimation { duration: Theme.dur(100) }
+                            }
+                        }
+                        MouseArea {
+                            id: slMouse
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onPressed: event => sl.setFrom(event.x)
+                            onPositionChanged: event => {
+                                if (pressed)
+                                    sl.setFrom(event.x);
+                            }
+                            onWheel: event => {
+                                const c = setting.cfg;
+                                const v = Math.max(sl.min, Math.min(sl.max, setting.value + (event.angleDelta.y > 0 ? c.step : -c.step)));
+                                Config.set(c.key, c.type === "real" ? Math.round(v * 100) / 100 : Math.round(v));
+                            }
+                        }
+                    }
+                    BarText {
+                        width: 56
+                        anchors.verticalCenter: parent.verticalCenter
+                        horizontalAlignment: Text.AlignRight
+                        text: setting.value === undefined ? "" : setting.cfg.type === "real" ? Number(setting.value).toFixed(2) : String(setting.value)
+                        font.bold: true
+                        color: Theme.primary
                     }
                 }
             }
@@ -340,6 +724,173 @@ Card {
         }
     }
 
+    // Control center style presets
+    Component {
+        id: ccStylesEditor
+
+        Rectangle {
+            implicitHeight: ccol2.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: ccol2
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Control center styles: pick one, then fine-tune below"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.ccStyles
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "cc"
+                            name: modelData.name
+                            selected: Config.ccStyle === modelData.name
+                            vals: Object.assign({}, Config.ccBase, modelData.values)
+                            onPicked: Config.applyCcStyle(modelData.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Power menu style presets
+    Component {
+        id: powerStylesEditor
+
+        Rectangle {
+            implicitHeight: pwcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: pwcol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Power menu styles: pick one, then fine-tune below"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.powerStyles
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "power"
+                            name: modelData.name
+                            selected: Config.powerStyle === modelData.name
+                            vals: Object.assign({}, Config.powerBase, modelData.values)
+                            onPicked: Config.applyPowerStyle(modelData.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Lock screen style presets
+    Component {
+        id: lockStylesEditor
+
+        Rectangle {
+            implicitHeight: lkcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: lkcol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Lock screen styles: pick one, then fine-tune below"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.lockStyles
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "lock"
+                            name: modelData.name
+                            selected: Config.lockStyle === modelData.name
+                            vals: Object.assign({}, Config.lockBase, modelData.values)
+                            onPicked: Config.applyLockStyle(modelData.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: launcherStylesEditor
+
+        Rectangle {
+            implicitHeight: pcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: pcol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Launcher styles: pick one, then fine-tune below"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.launcherStyles
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "launcher"
+                            name: modelData.name
+                            selected: Config.launcherStyle === modelData.name
+                            vals: Object.assign({}, Config.launcherBase, modelData.values)
+                            onPicked: Config.applyLauncherStyle(modelData.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Try-it buttons
     Component {
         id: actionsEditor
@@ -376,41 +927,43 @@ Card {
         }
     }
 
-    // Whole-desktop looks
     Component {
         id: looksEditor
 
         Rectangle {
-            implicitHeight: lcol.implicitHeight + 20
-            radius: Theme.innerRadius
-            color: Theme.surfaceMid
+            implicitHeight: pcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
 
             Column {
-                id: lcol
+                id: pcol
                 anchors {
                     left: parent.left
                     right: parent.right
                     top: parent.top
-                    margins: 10
+                    margins: 12
                 }
-                spacing: 6
+                spacing: 10
 
                 BarText {
-                    text: "Looks (restyle bar, panels, notifications and pop-ups together)"
+                    text: "Looks: restyle the bar, panels, notifications and pop-ups together"
                     font.bold: true
                 }
                 Flow {
                     width: parent.width
-                    spacing: 6
+                    spacing: 10
                     Repeater {
                         model: Config.looks
-                        delegate: Chip {
+                        delegate: PresetCard {
                             required property var modelData
-                            label: modelData.name
-                            bg: Config.look === modelData.name ? Theme.primary : Theme.surfaceHigh
-                            fg: Config.look === modelData.name ? Theme.primaryFg : Theme.text
-                            hoverBg: Config.look === modelData.name ? Theme.primary : Theme.surfaceHighest
-                            onLeftClicked: Config.applyLook(modelData.name)
+                            kind: "look"
+                            name: modelData.name
+                            selected: Config.look === modelData.name
+                            vals: {
+                                const bar = Config.barStyles.find(x => x.name === modelData.bar);
+                                return Object.assign({}, Config.baseStyle, Config.panelBase, bar ? bar.values : {}, modelData.values);
+                            }
+                            onPicked: Config.applyLook(modelData.name)
                         }
                     }
                 }
@@ -554,41 +1107,40 @@ Card {
         }
     }
 
-    // Bar style presets
     Component {
         id: stylesEditor
 
         Rectangle {
-            implicitHeight: scol.implicitHeight + 20
-            radius: Theme.innerRadius
-            color: Theme.surfaceMid
+            implicitHeight: pcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
 
             Column {
-                id: scol
+                id: pcol
                 anchors {
                     left: parent.left
                     right: parent.right
                     top: parent.top
-                    margins: 10
+                    margins: 12
                 }
-                spacing: 6
+                spacing: 10
 
                 BarText {
-                    text: "Bar styles (pick one, then fine-tune below)"
+                    text: "Bar styles: pick one, then fine-tune below"
                     font.bold: true
                 }
                 Flow {
                     width: parent.width
-                    spacing: 6
+                    spacing: 10
                     Repeater {
                         model: Config.barStyles
-                        delegate: Chip {
+                        delegate: PresetCard {
                             required property var modelData
-                            label: modelData.name
-                            bg: Config.barStyle === modelData.name ? Theme.primary : Theme.surfaceHigh
-                            fg: Config.barStyle === modelData.name ? Theme.primaryFg : Theme.text
-                            hoverBg: Config.barStyle === modelData.name ? Theme.primary : Theme.surfaceHighest
-                            onLeftClicked: Config.applyStyle(modelData.name)
+                            kind: "bar"
+                            name: modelData.name
+                            selected: Config.barStyle === modelData.name
+                            vals: Object.assign({}, Config.baseStyle, modelData.values)
+                            onPicked: Config.applyStyle(modelData.name)
                         }
                     }
                 }

@@ -9,6 +9,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    property string settingsTab: ""   // set to jump the settings panel to a section
     property string open: ""   // "" | controlcenter | calendar | power | theme | wifi | settings | screenshot
 
     function toggle(name) {
@@ -60,6 +61,11 @@ Singleton {
         target: "settings"
         function toggle(): void {
             root.toggle("settings");
+        }
+        // qs ipc call settings tab "Control center"
+        function tab(name: string): void {
+            root.settingsTab = name;
+            root.open = "settings";
         }
     }
 }

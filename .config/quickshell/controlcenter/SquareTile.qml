@@ -2,7 +2,7 @@ import QtQuick
 import qs
 import qs.modules
 
-// Quick-settings tile: icon + label, filled when on
+// Square quick-settings tile: big icon over a label
 Rectangle {
     id: tile
 
@@ -12,9 +12,9 @@ Rectangle {
     signal clicked
     signal rightClicked
 
-    implicitHeight: 64
-    radius: Config.itemRadius
-    color: on ? Theme.primary : mouse.containsMouse ? Theme.surfaceHighest : Theme.surfaceHigh
+    implicitHeight: 76
+    radius: Config.itemRadius + 4
+    color: on ? Theme.primaryContainer : mouse.containsMouse ? Theme.surfaceHighest : Theme.surfaceHigh
 
     Behavior on color {
         ColorAnimation { duration: Theme.dur(150) }
@@ -22,19 +22,19 @@ Rectangle {
 
     Column {
         anchors.centerIn: parent
-        spacing: 4
-
+        spacing: 6
         BarText {
             anchors.horizontalCenter: parent.horizontalCenter
             text: tile.icon
-            font.pixelSize: 20
-            color: tile.on ? Theme.primaryFg : Theme.text
+            font.pixelSize: 22
+            color: tile.on ? Theme.primary : Theme.text
         }
         BarText {
             anchors.horizontalCenter: parent.horizontalCenter
             text: tile.label
             font.pixelSize: 11
-            color: tile.on ? Theme.primaryFg : Theme.textDim
+            font.bold: tile.on
+            color: tile.on ? Theme.primaryContainerFg : Theme.textDim
         }
     }
 

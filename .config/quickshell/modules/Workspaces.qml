@@ -6,7 +6,7 @@ import qs.services
 // Workspace pills: number plus the icons of the apps on it.
 // Focused = filled accent, occupied = normal, empty = dim. Scroll to cycle.
 Row {
-    spacing: 2
+    spacing: Config.wsStyle === "dots" ? 10 : 2
 
     Repeater {
         model: Hypr.ids
@@ -20,13 +20,13 @@ Row {
             readonly property bool urgent: Hypr.urgent(modelData)
 
             readonly property bool dots: Config.wsStyle === "dots"
-            width: dots ? (focused ? 24 : 10) : content.implicitWidth + 16
-            height: dots ? 10 : 30
-            radius: height / 2
+            width: dots ? (focused ? 34 : 11) : content.implicitWidth + 16
+            height: dots ? 11 : 30
+            radius: dots ? height / 2 : Theme.chipRadius
             color: urgent ? Theme.error
                  : focused ? Theme.primary
                  : mouse.containsMouse ? Theme.surfaceHigh
-                 : (dots ? Theme.alpha(Theme.text, ws.icons.length > 0 ? 0.6 : 0.25) : "transparent")
+                 : (dots ? Theme.alpha(Theme.text, ws.icons.length > 0 ? 0.95 : 0.28) : "transparent")
 
             Behavior on width {
                 NumberAnimation { duration: Theme.dur(220); easing.type: Easing.OutCubic }

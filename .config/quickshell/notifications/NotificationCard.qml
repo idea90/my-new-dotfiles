@@ -22,7 +22,9 @@ Rectangle {
 
     implicitHeight: content.implicitHeight + 24
     radius: Config.itemRadius
-    color: hover.hovered ? Theme.surfaceHigh : Theme.surfaceMid
+    // Pop-ups are see-through so Hyprland's blur shows behind them
+    color: popup ? Theme.alpha(hover.hovered ? Theme.surfaceHigh : Theme.surfaceMid, Config.notifOpacity)
+                 : hover.hovered ? Theme.surfaceHigh : Theme.surfaceMid
     border.width: 1
     border.color: critical ? Theme.error : Theme.outlineVariant
 

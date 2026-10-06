@@ -8,10 +8,10 @@ Chip {
     icon: Theme.icon(0xf303)   // Arch logo
     implicitHeight: 30
     padding: 10
-    radius: 15
-    fg: Theme.primaryFg
-    bg: Theme.primary
-    hoverBg: Theme.alpha(Theme.primary, 0.85)
+    radius: Theme.chipRadius
+    fg: Config.launcherPlain ? Theme.primary : Theme.primaryFg
+    bg: Config.launcherPlain ? "transparent" : Theme.primary
+    hoverBg: Config.launcherPlain ? Theme.surfaceHigh : Theme.alpha(Theme.primary, 0.85)
     onLeftClicked: AppMenu.toggle()
     onRightClicked: Panels.toggle("theme")
 }

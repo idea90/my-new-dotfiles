@@ -38,6 +38,8 @@ Singleton {
     readonly property int pillRadius: Config.pillRadius
     readonly property int innerRadius: Config.innerRadius
     readonly property int pillHeight: Config.pillHeight
+    // Corner radius for buttons inside bar islands: follows the island corners
+    readonly property int chipRadius: Math.max(4, Math.min(15, Config.islandRadius - 2))
 
     // Animation duration scaled by Config.animSpeed (0 = instant)
     function dur(ms) {

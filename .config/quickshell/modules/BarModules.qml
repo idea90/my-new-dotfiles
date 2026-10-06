@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
-import qs.modules
+import qs
 import qs.services
 
 // Registry of bar modules: id -> component, plus whether each should show.
@@ -12,7 +12,7 @@ import qs.services
 Singleton {
     id: root
 
-    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "actions"]
+    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "wifi", "shortcuts", "resources", "controls", "network", "actions"]
 
     readonly property var modules: ({
         launcher: launcher,
@@ -21,6 +21,11 @@ Singleton {
         media: media,
         tray: tray,
         status: status,
+        wifi: wifi,
+        shortcuts: shortcuts,
+        resources: resources,
+        controls: controls,
+        network: network,
         actions: actions
     })
 
@@ -39,6 +44,11 @@ Singleton {
         }
         case "tray": return Config.showTray && SystemTray.items.values.length > 0;
         case "status": return Config.showStatus;
+        case "wifi": return Config.showWifi;
+        case "network": return Config.showWifi;
+        case "shortcuts": return Config.showShortcuts;
+        case "resources": return Config.showResources;
+        case "controls": return Config.showControls;
         case "actions": return Config.showActions;
         }
         return false;
@@ -49,6 +59,11 @@ Singleton {
     Component { id: clock; Clock {} }
     Component { id: media; NowPlaying {} }
     Component { id: tray; Tray {} }
-    Component { id: status; Status {} }
+    Component { id: status; StatusRings {} }
+    Component { id: wifi; WifiChip {} }
+    Component { id: shortcuts; Shortcuts {} }
+    Component { id: resources; Resources {} }
+    Component { id: controls; Controls {} }
+    Component { id: network; NetworkChip {} }
     Component { id: actions; Actions {} }
 }

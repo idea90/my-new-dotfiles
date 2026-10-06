@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
 import qs
@@ -12,23 +13,93 @@ Item {
     id: root
 
     property var entries: []
-    readonly property var results: AppMenu.search(entries, search.text)
+    readonly property bool gridMode: Config.launcherLayout === "grid"
+    readonly property var view: gridMode ? grid : list
+    property string query: ""
+    readonly property var results: AppMenu.search(entries, query)
+
+    // ---- full-screen (Launchpad-style) mode ----
+    readonly property bool fs: Config.launcherFullscreen
+    property int fsIndex: 0
+    readonly property int fsCols: Math.max(2, Config.launcherFsColumns)
+    readonly property int fsRows: Math.max(1, Config.launcherFsRows)
+    readonly property int pageSize: fsCols * fsRows
+    readonly property int page: Math.floor(fsIndex / pageSize)
+    readonly property int pageCount: Math.max(1, Math.ceil(results.length / pageSize))
+    readonly property var pageItems: results.slice(page * pageSize, page * pageSize + pageSize)
+    onQueryChanged: fsIndex = 0
+
+    // Shared by both search fields
+    function handleKey(event) {
+        const ctrl = event.modifiers & Qt.ControlModifier;
+        const k = event.key;
+        event.accepted = true;
+        if (k === Qt.Key_Escape) {
+            AppMenu.open = false;
+        } else if (fs) {
+            const n = results.length;
+            let g = fsIndex;
+            if (k === Qt.Key_Right || k === Qt.Key_Tab || (ctrl && k === Qt.Key_J))
+                g += 1;
+            else if (k === Qt.Key_Left || k === Qt.Key_Backtab || (ctrl && k === Qt.Key_K))
+                g -= 1;
+            else if (k === Qt.Key_Down)
+                g += fsCols;
+            else if (k === Qt.Key_Up)
+                g -= fsCols;
+            else if (k === Qt.Key_PageDown)
+                g += pageSize;
+            else if (k === Qt.Key_PageUp)
+                g -= pageSize;
+            else if (k === Qt.Key_Return || k === Qt.Key_Enter) {
+                if (n > 0)
+                    AppMenu.launch(results[fsIndex]);
+                return;
+            } else {
+                event.accepted = false;
+                return;
+            }
+            fsIndex = Math.max(0, Math.min(n - 1, g));
+        } else if (gridMode && k === Qt.Key_Left) {
+            grid.moveCurrentIndexLeft();
+        } else if (gridMode && k === Qt.Key_Right) {
+            grid.moveCurrentIndexRight();
+        } else if (gridMode && k === Qt.Key_Down) {
+            grid.moveCurrentIndexDown();
+        } else if (gridMode && k === Qt.Key_Up) {
+            grid.moveCurrentIndexUp();
+        } else if (k === Qt.Key_Down || k === Qt.Key_Tab || (ctrl && k === Qt.Key_J)) {
+            view.incrementCurrentIndex();
+        } else if (k === Qt.Key_Up || k === Qt.Key_Backtab || (ctrl && k === Qt.Key_K)) {
+            view.decrementCurrentIndex();
+        } else if (k === Qt.Key_Return || k === Qt.Key_Enter) {
+            if (results.length > 0)
+                AppMenu.launch(results[view.currentIndex]);
+        } else {
+            event.accepted = false;
+        }
+    }
 
     // Reset every time it opens
     Connections {
         target: AppMenu
         function onOpenChanged() {
             if (AppMenu.open) {
+                Wallpapers.imageRev += 1;   // always show the current wallpaper
                 search.text = "";
+                fsSearch.text = "";
+                root.query = "";
+                root.fsIndex = 0;
                 list.currentIndex = 0;
-                search.forceActiveFocus();
+                grid.currentIndex = 0;
+                (root.fs ? fsSearch : search).forceActiveFocus();
             }
         }
     }
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.alpha("#000000", Config.launcherDim)
+        color: Theme.alpha("#000000", root.fs ? Config.launcherFsDim : Config.launcherDim)
 
         MouseArea {
             anchors.fill: parent
@@ -39,12 +110,17 @@ Item {
     Rectangle {
         id: card
 
-        width: Config.launcherWidth
+        visible: !root.fs
+        readonly property bool hasImage: Config.launcherSideImage
+        readonly property bool imageLeft: Config.launcherImageSide !== "right"
+        readonly property int imageSpace: hasImage ? Config.launcherImageWidth + 10 : 0
+
+        width: Config.launcherWidth + imageSpace
         height: column.implicitHeight + 28
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * Config.launcherTop
         radius: Config.launcherRadius
-        color: Theme.panelFill
+        color: Theme.alpha(Theme.byName(Config.panelColor, Theme.surfaceLow), Config.launcherOpacity)
         border.width: Config.panelBorder
         border.color: Theme.panelBorderFill
 
@@ -53,11 +129,80 @@ Item {
             anchors.fill: parent
         }
 
+        // Wallpaper on the side
+        Item {
+            id: side
+            visible: card.hasImage
+            x: card.imageLeft ? 10 : card.width - width - 10
+            y: 10
+            width: Config.launcherImageWidth
+            height: card.height - 20
+
+            Image {
+                id: sideImg
+                anchors.fill: parent
+                visible: false
+                source: "file://" + Quickshell.env("HOME") + "/.cache/lockscreen.png?" + Wallpapers.imageRev
+                cache: false
+                sourceSize.height: 900
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+            }
+            Rectangle {
+                id: sideMask
+                anchors.fill: parent
+                radius: Math.max(4, Config.launcherRadius - 4)
+                visible: false
+                layer.enabled: true
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: sideImg
+                visible: sideImg.status === Image.Ready
+                maskEnabled: true
+                maskSource: sideMask
+            }
+            Rectangle {
+                anchors.fill: parent
+                radius: sideMask.radius
+                visible: sideImg.status !== Image.Ready
+                color: Theme.primaryContainer
+            }
+            // Soft fade at the bottom, with a little caption
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                height: 90
+                radius: sideMask.radius
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 1.0; color: Theme.alpha("#000000", 0.55) }
+                }
+            }
+            BarText {
+                anchors {
+                    left: parent.left
+                    bottom: parent.bottom
+                    margins: 14
+                }
+                text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "") + "  ·  " + Qt.formatDateTime(Time.now, "ddd d MMM")
+                color: Qt.rgba(1, 1, 1, 0.92)
+                font.pixelSize: 13
+            }
+        }
+
         Column {
             id: column
             anchors {
-                fill: parent
-                margins: 14
+                left: parent.left
+                right: parent.right
+                top: parent.top
+                leftMargin: 14 + (card.hasImage && card.imageLeft ? card.imageSpace : 0)
+                rightMargin: 14 + (card.hasImage && !card.imageLeft ? card.imageSpace : 0)
+                topMargin: 14
             }
             spacing: 10
 
@@ -97,24 +242,13 @@ Item {
                     selectedTextColor: Theme.primaryFg
                     font.family: Theme.font
                     font.pixelSize: 15
-                    onTextChanged: list.currentIndex = 0
-
-                    Keys.onPressed: event => {
-                        const ctrl = event.modifiers & Qt.ControlModifier;
-                        if (event.key === Qt.Key_Escape) {
-                            AppMenu.open = false;
-                        } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab || (ctrl && event.key === Qt.Key_J)) {
-                            list.incrementCurrentIndex();
-                        } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Backtab || (ctrl && event.key === Qt.Key_K)) {
-                            list.decrementCurrentIndex();
-                        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            if (root.results.length > 0)
-                                AppMenu.launch(root.results[list.currentIndex]);
-                        } else {
-                            return;
-                        }
-                        event.accepted = true;
+                    onTextChanged: {
+                        root.query = text;
+                        list.currentIndex = 0;
+                        grid.currentIndex = 0;
                     }
+
+                    Keys.onPressed: event => root.handleKey(event)
                 }
 
                 BarText {
@@ -141,7 +275,7 @@ Item {
                 model: root.results
                 highlightMoveDuration: 120
                 boundsBehavior: Flickable.StopAtBounds
-                visible: list.count > 0
+                visible: !root.gridMode && list.count > 0
 
                 highlight: Rectangle {
                     radius: Theme.innerRadius + 2
@@ -207,13 +341,297 @@ Item {
                 }
             }
 
+            GridView {
+                id: grid
+
+                width: parent.width
+                readonly property int columns: Math.max(2, Config.launcherColumns)
+                cellWidth: Math.floor(width / columns)
+                cellHeight: Config.launcherCellHeight
+                height: Math.min(contentHeight, Config.launcherRows * cellHeight)
+                clip: true
+                model: root.results
+                highlightMoveDuration: 120
+                boundsBehavior: Flickable.StopAtBounds
+                visible: root.gridMode && grid.count > 0
+
+                highlight: Rectangle {
+                    radius: Theme.innerRadius + 4
+                    color: Theme.primaryContainer
+                }
+
+                delegate: Item {
+                    id: cell
+
+                    required property var modelData
+                    required property int index
+                    readonly property bool selected: GridView.isCurrentItem
+
+                    width: grid.cellWidth
+                    height: grid.cellHeight
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6
+                        width: parent.width - 12
+
+                        IconImage {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            implicitSize: Math.round(Config.launcherIconSize * 1.5)
+                            source: Quickshell.iconPath(cell.modelData.icon, "application-x-executable")
+                            mipmap: true
+                        }
+                        BarText {
+                            width: parent.width
+                            horizontalAlignment: Text.AlignHCenter
+                            text: cell.modelData.name
+                            font.pixelSize: 12
+                            color: cell.selected ? Theme.primaryContainerFg : Theme.text
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: grid.currentIndex = cell.index
+                        onClicked: AppMenu.launch(cell.modelData)
+                    }
+                }
+            }
+
             BarText {
                 visible: root.results.length === 0
                 width: parent.width
                 height: 40
                 horizontalAlignment: Text.AlignHCenter
-                text: "No apps match \"" + search.text + "\""
+                text: "No apps match \"" + root.query + "\""
                 color: Theme.textDim
+            }
+        }
+    }
+
+    // ======================= full-screen mode ================================
+    Item {
+        id: fsView
+        anchors.fill: parent
+        visible: root.fs
+
+        // Optional blurred wallpaper background instead of the live screen blur
+        Image {
+            id: fsWall
+            anchors.fill: parent
+            visible: false
+            source: "file://" + Quickshell.env("HOME") + "/.cache/lockscreen.png?" + Wallpapers.imageRev
+            cache: false
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+        }
+        MultiEffect {
+            anchors.fill: parent
+            source: fsWall
+            visible: Config.launcherFsBackground === "wallpaper" && fsWall.status === Image.Ready
+            blurEnabled: true
+            blurMax: 64
+            blur: 0.55
+            autoPaddingEnabled: false
+        }
+
+        // Click anywhere empty to close
+        MouseArea {
+            anchors.fill: parent
+            onClicked: AppMenu.open = false
+            onWheel: event => {
+                const dir = event.angleDelta.y < 0 ? 1 : -1;
+                root.fsIndex = Math.max(0, Math.min(root.results.length - 1,
+                    root.fsIndex + dir * root.pageSize));
+            }
+        }
+
+        // Search pill
+        Rectangle {
+            id: fsSearchBox
+            anchors {
+                top: parent.top
+                topMargin: 52
+                horizontalCenter: parent.horizontalCenter
+            }
+            width: Math.min(420, parent.width - 80)
+            height: 44
+            radius: height / 2
+            color: Theme.alpha(Theme.surfaceHigh, 0.7)
+            border.width: 1
+            border.color: Theme.alpha(Theme.outlineVariant, 0.9)
+
+            BarText {
+                id: fsSearchIcon
+                anchors {
+                    left: parent.left
+                    leftMargin: 16
+                    verticalCenter: parent.verticalCenter
+                }
+                text: Theme.icon(0xf0349)
+                color: Theme.alpha(Theme.text, 0.6)
+                font.pixelSize: 16
+            }
+            TextField {
+                id: fsSearch
+                anchors {
+                    left: fsSearchIcon.right
+                    right: parent.right
+                    leftMargin: 10
+                    rightMargin: 16
+                    verticalCenter: parent.verticalCenter
+                }
+                background: null
+                color: Theme.text
+                placeholderText: "Search"
+                placeholderTextColor: Theme.alpha(Theme.text, 0.45)
+                selectionColor: Theme.primary
+                selectedTextColor: Theme.primaryFg
+                font.family: Theme.font
+                font.pixelSize: 15
+                horizontalAlignment: text === "" ? Text.AlignHCenter : Text.AlignLeft
+                onTextChanged: root.query = text
+                Keys.onPressed: event => root.handleKey(event)
+            }
+        }
+
+        // The page of icons
+        Item {
+            id: pageArea
+            anchors {
+                top: fsSearchBox.bottom
+                topMargin: 36
+                bottom: dots.top
+                bottomMargin: 14
+                left: parent.left
+                right: parent.right
+                leftMargin: Math.max(40, parent.width * 0.06)
+                rightMargin: Math.max(40, parent.width * 0.06)
+            }
+
+            readonly property real cellW: width / root.fsCols
+            readonly property real cellH: height / root.fsRows
+
+            // Fade the page when it changes
+            property int shownPage: root.page
+            onShownPageChanged: pageFade.restart()
+            NumberAnimation {
+                id: pageFade
+                target: iconGrid
+                property: "opacity"
+                from: 0.2
+                to: 1
+                duration: Theme.dur(220)
+                easing.type: Easing.OutCubic
+            }
+
+            Grid {
+                id: iconGrid
+                columns: root.fsCols
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Repeater {
+                    model: root.pageItems
+
+                    delegate: Item {
+                        id: cell
+
+                        required property var modelData
+                        required property int index
+                        readonly property bool selected: root.page * root.pageSize + index === root.fsIndex
+
+                        width: pageArea.cellW
+                        height: pageArea.cellH
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: Math.min(parent.width - 10, Config.launcherFsIcon + 56)
+                            height: Math.min(parent.height - 8, Config.launcherFsIcon + (Config.launcherFsNames ? 54 : 28))
+                            radius: Config.itemRadius + 6
+                            color: cell.selected ? Theme.alpha(Theme.text, 0.16)
+                                 : mouse.containsMouse ? Theme.alpha(Theme.text, 0.08) : "transparent"
+                            Behavior on color {
+                                ColorAnimation { duration: Theme.dur(120) }
+                            }
+                        }
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 10
+                            width: parent.width - 16
+
+                            IconImage {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                implicitSize: Config.launcherFsIcon
+                                source: Quickshell.iconPath(cell.modelData.icon, "application-x-executable")
+                                mipmap: true
+                                scale: cell.selected || mouse.containsMouse ? 1.08 : 1
+                                Behavior on scale {
+                                    NumberAnimation { duration: Theme.dur(140); easing.type: Easing.OutBack }
+                                }
+                            }
+                            BarText {
+                                visible: Config.launcherFsNames
+                                width: parent.width
+                                horizontalAlignment: Text.AlignHCenter
+                                text: cell.modelData.name
+                                font.pixelSize: 13
+                                color: "#ffffff"
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        MouseArea {
+                            id: mouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onEntered: root.fsIndex = root.page * root.pageSize + cell.index
+                            onClicked: AppMenu.launch(cell.modelData)
+                        }
+                    }
+                }
+            }
+
+            BarText {
+                anchors.centerIn: parent
+                visible: root.results.length === 0
+                text: "No apps match \"" + root.query + "\""
+                color: Theme.textDim
+                font.pixelSize: 16
+            }
+        }
+
+        // Page dots
+        Row {
+            id: dots
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: 34
+                horizontalCenter: parent.horizontalCenter
+            }
+            spacing: 12
+            visible: root.pageCount > 1
+
+            Repeater {
+                model: root.pageCount
+                delegate: Rectangle {
+                    required property int index
+                    width: 9
+                    height: 9
+                    radius: 5
+                    color: index === root.page ? "#ffffff" : Theme.alpha("#ffffff", 0.35)
+                    scale: index === root.page ? 1.15 : 1
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: -6
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.fsIndex = index * root.pageSize
+                    }
+                }
             }
         }
     }

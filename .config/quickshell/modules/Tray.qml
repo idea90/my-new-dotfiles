@@ -5,8 +5,8 @@ import Quickshell.Widgets
 import qs
 
 // Left click: activate. Right click: the app's menu.
-Pill {
-    padding: 6
+Row {
+    readonly property bool hasItems: SystemTray.items.values.length > 0
 
     Repeater {
         model: SystemTray.items
@@ -17,7 +17,7 @@ Pill {
             required property SystemTrayItem modelData
 
             width: 26
-            height: Theme.pillHeight
+            height: 30
 
             IconImage {
                 anchors.centerIn: parent

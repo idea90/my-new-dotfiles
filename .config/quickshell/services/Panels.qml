@@ -9,7 +9,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property string open: ""   // "" | controlcenter | power | wallpaper | wifi
+    property string open: ""   // "" | controlcenter | calendar | power | wallpaper | wifi
 
     function toggle(name) {
         open = open === name ? "" : name;
@@ -23,6 +23,12 @@ Singleton {
         target: "controlcenter"
         function toggle(): void {
             root.toggle("controlcenter");
+        }
+    }
+    IpcHandler {
+        target: "calendar"
+        function toggle(): void {
+            root.toggle("calendar");
         }
     }
     IpcHandler {

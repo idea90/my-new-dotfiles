@@ -69,9 +69,9 @@ Optional: `./setup-git.sh` sets your global git name/email.
 | `Super+Escape` | Power menu (`L` lock, `E` log out, `U` suspend, `H` hibernate, `R` reboot, `S` shut down) |
 | `Super+Shift+M` | Exit Hyprland |
 
-Bar: click / right click / scroll on items (launcher: apps / wallpapers, workspaces, volume: mixer / mute / scroll, brightness: scroll, Wi-Fi: network menu / editor, music: play-pause / skip, bell: control center / Do Not Disturb, power menu). Hover the CPU item for memory and temperature.
+Bar (floating islands): launcher (click: apps, right click: wallpapers), workspaces with the icons of their apps, window title, clock (click: calendar), now playing with album art and progress (click: play/pause, scroll: skip), tray, rings for CPU / volume / brightness / battery (hover for numbers; scroll volume and brightness, right click volume to mute), Wi-Fi (click: network menu), bell with unread count (click: control center, right click: Do Not Disturb), power menu.
 
-Media keys (volume, mic mute, brightness) show an on-screen pop-up. Everything can also be driven from a terminal or keybind with `qs ipc call <target> <function>`; targets: `launcher`, `controlcenter`, `power`, `wallpaper`, `wifi` (`toggle`), `osd` (`volumeUp`, `volumeDown`, `volumeMute`, `micMute`, `brightnessUp`, `brightnessDown`), `notifications` (`toggleDnd`, `clear`).
+Media keys (volume, mic mute, brightness) show an on-screen pop-up. Everything can also be driven from a terminal or keybind with `qs ipc call <target> <function>`; targets: `launcher`, `controlcenter`, `calendar`, `power`, `wallpaper`, `wifi` (`toggle`), `osd` (`volumeUp`, `volumeDown`, `volumeMute`, `micMute`, `brightnessUp`, `brightnessDown`), `notifications` (`toggleDnd`, `clear`).
 
 # GTK and Qt
 - GTK uses `adw-gtk3` + libadwaita, recolored through `~/.config/gtk-{3,4}.0/colors.css`.

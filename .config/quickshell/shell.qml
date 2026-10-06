@@ -2,6 +2,7 @@
 // Edits hot-reload; restart with `qs` if something gets stuck.
 import QtQuick
 import Quickshell
+import qs.calendar
 import qs.controlcenter
 import qs.launcher
 import qs.notifications
@@ -18,6 +19,7 @@ ShellRoot {
     }
 
     LauncherWindow {}
+    CalendarPanel {}
     NotificationPopups {}
     ControlCenter {}
     Osd {}

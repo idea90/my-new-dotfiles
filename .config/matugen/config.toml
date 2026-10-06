@@ -2,7 +2,7 @@
 reload_apps = true
 
 [config.wallpaper]
-command = "swww"
+command = "awww"
 arguments = [ "img", "-t", "outer", "--transition-duration", "1.5", "--transition-step", "255", "--transition-fps", "60", "-f", "Nearest",]
 set = true
 
@@ -56,3 +56,7 @@ post_hook = 'swaync-client -rs'
 input_path = '~/.config/matugen/template/spotify-colors.ini'
 output_path = '~/.config/spicetify/Themes/Comfy/color.ini'
 post_hook = '[ -x ~/.spicetify/spicetify ] && ~/.spicetify/spicetify apply || true'
+
+[templates.starship]
+input_path = "~/.config/matugen/template/starship.toml"
+output_path = "~/.config/starship/starship.toml"

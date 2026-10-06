@@ -1,112 +1,148 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# Unified desktop configuration script with wallpaper selection and color scheme handling
+# Wallpaper picker (Super+W): pick a wallpaper in a rofi grid, set it with awww
+# and regenerate every color with matugen.
+#
+#   Enter   apply wallpaper
+#   Alt+D   toggle dark / light
+#   Alt+T   choose the matugen scheme type
+#   Alt+R   random wallpaper
+#
+#   apply-wal --random    random wallpaper, no picker
+#   apply-wal --reapply   regenerate colors for the current wallpaper
 #
 # Dependencies: rofi, awww, matugen, imagemagick, libnotify
 
 SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 
-# Configuration
-ROFI_CMD="${ROFI_CMD:-rofi -dmenu -i -show-icons}"
 ROFI_THEME_DIR="${ROFI_THEME_DIR:-$HOME/.config/rofi}"
 WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
+THUMBS_DIR="$HOME/.cache/wallpaper-thumbs"
 CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
+LOCK_IMAGE="$HOME/.cache/lockscreen.png"   # sharp PNG, hyprlock blurs it itself
 ENV_FILE="$SCRIPT_PATH/.env"
 
-# Load or initialize environment settings
-mkdir -p "$(dirname "$ENV_FILE")"
-[ -f "$ENV_FILE" ] && source "$ENV_FILE"
+SCHEMES=(scheme-tonal-spot scheme-content scheme-expressive scheme-fidelity
+         scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow)
+
+# shellcheck source=/dev/null
+[[ -f "$ENV_FILE" ]] && source "$ENV_FILE"
 MODE="${MODE:-dark}"
 TYPE="${TYPE:-scheme-tonal-spot}"
 
-# Ensure required directories
-mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
+mkdir -p "$WALLPAPERS_DIR" "$THUMBS_DIR"
 
 # rofi needs colors.rasi to draw the picker; create starter colors if missing
 "$SCRIPT_PATH/seed-colors.sh" >/dev/null 2>&1
 
-# Generate options list
-# Newest first, as rofi rows "name\0icon\x1fpath" (escapes are expanded by echo -e below)
-list_images() {
-    find "$WALLPAPERS_DIR" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) "$@"
+save_env() {
+    printf 'MODE=%s\nTYPE=%s\n' "$MODE" "$TYPE" > "$ENV_FILE"
 }
-images=$(list_images -printf '%T@ %f\n' | sort -rn | cut -d' ' -f2- |
-    while IFS= read -r name; do printf '%s\\x00icon\\x1f%s/%s\\n' "$name" "$WALLPAPERS_DIR" "$name"; done)
-all_options="Switch Dark/Light Mode\x00icon\x1fweather-clear-night\nSelect Color Scheme Type\x00icon\x1fpreferences-desktop-color\nRandom Choice\x00icon\x1fmedia-playlist-shuffle\n$images"
 
-# Show rofi menu
-choice=$(echo -en "$all_options" | $ROFI_CMD -theme "$ROFI_THEME_DIR/wallpaper.rasi" -p "Wallpaper")
+# Wallpaper file names, newest first
+list_images() {
+    find "$WALLPAPERS_DIR" -maxdepth 1 -type f \
+        \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) \
+        -printf '%T@ %f\n' | sort -rn | cut -d' ' -f2-
+}
 
-# Handle user selection
-case "$choice" in
-    "Switch Dark/Light Mode")
-        [ "$MODE" == "dark" ] && MODE="light" || MODE="dark"
-        notify-send "Mode Switched" "Now using $MODE mode"
-        "$SCRIPT_PATH/gtk-settings.sh" "$MODE"
-        ;;
-    "Select Color Scheme Type")
-        scheme_options="scheme-content\nscheme-expressive\nscheme-fidelity\nscheme-fruit-salad\nscheme-monochrome\nscheme-neutral\nscheme-rainbow\nscheme-tonal-spot"
-        selected_scheme=$(echo -e "$scheme_options" | $ROFI_CMD -theme "$ROFI_THEME_DIR/dmenu.rasi" -p "Color Scheme")
-        if [ -n "$selected_scheme" ]; then
-            TYPE="$selected_scheme"
-            notify-send "Color Scheme Updated" "Now using $TYPE"
-        fi
-        ;;
-    "Random Choice")
-        selected_wallpaper=$(list_images | shuf -n 1)
-        ;;
-    "")
+thumb_of() { printf '%s/%s.png' "$THUMBS_DIR" "$1"; }
+
+# Square thumbnails: rofi loads these instead of full-size images, so the
+# picker opens fast even with large wallpapers. Rebuilt when the source changes.
+make_thumbs() {
+    local name missing=()
+    while IFS= read -r name; do
+        [[ "$(thumb_of "$name")" -nt "$WALLPAPERS_DIR/$name" ]] || missing+=("$name")
+    done
+    (( ${#missing[@]} )) || return 0
+    notify-send -a Wallpaper -t 3000 "Preparing ${#missing[@]} thumbnails..."
+    printf '%s\0' "${missing[@]}" | xargs -0 -P "$(nproc)" -I{} \
+        magick "$WALLPAPERS_DIR/{}[0]" -thumbnail '400x400^' -gravity center -extent 400x400 "$THUMBS_DIR/{}.png"
+}
+
+apply_wallpaper() {
+    local wallpaper="$1"
+    [[ -f "$wallpaper" ]] || { notify-send -a Wallpaper "Wallpaper not found" "$wallpaper"; exit 1; }
+    echo "$wallpaper" > "$CURRENT_WALLPAPER_FILE"
+
+    # Show the new wallpaper right away, then recolor everything
+    awww img "$wallpaper" --transition-type center
+    if ! matugen image "$wallpaper" -m "$MODE" -t "$TYPE" --source-color-index 0; then
+        notify-send -a Wallpaper -u critical "Failed to generate colors"
         exit 1
-        ;;
-    *)
-        selected_wallpaper="$WALLPAPERS_DIR/$choice"
-        ;;
+    fi
+    magick "$wallpaper" -resize "2560x2560>" "$LOCK_IMAGE"
+    notify-send -a Wallpaper -i "$(thumb_of "$(basename "$wallpaper")")" "Theme updated" "$(basename "$wallpaper") · $MODE · ${TYPE#scheme-}"
+}
+
+reapply() {
+    local current
+    current="$(cat "$CURRENT_WALLPAPER_FILE" 2>/dev/null)"
+    [[ -f "$current" ]] && apply_wallpaper "$current"
+}
+
+random_wallpaper() {
+    local name
+    name="$(list_images | shuf -n 1)"
+    [[ -n "$name" ]] && apply_wallpaper "$WALLPAPERS_DIR/$name"
+}
+
+pick_scheme() {
+    local choice
+    choice="$(printf '%s\n' "${SCHEMES[@]#scheme-}" |
+        rofi -dmenu -i -p "Scheme" -theme "$ROFI_THEME_DIR/dmenu.rasi" \
+            -select "${TYPE#scheme-}")" || return 1
+    TYPE="scheme-$choice"
+}
+
+picker() {
+    local names=() name current="" row=0 i choice status
+    mapfile -t names < <(list_images)
+    if (( ${#names[@]} == 0 )); then
+        notify-send -a Wallpaper "No wallpapers" "Put some images in ${WALLPAPERS_DIR/#$HOME/\~}"
+        exit 1
+    fi
+    printf '%s\n' "${names[@]}" | make_thumbs
+
+    current="$(basename "$(cat "$CURRENT_WALLPAPER_FILE" 2>/dev/null)" 2>/dev/null)"
+    for i in "${!names[@]}"; do
+        [[ "${names[i]}" == "$current" ]] && row=$i
+    done
+
+    local mesg="<b>${MODE^}</b> · ${TYPE#scheme-}      <span alpha='60%'>Alt+D mode   Alt+T scheme   Alt+R random</span>"
+
+    choice="$(for name in "${names[@]}"; do
+                  printf '%s\0icon\x1f%s\n' "$name" "$(thumb_of "$name")"
+              done | rofi -dmenu -i -show-icons -p "Wallpaper" \
+                  -theme "$ROFI_THEME_DIR/wallpaper.rasi" \
+                  -mesg "$mesg" -selected-row "$row" \
+                  -kb-custom-1 "Alt+d" -kb-custom-2 "Alt+t" -kb-custom-3 "Alt+r")"
+    status=$?
+
+    case $status in
+        0)  [[ -n "$choice" ]] && apply_wallpaper "$WALLPAPERS_DIR/$choice" ;;
+        10) # Alt+D: flip mode, recolor, reopen the picker
+            [[ "$MODE" == dark ]] && MODE=light || MODE=dark
+            save_env
+            "$SCRIPT_PATH/gtk-settings.sh" "$MODE"
+            reapply
+            picker
+            ;;
+        11) # Alt+T: pick a scheme, recolor, reopen the picker
+            if pick_scheme; then
+                save_env
+                reapply
+            fi
+            picker
+            ;;
+        12) random_wallpaper ;;
+        *)  exit 0 ;;
+    esac
+}
+
+case "${1:-}" in
+    --random)  random_wallpaper ;;
+    --reapply) reapply ;;
+    *)         picker ;;
 esac
-
-# Persist environment settings
-echo "MODE=$MODE" > "$ENV_FILE"
-echo "TYPE=$TYPE" >> "$ENV_FILE"
-
-# Variables for cached images
-normal_image="$HOME/.cache/normal-wallpaper.png"
-lock_image="$HOME/.cache/lockscreen.png"   # sharp PNG, hyprlock blurs it itself
-
-# Determine wallpaper to use
-if [ -n "$selected_wallpaper" ]; then
-    if [ ! -f "$selected_wallpaper" ]; then
-        notify-send "Error" "Selected wallpaper not found: $selected_wallpaper"
-        exit 1
-    fi
-    echo "$selected_wallpaper" > "$CURRENT_WALLPAPER_FILE"
-elif [ -f "$CURRENT_WALLPAPER_FILE" ]; then
-    selected_wallpaper=$(cat "$CURRENT_WALLPAPER_FILE")
-fi
-
-# Apply wallpaper and color scheme if valid wallpaper exists
-if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
-    if ! cp "$selected_wallpaper" "$normal_image"; then
-        notify-send "Error" "Failed to copy wallpaper to cache"
-        exit 1
-    fi
-
-    if ! matugen image "$selected_wallpaper" -m "$MODE" -t "$TYPE" --source-color-index 0; then
-        notify-send "Error" "Failed to generate color scheme"
-        exit 1
-    fi
-
-    awww img "$selected_wallpaper" --transition-type center
-
-    magick "$selected_wallpaper" -resize "2560x2560>" "$lock_image"
-
-    notify-send "Success" "Desktop configuration updated"
-else
-    notify-send "Warning" "No valid wallpaper selected - using existing configuration"
-    if [ -f "$normal_image" ]; then
-        if ! matugen image "$normal_image" -m "$MODE" -t "$TYPE" --source-color-index 0; then
-            notify-send "Error" "Failed to generate color scheme from cached wallpaper"
-            exit 1
-        fi
-    fi
-fi
-
-exit 0

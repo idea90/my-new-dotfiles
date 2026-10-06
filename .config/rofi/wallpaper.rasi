@@ -1,41 +1,74 @@
-/* Wallpaper picker (Super+W): grid of large previews */
+/* Wallpaper picker (Super+W): two rows of square thumbnails + key hints.
+ * 5 columns x 2 rows fits a 1366x768 laptop screen. */
 @import "config.rasi"
 
 window {
-    width: 1100px;
+    width:   1120px;
+    padding: 0;
 }
 
 mainbox {
-    children: [ "inputbar", "listview" ];
+    padding:  16px;
+    spacing:  12px;
+    children: [ "inputbar", "message", "listview" ];
 }
 
 inputbar {
-    children: [ "prompt", "entry" ];
+    children: [ "prompt", "entry", "num-filtered-rows", "textbox-num-sep", "num-rows" ];
+}
+
+/* Mode, scheme and key hints */
+message {
+    padding:          8px 14px;
+    background-color: transparent;
+}
+
+textbox {
+    text-color: @fg-dim;
+    markup:     true;
 }
 
 listview {
     columns:      5;
-    lines:        3;
+    lines:        2;
     spacing:      10px;
     flow:         horizontal;
     fixed-height: true;
+    fixed-columns: true;
 }
 
 element {
-    orientation: vertical;
-    padding:     8px;
-    spacing:     6px;
+    orientation:      vertical;
+    padding:          8px;
+    spacing:          6px;
+    border:           2px solid;
+    border-color:     transparent;
+    border-radius:    12px;
+    background-color: transparent;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+}
+
+element selected.normal {
+    border-color:     @accent;
+    background-color: @bg-alt;
+    text-color:       @fg;
 }
 
 element-icon {
-    size: 180px;
+    size:          190px;
+    border-radius: 8px;
 }
 
 element-text {
     horizontal-align: 0.5;
+    font:             "RobotoMono Nerd Font 9";
+    text-color:       @fg-dim;
 }
 
-element selected.normal {
-    background-color: @accent-soft;
-    text-color:       @on-soft;
+element selected.normal element-text {
+    text-color: @accent;
 }

@@ -23,7 +23,12 @@ TYPE="${TYPE:-scheme-tonal-spot}"
 mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
 
 # Generate options list
-images=$(find "$WALLPAPERS_DIR" -type f -maxdepth 1 -printf "%T@ %f\x00icon\x1f$WALLPAPERS_DIR/%f\n" | sort -rn | cut -d' ' -f2-)
+# Newest first, as rofi rows "name\0icon\x1fpath" (escapes are expanded by echo -e below)
+list_images() {
+    find "$WALLPAPERS_DIR" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) "$@"
+}
+images=$(list_images -printf '%T@ %f\n' | sort -rn | cut -d' ' -f2- |
+    while IFS= read -r name; do printf '%s\\x00icon\\x1f%s/%s\\n' "$name" "$WALLPAPERS_DIR" "$name"; done)
 all_options="Switch Dark/Light Mode\x00icon\x1fweather-clear-night\nSelect Color Scheme Type\x00icon\x1fpreferences-desktop-color\nRandom Choice\x00icon\x1fmedia-playlist-shuffle\n$images"
 
 # Show rofi menu
@@ -45,7 +50,7 @@ case "$choice" in
         fi
         ;;
     "Random Choice")
-        selected_wallpaper=$(find "$WALLPAPERS_DIR" -type f | shuf -n 1)
+        selected_wallpaper=$(list_images | shuf -n 1)
         ;;
     "")
         exit 1
@@ -81,7 +86,7 @@ if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
         exit 1
     fi
 
-    if ! matugen image "$selected_wallpaper" -m "$MODE" -t "$TYPE"; then
+    if ! matugen image "$selected_wallpaper" -m "$MODE" -t "$TYPE" --source-color-index 0; then
         notify-send "Error" "Failed to generate color scheme"
         exit 1
     fi
@@ -94,7 +99,7 @@ if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
 else
     notify-send "Warning" "No valid wallpaper selected - using existing configuration"
     if [ -f "$normal_image" ]; then
-        if ! matugen image "$normal_image" -m "$MODE" -t "$TYPE"; then
+        if ! matugen image "$normal_image" -m "$MODE" -t "$TYPE" --source-color-index 0; then
             notify-send "Error" "Failed to generate color scheme from cached wallpaper"
             exit 1
         fi

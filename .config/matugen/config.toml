@@ -12,6 +12,10 @@ input_path = "~/.config/matugen/template/hyprland-colors.conf"
 output_path = "~/.config/hypr/colors.conf"
 post_hook = "hyprctl reload"
 
+[templates.hyprland_lua]
+input_path = "~/.config/matugen/template/hyprland-colors.lua"
+output_path = "~/.config/hypr/colors.lua"
+
 [templates.alacritty]
 input_path = "~/.config/matugen/template/alacritty.toml"
 output_path = "~/.config/alacritty/colors.toml"
@@ -40,6 +44,10 @@ output_path = "~/.config/qt6ct/colors/matugen.conf"
 input_path = "~/.config/matugen/template/qtct-colors.conf"
 output_path = "~/.config/qt5ct/colors/matugen.conf"
 
+# Kirigami / KDE apps (KDE Connect, Dolphin...) read colors from kdeglobals, not qt6ct
+[templates.kdeglobals]
+input_path = "~/.config/matugen/template/kdeglobals"
+output_path = "~/.config/kdeglobals"
 
 [templates.spicetify]
 input_path = '~/.config/matugen/template/spotify-colors.ini'

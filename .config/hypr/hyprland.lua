@@ -204,18 +204,21 @@ hl.bind(mainMod .. " + G",           hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V",           hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",           hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + Z",           hl.dsp.exec_cmd("firefox"))
+hl.bind(mainMod .. " + I",           hl.dsp.exec_cmd("qs ipc call settings toggle")) -- Settings from anywhere
 hl.bind(mainMod .. " + W",           hl.dsp.exec_cmd("qs ipc call theme toggle"))
 hl.bind(mainMod .. " + P",           hl.dsp.window.pseudo())          -- dwindle
 hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))    -- dwindle
 hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + F",   hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })) -- maximize, keep bar
 
--- Screenshots (Quickshell tool; copied to clipboard, saved to ~/Screenshots)
-hl.bind("Print",                     hl.dsp.exec_cmd("qs ipc call screenshot area"))
-hl.bind("SHIFT + Print",             hl.dsp.exec_cmd("qs ipc call screenshot screen"))
-hl.bind("ALT + Print",               hl.dsp.exec_cmd("qs ipc call screenshot window"))
-hl.bind(mainMod .. " + K",           hl.dsp.exec_cmd("qs ipc call screenshot toggle")) -- toolbar: mode, delay, copy/save
-hl.bind(mainMod .. " + SHIFT + K",   hl.dsp.exec_cmd("qs ipc call screenshot screen"))
+-- Screenshots (copied to clipboard, saved to the Screenshots folder)
+-- The Quickshell tool is still there: qs ipc call screenshot toggle|area|window|screen
+local shot = hypr .. "/scripts/screenshot.sh"
+hl.bind("Print",                     hl.dsp.exec_cmd(shot .. " --area"))
+hl.bind("SHIFT + Print",             hl.dsp.exec_cmd(shot .. " --now"))
+hl.bind("ALT + Print",               hl.dsp.exec_cmd(shot .. " --win"))
+hl.bind(mainMod .. " + K",           hl.dsp.exec_cmd(shot .. " --area"))
+hl.bind(mainMod .. " + SHIFT + K",   hl.dsp.exec_cmd(shot .. " --now"))
 
 -- Move focus with mainMod + arrow keys
 -- Move windows with mainMod + SHIFT + arrow keys
@@ -258,6 +261,40 @@ hl.bind("XF86AudioNext",             hl.dsp.exec_cmd("playerctl next"),       { 
 hl.bind("XF86AudioPause",            hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay",             hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",             hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+
+
+---------------------------
+---- LAYER RULES (blur) ----
+---------------------------
+
+-- Quickshell windows blur what is behind them wherever their fill is translucent.
+-- Full-screen overlays have a dim scrim, so they ignore low alpha (the scrim stays unblurred).
+hl.layer_rule({
+    name  = "qs-blur-bars",
+    match = { namespace = "^(qs-bar|qs-dock|quickshell-(osd|notifications|screenshot-preview))$" },
+    blur         = true,
+    ignore_alpha = 0.2,
+})
+-- Power menu and goodbye screen: blur the whole screen, scrim included
+-- Launcher: blur only behind the (translucent) card; the light dim scrim stays sharp
+hl.layer_rule({
+    name  = "qs-blur-launcher",
+    match = { namespace = "^qs-launcher$" },
+    blur         = true,
+    ignore_alpha = 0.45,
+})
+hl.layer_rule({
+    name  = "qs-blur-powermenu",
+    match = { namespace = "^qs-powermenu$" },
+    blur         = true,
+    ignore_alpha = 0.01,
+})
+hl.layer_rule({
+    name  = "qs-blur-panels",
+    match = { namespace = "^(qs-panel)$" },
+    blur         = true,
+    ignore_alpha = 0.25,
+})
 
 
 --------------------------------

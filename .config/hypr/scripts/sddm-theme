@@ -33,13 +33,13 @@ write_data() {
     cp "$SRC/theme.conf" "$out/theme.conf"
 
     if [[ -f "$WALL" ]]; then
-        magick "$WALL" -resize 3840x2160\> -gravity center -blur 0x24 -fill black -colorize 45% "$out/background.png.new" \
+        magick "$WALL" -resize 3840x2160\> -gravity center -blur 0x10 -fill black -colorize 30% "$out/background.png.new" \
             && mv -f "$out/background.png.new" "$out/background.png"
     fi
 
     if [[ -f "$COLORS" ]]; then
         local key val
-        for key in primary primaryFg surfaceLow surfaceHigh surfaceHighest text textDim error outlineVariant; do
+        for key in primary primaryFg primaryContainer primaryContainerFg surfaceLow surfaceHigh surfaceHighest text textDim error outlineVariant; do
             val="$(jq -r --arg k "$key" '.[$k] // empty' "$COLORS")"
             [[ -n "$val" ]] && sed -i "s|^$key=.*|$key=$val|" "$out/theme.conf"
         done

@@ -10,7 +10,8 @@ Hyprland, waybar, rofi, swaync, wlogout, hyprlock, alacritty, GTK and Qt apps.
 | --- | --- |
 | Compositor | Hyprland (+ hypridle, hyprlock, hyprpolkitagent) |
 | Bar | Quickshell (`~/.config/quickshell`, waybar config kept as fallback) |
-| Launcher / menus | rofi |
+| App launcher | Quickshell (`Super+D`) |
+| Menus (wallpaper, Wi-Fi, scheme) | rofi |
 | Notifications | swaync |
 | Power menu | wlogout |
 | Wallpaper + colors | awww + matugen |
@@ -52,7 +53,7 @@ Optional: `./setup-git.sh` sets your global git name/email.
 | Keys | Action |
 | --- | --- |
 | `Super+T` | Terminal |
-| `Super+D` | App launcher |
+| `Super+D` | App launcher (type to search, arrows or Ctrl+J/K, Enter, Esc) |
 | `Super+G` | File manager |
 | `Super+Z` | Firefox |
 | `Super+W` | Wallpaper picker (in it: `Alt+D` dark/light, `Alt+T` scheme, `Alt+R` random) |

@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs
+import qs.services
 
 // Left click: apps. Right click: wallpaper picker.
 Chip {
@@ -10,6 +11,6 @@ Chip {
     fg: Theme.primaryFg
     bg: Theme.primary
     hoverBg: Theme.alpha(Theme.primary, 0.85)
-    onLeftClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
+    onLeftClicked: AppMenu.toggle()
     onRightClicked: Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/apply-wal"])
 }

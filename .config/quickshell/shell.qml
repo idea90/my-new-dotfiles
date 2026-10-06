@@ -2,6 +2,7 @@
 // Edits hot-reload; restart with `qs` if something gets stuck.
 import QtQuick
 import Quickshell
+import qs.launcher
 
 ShellRoot {
     Variants {
@@ -9,4 +10,6 @@ ShellRoot {
 
         Bar {}
     }
+
+    LauncherWindow {}
 }

@@ -1,4 +1,4 @@
-# My Dotfiles 🖥️
+# Kaleido
 
 Hyprland setup where everything follows the wallpaper: pick one with `Super+W` and matugen recolors
 Hyprland, the Quickshell shell, hyprlock, alacritty, the prompt, GTK and Qt apps.
@@ -18,8 +18,8 @@ Hyprland, the Quickshell shell, hyprlock, alacritty, the prompt, GTK and Qt apps
 Arch Linux only (uses pacman + an AUR helper; installs `yay` if you have none).
 
 ```
-git clone https://github.com/idea90/my-new-dotfiles.git
-cd my-new-dotfiles
+git clone https://github.com/idea90/kaleido.git
+cd kaleido
 ./install.sh
 ```
 

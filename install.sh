@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Dotfiles setup for Arch Linux + Hyprland.
+# Kaleido: dotfiles setup for Arch Linux + Hyprland.
 #
 #   ./install.sh               full setup (packages, links, wallpapers, extras)
 #   ./install.sh --links-only  only symlink configs
@@ -76,12 +76,12 @@ STEPS=0
 
 banner() {
     printf '\n'
-    printf '%s     _       _    __ _ _           %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
-    printf '%s  __| | ___ | |_ / _(_) | ___  ___ %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
-    printf '%s / _` |/ _ \\| __| |_| | |/ _ \\/ __|%s\n' "$C_BLUE$C_BOLD" "$C_RESET"
-    printf '%s| (_| | (_) | |_|  _| | |  __/\\__ \\%s\n' "$C_BLUE$C_BOLD" "$C_RESET"
-    printf '%s \\__,_|\\___/ \\__|_| |_|_|\\___||___/%s\n' "$C_CYAN$C_BOLD" "$C_RESET"
-    printf '\n  %sHyprland · Quickshell · matugen%s\n' "$C_DIM" "$C_RESET"
+    printf '%s _         _      _     _       %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
+    printf '%s| | ____ _| | ___(_) __| | ___  %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
+    printf '%s| |/ / _` | |/ _ \\ |/ _` |/ _ \\ %s\n' "$C_BLUE$C_BOLD" "$C_RESET"
+    printf '%s|   < (_| | |  __/ | (_| | (_) |%s\n' "$C_BLUE$C_BOLD" "$C_RESET"
+    printf '%s|_|\\_\\__,_|_|\\___|_|\\__,_|\\___/ %s\n' "$C_CYAN$C_BOLD" "$C_RESET"
+    printf '\n  %sKaleido · a Hyprland + Quickshell desktop that follows your wallpaper%s\n' "$C_DIM" "$C_RESET"
     printf '  %s%s@%s · %s%s\n' "$C_DIM" "$(id -un)" "$(uname -n)" "${REPO/#$HOME/\~}" "$C_RESET"
 }
 

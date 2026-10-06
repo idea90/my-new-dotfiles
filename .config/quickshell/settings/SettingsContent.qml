@@ -269,7 +269,7 @@ Card {
                         font.pixelSize: 22
                     }
                     BarText {
-                        text: "Settings"
+                        text: "Kaleido"
                         font.bold: true
                         font.pixelSize: 19
                     }

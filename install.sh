@@ -42,7 +42,7 @@ PACKAGES=(
     # files
     thunar thunar-archive-plugin thunar-volman tumbler gvfs
     # scripts: screenshots, audio, brightness, network, notifications
-    grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
+    curl grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
     pipewire pipewire-pulse wireplumber
     networkmanager network-manager-applet libnotify jq xdg-user-dirs xdg-utils
     python python-gobject
@@ -244,6 +244,44 @@ copy_wallpapers() {
     run cp -r --update=none "$REPO/Wallpapers/." "$WALLPAPER_DIR/"
 }
 
+# Clock fonts for the Quickshell lock screen styles (Google Fonts, OFL). Downloaded into
+# ~/.local/share/fonts/google; files already there are skipped, failures only warn.
+GOOGLE_FONTS=(
+    "outfit/Outfit[wght].ttf"
+    "spacegrotesk/SpaceGrotesk[wght].ttf"
+    "bebasneue/BebasNeue-Regular.ttf"
+    "playfairdisplay/PlayfairDisplay[wght].ttf"
+    "poppins/Poppins-Thin.ttf"
+    "poppins/Poppins-Light.ttf"
+    "poppins/Poppins-SemiBold.ttf"
+    "poppins/Poppins-Black.ttf"
+    "unbounded/Unbounded[wght].ttf"
+    "sora/Sora[wght].ttf"
+)
+
+install_fonts() {
+    command -v curl >/dev/null || { warn "curl missing, skipping fonts"; return 0; }
+    local dir="$HOME/.local/share/fonts/google"
+    local base="https://github.com/google/fonts/raw/main/ofl"
+    local path name url added=0
+    run mkdir -p "$dir"
+    info "Installing clock fonts to ${dir/#$HOME/\~}"
+    for path in "${GOOGLE_FONTS[@]}"; do
+        name="${path##*/}"
+        [[ -s "$dir/$name" ]] && continue
+        url="$base/${path//\[/%5B}"
+        url="${url//\]/%5D}"
+        # .part + rename: a cut-off download never leaves a broken font behind
+        if run curl -fsSL --retry 3 -m 240 -o "$dir/$name.part" "$url" && run mv -f "$dir/$name.part" "$dir/$name"; then
+            added=1
+        else
+            run rm -f "$dir/$name.part"
+            warn "Could not download $name (lock screen clock falls back to the default font)"
+        fi
+    done
+    if (( added )); then run fc-cache -f "$dir"; fi
+}
+
 # Lock screen reads a PNG copy of the current wallpaper (it blurs it itself). Create one so
 # hyprlock has a background before the first Super+W.
 seed_lockscreen() {
@@ -349,6 +387,7 @@ main() {
     if (( DO_LINKS ));      then link_configs; fi
     if (( DO_WALLPAPERS )); then copy_wallpapers; fi
     if (( DO_EXTRAS )); then
+        install_fonts
         seed_lockscreen
         apply_gtk_settings
         setup_qt

@@ -1,15 +1,17 @@
 import QtQuick
 import Quickshell
 import qs
+import qs.services
 
-// Left click: apps. Right click: wallpaper picker.
+// Left click: apps. Right click: wallpapers.
 Chip {
     icon: Theme.icon(0xf303)   // Arch logo
-    padding: 11
-    radius: Theme.pillRadius
+    implicitHeight: 30
+    padding: 10
+    radius: 15
     fg: Theme.primaryFg
     bg: Theme.primary
     hoverBg: Theme.alpha(Theme.primary, 0.85)
-    onLeftClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
-    onRightClicked: Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/apply-wal"])
+    onLeftClicked: AppMenu.toggle()
+    onRightClicked: Panels.toggle("wallpaper")
 }

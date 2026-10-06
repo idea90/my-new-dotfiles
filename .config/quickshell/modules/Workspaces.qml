@@ -1,9 +1,12 @@
 import QtQuick
+import Quickshell.Widgets
 import qs
 import qs.services
 
-Pill {
-    padding: 3
+// Workspace pills: number plus the icons of the apps on it.
+// Focused = filled accent, occupied = normal, empty = dim. Scroll to cycle.
+Row {
+    spacing: 2
 
     Repeater {
         model: Hypr.ids
@@ -13,32 +16,51 @@ Pill {
 
             required property int modelData
             readonly property bool focused: modelData === Hypr.focusedId
-            readonly property bool occupied: Hypr.occupied(modelData)
+            readonly property var icons: Hypr.appIcons(modelData, 3)
             readonly property bool urgent: Hypr.urgent(modelData)
 
-            width: focused ? 36 : 26
-            height: 22
-            radius: 7
+            width: content.implicitWidth + 16
+            height: 30
+            radius: 15
             color: urgent ? Theme.error
                  : focused ? Theme.primary
-                 : mouse.containsMouse ? Theme.alpha(Theme.primaryContainer, 0.6)
+                 : mouse.containsMouse ? Theme.surfaceHigh
                  : "transparent"
 
             Behavior on width {
-                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
             }
             Behavior on color {
                 ColorAnimation { duration: 200 }
             }
 
-            BarText {
+            Row {
+                id: content
                 anchors.centerIn: parent
-                text: ws.modelData
-                font.bold: ws.focused
-                color: ws.urgent ? Theme.errorFg
-                     : ws.focused ? Theme.primaryFg
-                     : ws.occupied ? Theme.text
-                     : Theme.alpha(Theme.text, 0.4)
+                spacing: 5
+
+                BarText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: ws.modelData
+                    font.bold: ws.focused
+                    font.pixelSize: 13
+                    color: ws.urgent ? Theme.errorFg
+                         : ws.focused ? Theme.primaryFg
+                         : ws.icons.length > 0 ? Theme.text
+                         : Theme.alpha(Theme.text, 0.4)
+                }
+
+                Repeater {
+                    model: ws.icons
+
+                    IconImage {
+                        required property string modelData
+                        anchors.verticalCenter: parent.verticalCenter
+                        implicitSize: 16
+                        source: modelData
+                        mipmap: true
+                    }
+                }
             }
 
             MouseArea {

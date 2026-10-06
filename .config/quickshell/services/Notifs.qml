@@ -3,43 +3,69 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Notifications
 
-// Unread count and Do Not Disturb from swaync (streamed by swaync-client -swb)
+// Notification daemon (replaces swaync). Every notification stays in the
+// control center until dismissed; new ones also pop up for a few seconds.
 Singleton {
     id: root
 
-    property int count: 0
     property bool dnd: false
+    readonly property var list: server.trackedNotifications.values
+    readonly property int count: list.length
+    property var popups: []
 
     function togglePanel() {
-        Quickshell.execDetached(["swaync-client", "-t", "-sw"]);
+        Panels.toggle("controlcenter");
     }
 
     function toggleDnd() {
-        Quickshell.execDetached(["swaync-client", "-d", "-sw"]);
+        dnd = !dnd;
     }
 
-    Process {
-        id: proc
-        running: true
-        command: ["swaync-client", "-swb"]
-        stdout: SplitParser {
-            // {"text": "2", "alt": "dnd-notification", ...}
-            onRead: line => {
-                try {
-                    const state = JSON.parse(line);
-                    root.count = parseInt(state.text) || 0;
-                    root.dnd = String(state.alt).startsWith("dnd");
-                } catch (e) {}
-            }
+    function clearAll() {
+        for (const n of list.slice())
+            n.dismiss();
+    }
+
+    function hidePopup(n) {
+        popups = popups.filter(p => p !== n);
+    }
+
+    // Seconds a popup stays up: the app's request, else by urgency; 0 = until dismissed
+    function popupSeconds(n) {
+        if (n.urgency === NotificationUrgency.Critical)
+            return 0;
+        if (n.expireTimeout > 0)
+            return n.expireTimeout;
+        return n.urgency === NotificationUrgency.Low ? 3 : 5;
+    }
+
+    NotificationServer {
+        id: server
+
+        keepOnReload: true
+        persistenceSupported: true
+        bodySupported: true
+        bodyMarkupSupported: true
+        actionsSupported: true
+        imageSupported: true
+
+        onNotification: n => {
+            n.tracked = true;
+            n.closed.connect(() => root.hidePopup(n));
+            if (!root.dnd || n.urgency === NotificationUrgency.Critical)
+                root.popups = [...root.popups, n];
         }
-        // swaync restarted or not up yet: try again shortly
-        onRunningChanged: if (!running) retry.start()
     }
 
-    Timer {
-        id: retry
-        interval: 3000
-        onTriggered: proc.running = true
+    IpcHandler {
+        target: "notifications"
+        function toggleDnd(): void {
+            root.toggleDnd();
+        }
+        function clear(): void {
+            root.clearAll();
+        }
     }
 }

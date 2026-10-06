@@ -1,32 +1,60 @@
 import QtQuick
-import Quickshell
 import qs
 import qs.services
 
-// Idle inhibitor, notification bell, power menu
-Pill {
-    Chip {
-        padding: 9
-        icon: Idle.inhibited ? Theme.icon(0xf0208) : Theme.icon(0xf0209)
-        fg: Idle.inhibited ? Theme.tertiaryContainerFg : Theme.text
-        bg: Idle.inhibited ? Theme.tertiaryContainer : "transparent"
-        onLeftClicked: Idle.toggle()
+// Notification bell with unread badge, power button
+Row {
+    spacing: 0
+
+    Item {
+        width: bell.implicitWidth
+        height: 30
+
+        Chip {
+            id: bell
+            implicitHeight: 30
+            radius: 15
+            padding: 9
+            icon: Notifs.dnd ? Theme.icon(0xf009b) : Theme.icon(0xf009a)
+            fg: Notifs.dnd ? Theme.alpha(Theme.text, 0.45) : Theme.text
+            hoverBg: Theme.surfaceHigh
+            onLeftClicked: Notifs.togglePanel()
+            onRightClicked: Notifs.toggleDnd()
+        }
+
+        // Unread count
+        Rectangle {
+            visible: Notifs.count > 0 && !Notifs.dnd
+            anchors {
+                top: parent.top
+                right: parent.right
+                topMargin: 1
+                rightMargin: 2
+            }
+            width: Math.max(15, badge.implicitWidth + 7)
+            height: 15
+            radius: 8
+            color: Theme.primary
+
+            BarText {
+                id: badge
+                anchors.centerIn: parent
+                text: Notifs.count > 9 ? "9+" : Notifs.count
+                color: Theme.primaryFg
+                font.pixelSize: 9
+                font.bold: true
+            }
+        }
     }
 
     Chip {
-        padding: 9
-        icon: Notifs.dnd ? Theme.icon(0xf009b) : Notifs.count > 0 ? Theme.icon(0xf116b) : Theme.icon(0xf009a)
-        fg: Notifs.dnd ? Theme.alpha(Theme.text, 0.45) : Notifs.count > 0 ? Theme.primary : Theme.text
-        onLeftClicked: Notifs.togglePanel()
-        onRightClicked: Notifs.toggleDnd()
-    }
-
-    Chip {
+        implicitHeight: 30
+        radius: 15
         padding: 9
         icon: Theme.icon(0xf0425)
         fg: Theme.error
         hoverBg: Theme.error
         hoverFg: Theme.errorFg
-        onLeftClicked: Quickshell.execDetached(["sh", "-c", "~/.config/wlogout/launch.sh"])
+        onLeftClicked: Panels.toggle("power")
     }
 }

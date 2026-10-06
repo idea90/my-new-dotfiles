@@ -37,6 +37,31 @@ Singleton {
         return !!ws && ws.toplevels.values.length > 0;
     }
 
+    // Icons of the apps on a workspace (up to `max`, one per app)
+    function appIcons(id, max) {
+        const ws = find(id);
+        if (!ws)
+            return [];
+        const icons = [];
+        for (const top of ws.toplevels.values) {
+            const appId = (top.wayland ? top.wayland.appId : "") || (top.lastIpcObject ? top.lastIpcObject["class"] : "") || "";
+            if (!appId)
+                continue;
+            const entry = DesktopEntries.heuristicLookup(appId);
+            const icon = Quickshell.iconPath(entry ? entry.icon : appId.toLowerCase(), "application-x-executable");
+            if (!icons.includes(icon))
+                icons.push(icon);
+            if (icons.length >= max)
+                break;
+        }
+        return icons;
+    }
+
+    function windowCount(id) {
+        const ws = find(id);
+        return ws ? ws.toplevels.values.length : 0;
+    }
+
     function urgent(id) {
         const ws = find(id);
         return !!ws && ws.urgent;

@@ -9,7 +9,7 @@ Hyprland, waybar, rofi, swaync, wlogout, hyprlock, alacritty, GTK and Qt apps.
 | Part | Tool |
 | --- | --- |
 | Compositor | Hyprland (+ hypridle, hyprlock, hyprpolkitagent) |
-| Bar | waybar |
+| Bar | Quickshell (`~/.config/quickshell`, waybar config kept as fallback) |
 | Launcher / menus | rofi |
 | Notifications | swaync |
 | Power menu | wlogout |
@@ -71,7 +71,7 @@ Optional: `./setup-git.sh` sets your global git name/email.
 | `Super+Escape` | Power menu |
 | `Super+Shift+M` | Exit Hyprland |
 
-Waybar: left click / right click / scroll on modules do things (volume mute, wifi menu, calendar months, notification panel, DND).
+Bar: click / right click / scroll on items (launcher: apps / wallpapers, workspaces, volume: mixer / mute / scroll, brightness: scroll, Wi-Fi: menu / editor, music: play-pause / skip, bell: panel / Do Not Disturb, power menu). Hover the CPU item for memory and temperature.
 
 # GTK and Qt
 - GTK uses `adw-gtk3` + libadwaita, recolored through `~/.config/gtk-{3,4}.0/colors.css`.

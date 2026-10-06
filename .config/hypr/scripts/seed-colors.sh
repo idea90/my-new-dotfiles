@@ -15,6 +15,7 @@ files=(
     "$HOME/.config/gtk-3.0/colors.css"
     "$HOME/.config/gtk-4.0/colors.css"
     "$HOME/.config/starship/starship.toml"
+    "$HOME/.config/quickshell/colors.json"
 )
 
 for f in "${files[@]}"; do

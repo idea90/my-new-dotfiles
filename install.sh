@@ -226,13 +226,12 @@ link_configs() {
 # and not tracked. Create a first set from a fixed color so everything starts
 # themed; Super+W replaces it with colors from the chosen wallpaper.
 seed_colors() {
-    [[ -f "$REPO/.config/hypr/colors.conf" ]] && return 0
     if ! command -v matugen >/dev/null; then
         warn "matugen missing, colors will be generated on the first Super+W"
         return 0
     fi
-    info "Generating starter colors with matugen"
-    run matugen color hex "$SEED_COLOR" -m dark --continue-on-error \
+    info "Generating starter colors if any are missing"
+    run "$REPO/.config/hypr/scripts/seed-colors.sh" "$SEED_COLOR" \
         || warn "matugen reported errors (hooks need a running session); colors were still written"
 }
 

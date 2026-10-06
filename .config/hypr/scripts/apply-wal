@@ -22,6 +22,9 @@ TYPE="${TYPE:-scheme-tonal-spot}"
 # Ensure required directories
 mkdir -p "$WALLPAPERS_DIR" "$HOME/.cache"
 
+# rofi needs colors.rasi to draw the picker; create starter colors if missing
+"$SCRIPT_PATH/seed-colors.sh" >/dev/null 2>&1
+
 # Generate options list
 # Newest first, as rofi rows "name\0icon\x1fpath" (escapes are expanded by echo -e below)
 list_images() {

@@ -32,7 +32,7 @@ PACKAGES=(
     # bar, launcher, notifications, logout, osd
     waybar rofi swaync wlogout swayosd
     # theming
-    swww matugen imagemagick papirus-icon-theme nwg-look qt5ct qt6ct
+    awww matugen imagemagick papirus-icon-theme nwg-look qt5ct qt6ct
     bibata-cursor-theme-bin ttf-roboto ttf-roboto-mono-nerd
     # gtk: theme matugen colors target, settings backend, dark mode portal
     adw-gtk-theme gsettings-desktop-schemas dconf xdg-desktop-portal-gtk

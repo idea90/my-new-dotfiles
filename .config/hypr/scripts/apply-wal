@@ -2,7 +2,7 @@
 #
 # Unified desktop configuration script with wallpaper selection and color scheme handling
 #
-# Dependencies: rofi, swww, pywal, mako, waybar, imagemagick, matugen
+# Dependencies: rofi, awww, matugen, imagemagick, libnotify
 
 SCRIPT_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 
@@ -86,7 +86,7 @@ if [ -n "$selected_wallpaper" ] && [ -f "$selected_wallpaper" ]; then
         exit 1
     fi
 
-    swww img "$selected_wallpaper" --transition-type center
+    awww img "$selected_wallpaper" --transition-type center
 
     magick "$selected_wallpaper" -resize "2560x2560>" "$lock_image"
 

@@ -13,7 +13,7 @@ Hyprland, waybar, rofi, swaync, wlogout, hyprlock, alacritty, GTK and Qt apps.
 | Launcher / menus | rofi |
 | Notifications | swaync |
 | Power menu | wlogout |
-| Wallpaper + colors | swww + matugen |
+| Wallpaper + colors | awww + matugen |
 | Terminal / shell | alacritty, fish + starship |
 | OSD | swayosd |
 

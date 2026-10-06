@@ -20,7 +20,8 @@ Rectangle {
 
         BarText {
             anchors.verticalCenter: parent.verticalCenter
-            text: Qt.formatDateTime(Time.now, "hh:mm")
+            // Qt only uses 12-hour time when AP is in the same format string
+            text: Qt.formatDateTime(Time.now, "h:mm AP").replace(/\s*[AP]M$/i, "")
             font.pixelSize: 16
             font.bold: true
             color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.text

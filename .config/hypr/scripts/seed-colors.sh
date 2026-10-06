@@ -8,6 +8,7 @@
 
 files=(
     "$HOME/.config/hypr/colors.conf"
+    "$HOME/.config/hypr/colors.lua"
     "$HOME/.config/alacritty/colors.toml"
     "$HOME/.config/gtk-3.0/colors.css"
     "$HOME/.config/gtk-4.0/colors.css"

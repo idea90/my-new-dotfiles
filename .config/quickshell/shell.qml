@@ -1,4 +1,6 @@
+//@ pragma UseQApplication
 // Quickshell entry point: the whole desktop shell.
+// UseQApplication (above) is needed for tray icons' right-click menus.
 // Edits hot-reload; restart with `qs` if something gets stuck.
 import QtQuick
 import Quickshell

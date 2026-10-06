@@ -9,7 +9,8 @@ Singleton {
     id: root
 
     readonly property var player: {
-        const players = Mpris.players.values;
+        // playerctld is a proxy that is always present, even with nothing playing
+        const players = Mpris.players.values.filter(p => !p.dbusName.includes("playerctld"));
         return players.find(p => p.isPlaying) ?? players[0] ?? null;
     }
     readonly property bool available: !!player && player.trackTitle !== ""

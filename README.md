@@ -55,7 +55,7 @@ Optional: `./setup-git.sh` sets your global git name/email.
 | `Super+D` | App launcher |
 | `Super+G` | File manager |
 | `Super+Z` | Firefox |
-| `Super+W` | Wallpaper + color scheme picker |
+| `Super+W` | Wallpaper picker (in it: `Alt+D` dark/light, `Alt+T` scheme, `Alt+R` random) |
 | `Super+Q` | Close window |
 | `Super+F` / `Super+Shift+F` | Fullscreen / maximize |
 | `Super+V` | Toggle floating |

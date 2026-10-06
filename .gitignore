@@ -19,3 +19,4 @@ Wallpapers/
 .config/gtk-4.0/colors.css
 .config/swaync/matugen-swaync.css
 .config/starship/starship.toml
+.config/quickshell/colors.json

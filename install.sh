@@ -31,7 +31,7 @@ PACKAGES=(
     # compositor + session
     hyprland hypridle hyprlock xdg-desktop-portal-hyprland hyprpolkitagent sddm
     # bar, launcher, notifications, logout, osd
-    waybar rofi swaync wlogout swayosd
+    quickshell upower waybar rofi swaync wlogout swayosd
     # theming
     awww matugen imagemagick papirus-icon-theme nwg-look qt5ct qt6ct
     bibata-cursor-theme-bin ttf-roboto ttf-roboto-mono-nerd

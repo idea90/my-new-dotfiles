@@ -60,3 +60,7 @@ post_hook = '[ -x ~/.spicetify/spicetify ] && ~/.spicetify/spicetify apply || tr
 [templates.starship]
 input_path = "~/.config/matugen/template/starship.toml"
 output_path = "~/.config/starship/starship.toml"
+
+[templates.quickshell]
+input_path = "~/.config/matugen/template/quickshell-colors.json"
+output_path = "~/.config/quickshell/colors.json"

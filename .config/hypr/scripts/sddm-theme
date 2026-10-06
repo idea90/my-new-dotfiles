@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+#
+# SDDM login theme that matches the Quickshell lock screen.
+#
+#   sddm-theme preview    try it in a window (no root, nothing installed)
+#   sddm-theme install    copy the theme to /usr/share/sddm/themes and select it (sudo)
+#   sddm-theme sync       update colors and wallpaper in the installed theme (no sudo;
+#                         apply-wal runs this after every wallpaper change)
+#   sddm-theme refresh    reinstall the theme code after editing it (sudo)
+#   sddm-theme remove     go back to SDDM's default theme (sudo)
+#
+# Colors come from ~/.config/quickshell/colors.json (matugen), the background from
+# ~/.cache/lockscreen.png (set by apply-wal).
+#
+# Dependencies: sddm, imagemagick, jq
+
+set -euo pipefail
+
+SRC="$(cd -- "$(dirname "$0")/../../sddm/qs-theme" >/dev/null 2>&1 && pwd -P)"
+NAME="qs-theme"
+DEST="/usr/share/sddm/themes/$NAME"
+CONF="/etc/sddm.conf.d/10-$NAME.conf"
+COLORS="$HOME/.config/quickshell/colors.json"
+WALL="$HOME/.cache/lockscreen.png"
+
+# The two files that change with the wallpaper live in DATA, which you own, so
+# `sync` needs no sudo. The root-owned theme dir only holds symlinks to them.
+DATA="/var/lib/$NAME"
+
+# Write theme.conf (current colors) and a blurred background.png into $1
+write_data() {
+    local out="$1"
+    cp "$SRC/theme.conf" "$out/theme.conf"
+
+    if [[ -f "$WALL" ]]; then
+        magick "$WALL" -resize 3840x2160\> -gravity center -blur 0x24 -fill black -colorize 45% "$out/background.png.new" \
+            && mv -f "$out/background.png.new" "$out/background.png"
+    fi
+
+    if [[ -f "$COLORS" ]]; then
+        local key val
+        for key in primary primaryFg surfaceLow surfaceHigh surfaceHighest text textDim error outlineVariant; do
+            val="$(jq -r --arg k "$key" '.[$k] // empty' "$COLORS")"
+            [[ -n "$val" ]] && sed -i "s|^$key=.*|$key=$val|" "$out/theme.conf"
+        done
+    fi
+}
+
+# Install the theme code (needs sudo) and point its data files at DATA
+copy_in() {
+    sudo rm -rf "$DEST"
+    sudo install -d -m 755 "$DEST"
+    sudo cp -r "$SRC"/. "$DEST"/
+    sudo rm -f "$DEST/theme.conf" "$DEST/background.png"
+    sudo install -d -m 755 -o "$USER" -g "$(id -gn)" "$DATA"
+    write_data "$DATA"
+    sudo ln -s "$DATA/theme.conf" "$DEST/theme.conf"
+    sudo ln -s "$DATA/background.png" "$DEST/background.png"
+    sudo chmod -R a+rX "$DEST" "$DATA"
+}
+
+case "${1:-}" in
+    preview)
+        tmp="$(mktemp -d)"
+        trap 'rm -rf "$tmp"' EXIT
+        cp -r "$SRC"/. "$tmp"/
+        write_data "$tmp"
+        sddm-greeter-qt6 --test-mode --theme "$tmp"
+        ;;
+    install)
+        copy_in
+        sudo install -d -m 755 "$(dirname "$CONF")"
+        printf '[Theme]\nCurrent=%s\n' "$NAME" | sudo tee "$CONF" >/dev/null
+        echo "Installed. It shows on the next login screen (log out, or reboot)."
+        ;;
+    refresh)
+        [[ -d "$DEST" ]] || { echo "Not installed; run: $0 install" >&2; exit 1; }
+        copy_in
+        echo "Reinstalled theme code and data."
+        ;;
+    sync)
+        # No sudo: just update colors and background. Silent no-op if not installed.
+        [[ -w "$DATA" && -L "$DEST/theme.conf" ]] || exit 0
+        write_data "$DATA"
+        ;;
+    remove)
+        sudo rm -f "$CONF"
+        sudo rm -rf "$DEST" "$DATA"
+        echo "Removed; SDDM uses its default theme again."
+        ;;
+    *)
+        sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
+        exit 1
+        ;;
+esac

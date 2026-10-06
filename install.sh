@@ -40,7 +40,7 @@ PACKAGES=(
     # terminal + shell
     alacritty fish starship fastfetch
     # files
-    nemo gvfs
+    thunar thunar-archive-plugin thunar-volman tumbler gvfs
     # scripts: screenshots, audio, brightness, network, notifications
     grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
     pipewire pipewire-pulse wireplumber
@@ -327,6 +327,13 @@ enable_services() {
         && ! systemctl is-enabled --quiet sddm 2>/dev/null; then
         if confirm "Enable sddm login manager? (disable any other display manager first)"; then
             run sudo systemctl enable sddm
+        fi
+    fi
+
+    if [[ -d /usr/share/sddm && ! -d /usr/share/sddm/themes/qs-theme ]] \
+        && command -v magick >/dev/null && command -v jq >/dev/null; then
+        if confirm "Install the login screen theme that matches the lock screen?"; then
+            run "$HOME/.config/hypr/scripts/sddm-theme" install
         fi
     fi
 }

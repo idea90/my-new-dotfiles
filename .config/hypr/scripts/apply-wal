@@ -77,6 +77,8 @@ apply_wallpaper() {
         exit 1
     fi
     magick "$wallpaper" -resize "2560x2560>" "$LOCK_IMAGE"
+    # Login screen follows too (no-op unless the sddm theme is installed)
+    "$SCRIPT_PATH/sddm-theme" sync >/dev/null 2>&1 &
     notify-send -a Wallpaper -i "$(thumb_of "$(basename "$wallpaper")")" "Theme updated" "$(basename "$wallpaper") · $MODE · ${TYPE#scheme-}"
 }
 

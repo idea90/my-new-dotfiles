@@ -1,9 +1,9 @@
 @import 'colors.css';
 
-/* Shared scale: radius 8 (pills) / 6 (inner), height 26 inside a 34px bar */
+/* Floating bar: 38px, 14px outer radius, pills 10px, inner items 8px */
 * {
     font-family: "RobotoMono Nerd Font";
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     margin: 0;
     border: none;
@@ -12,74 +12,64 @@
 }
 
 window#waybar {
-    background: alpha(@surface_container_low, 0.9);
+    background: alpha(@surface_container_low, 0.88);
     color: @on_surface;
-    border-bottom: 1px solid alpha(@outline_variant, 0.6);
+    border: 1px solid alpha(@outline_variant, 0.7);
+    border-radius: 14px;
     transition: background 0.3s ease;
 }
 
 tooltip {
     background: @surface_container;
     border: 1px solid alpha(@outline, 0.4);
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 tooltip label {
     color: @on_surface;
-    padding: 4px;
+    padding: 4px 6px;
 }
 
 /* ---- Pills -------------------------------------------------------------- */
 
 #custom-launcher,
 #workspaces,
-#window,
 #clock,
 #mpris,
 #tray,
 #hardware,
-#idle_inhibitor,
-#pulseaudio,
-#backlight,
-#network,
-#battery,
-#custom-notification,
-#custom-power {
-    margin: 4px 3px;
-    padding: 0 12px;
-    border-radius: 8px;
-    background: alpha(@surface_container_high, 0.9);
+#system,
+#actions {
+    margin: 5px 3px;
+    border-radius: 10px;
+    background: @surface_container_high;
+    transition: background 0.2s ease-in-out;
+}
+
+/* Modules inside a shared pill: no own background, just padding */
+#cpu, #memory, #temperature,
+#network, #pulseaudio, #backlight, #battery,
+#idle_inhibitor, #custom-notification, #custom-power {
+    padding: 0 10px;
     color: @on_surface;
+    border-radius: 8px;
     transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-#idle_inhibitor:hover,
-#pulseaudio:hover,
-#backlight:hover,
-#network:hover,
-#battery:hover,
-#mpris:hover,
-#clock:hover,
-#custom-notification:hover {
+#network:hover, #pulseaudio:hover, #backlight:hover, #battery:hover,
+#idle_inhibitor:hover, #custom-notification:hover, #cpu:hover {
     background: @surface_container_highest;
 }
 
-/* Outer edges */
-#custom-launcher { margin-left: 6px; }
-#custom-power    { margin-right: 6px; }
-
-/* Icon-only pills stay square-ish */
-#custom-launcher,
-#idle_inhibitor,
-#custom-notification,
-#custom-power {
-    padding: 0 11px;
-    font-size: 15px;
-}
+#system  { padding: 0 2px; }
+#actions { padding: 0 2px; margin-right: 5px; }
 
 /* ---- Left --------------------------------------------------------------- */
 
 #custom-launcher {
+    margin-left: 5px;
+    padding: 0 12px 0 11px;
+    font-size: 16px;
     color: @on_primary;
     background: @primary;
 }
@@ -93,10 +83,11 @@ tooltip label {
 }
 
 #workspaces button {
+    min-width: 22px;
+    padding: 0 6px;
+    margin: 4px 1px;
     color: alpha(@on_surface, 0.5);
-    padding: 0 7px;
-    margin: 3px 1px;
-    border-radius: 6px;
+    border-radius: 7px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -107,9 +98,9 @@ tooltip label {
 }
 
 #workspaces button.active {
+    min-width: 34px;
     color: @on_primary;
     background: @primary;
-    padding: 0 12px;
     font-weight: bold;
 }
 
@@ -119,26 +110,23 @@ tooltip label {
 }
 
 #window {
+    margin-left: 8px;
     color: @on_surface_variant;
-    background: transparent;
-}
-
-window#waybar.empty #window {
-    padding: 0;
-    margin: 0;
 }
 
 /* ---- Center ------------------------------------------------------------- */
 
 #clock {
+    padding: 0 14px;
     color: @on_primary_container;
-    background: alpha(@primary_container, 0.9);
+    background: @primary_container;
     font-weight: bold;
 }
 
 #mpris {
+    padding: 0 14px;
     color: @on_tertiary_container;
-    background: alpha(@tertiary_container, 0.9);
+    background: @tertiary_container;
 }
 
 #mpris.paused {
@@ -160,31 +148,16 @@ window#waybar.empty #window {
     border-radius: 6px;
 }
 
-/* cpu shows, memory + temperature slide out on hover */
 #hardware {
-    padding: 0 4px;
+    padding: 0 2px;
 }
 
-#cpu,
-#memory,
-#temperature {
-    padding: 0 8px;
-}
-
-#cpu.warning,
-#memory.warning {
+#cpu.warning, #memory.warning {
     color: @tertiary;
 }
 
-#cpu.critical,
-#memory.critical,
-#temperature.critical {
+#cpu.critical, #memory.critical, #temperature.critical {
     color: @error;
-}
-
-#idle_inhibitor.activated {
-    color: @on_tertiary_container;
-    background: @tertiary_container;
 }
 
 #pulseaudio.muted,
@@ -194,13 +167,12 @@ window#waybar.empty #window {
 
 #battery.charging,
 #battery.plugged {
-    color: @on_tertiary_container;
-    background: alpha(@tertiary_container, 0.9);
+    color: @tertiary;
 }
 
 #battery.warning:not(.charging) {
     color: @on_error_container;
-    background: alpha(@error_container, 0.9);
+    background: @error_container;
 }
 
 #battery.critical:not(.charging) {
@@ -209,10 +181,21 @@ window#waybar.empty #window {
     animation: pulse 1.5s ease-in-out infinite;
 }
 
+#idle_inhibitor,
+#custom-notification,
+#custom-power {
+    padding: 0 9px;
+    font-size: 16px;
+}
+
+#idle_inhibitor.activated {
+    color: @on_tertiary_container;
+    background: @tertiary_container;
+}
+
 #custom-notification.notification,
 #custom-notification.inhibited-notification {
-    color: @on_primary_container;
-    background: alpha(@primary_container, 0.9);
+    color: @primary;
 }
 
 #custom-notification.dnd-none,
@@ -223,8 +206,7 @@ window#waybar.empty #window {
 }
 
 #custom-power {
-    color: @on_error_container;
-    background: alpha(@error_container, 0.9);
+    color: @error;
 }
 
 #custom-power:hover {

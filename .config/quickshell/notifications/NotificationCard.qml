@@ -21,13 +21,13 @@ Rectangle {
         : ""
 
     implicitHeight: content.implicitHeight + 24
-    radius: 12
+    radius: Config.itemRadius
     color: hover.hovered ? Theme.surfaceHigh : Theme.surfaceMid
     border.width: 1
     border.color: critical ? Theme.error : Theme.outlineVariant
 
     Behavior on color {
-        ColorAnimation { duration: 150 }
+        ColorAnimation { duration: Theme.dur(150) }
     }
 
     HoverHandler {

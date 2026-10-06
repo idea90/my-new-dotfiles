@@ -1,4 +1,5 @@
 import QtQuick
+import qs
 import qs.modules
 import qs.services
 
@@ -12,11 +13,13 @@ OverlayWindow {
     ControlCenterContent {
         anchors {
             top: parent.top
-            right: parent.right
+            right: Config.ccSide === "left" ? undefined : parent.right
+            left: Config.ccSide === "left" ? parent.left : undefined
             bottom: parent.bottom
-            topMargin: 54      // below the bar
-            rightMargin: 12
-            bottomMargin: 12
+            topMargin: Config.ccTopMargin
+            rightMargin: Config.ccSideMargin
+            leftMargin: Config.ccSideMargin
+            bottomMargin: Config.ccBottomMargin
         }
     }
 }

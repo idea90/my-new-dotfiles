@@ -10,85 +10,104 @@ import qs.services
 Card {
     id: panel
 
-    implicitWidth: 400
+    implicitWidth: Config.ccWidth
+
+    // Every available quick toggle, keyed by the id used in Config.ccToggles
+    readonly property var toggleDefs: ({
+        wifi: {
+            icon: Network.wifiEnabled ? Theme.icon(0xf05a9) : Theme.icon(0xf05aa),
+            label: "Wi-Fi",
+            on: Network.wifiEnabled,
+            click: () => Network.setWifi(!Network.wifiEnabled),
+            rightClick: () => Panels.toggle("wifi")
+        },
+        sound: {
+            icon: Audio.muted ? Theme.icon(0xf075f) : Theme.icon(0xf057e),
+            label: "Sound",
+            on: !Audio.muted,
+            click: () => Audio.toggleMute()
+        },
+        mic: {
+            icon: Audio.micMuted ? Theme.icon(0xf036d) : Theme.icon(0xf036c),
+            label: "Mic",
+            on: Audio.micReady && !Audio.micMuted,
+            click: () => Audio.toggleMicMute()
+        },
+        silent: {
+            icon: Notifs.dnd ? Theme.icon(0xf009b) : Theme.icon(0xf009a),
+            label: "Silent",
+            on: Notifs.dnd,
+            click: () => Notifs.toggleDnd()
+        },
+        game: {
+            icon: Theme.icon(0xf0297),
+            label: "Game",
+            on: GameMode.active,
+            click: () => GameMode.toggle()
+        },
+        awake: {
+            icon: Idle.inhibited ? Theme.icon(0xf0208) : Theme.icon(0xf0209),
+            label: "Awake",
+            on: Idle.inhibited,
+            click: () => Idle.toggle()
+        },
+        capture: {
+            icon: Theme.icon(0xf019e),
+            label: "Capture",
+            click: () => Panels.toggle("screenshot")
+        },
+        theme: {
+            icon: Theme.icon(0xf03d8),
+            label: "Theme",
+            click: () => Panels.toggle("theme")
+        },
+        settings: {
+            icon: Theme.icon(0xf0493),
+            label: "Settings",
+            click: () => Panels.toggle("settings")
+        }
+    })
 
     ColumnLayout {
         anchors {
             fill: parent
-            margins: 14
+            margins: Config.ccPadding
         }
-        spacing: 12
+        spacing: Config.ccSpacing
 
         GridLayout {
             Layout.fillWidth: true
-            columns: 4
+            columns: Config.ccColumns
             rowSpacing: 8
             columnSpacing: 8
 
-            Toggle {
-                Layout.fillWidth: true
-                icon: Network.wifiEnabled ? Theme.icon(0xf05a9) : Theme.icon(0xf05aa)
-                label: "Wi-Fi"
-                on: Network.wifiEnabled
-                onClicked: Network.setWifi(!Network.wifiEnabled)
-                onRightClicked: Panels.toggle("wifi")
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Audio.muted ? Theme.icon(0xf075f) : Theme.icon(0xf057e)
-                label: "Sound"
-                on: !Audio.muted
-                onClicked: Audio.toggleMute()
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Audio.micMuted ? Theme.icon(0xf036d) : Theme.icon(0xf036c)
-                label: "Mic"
-                on: Audio.micReady && !Audio.micMuted
-                onClicked: Audio.toggleMicMute()
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Notifs.dnd ? Theme.icon(0xf009b) : Theme.icon(0xf009a)
-                label: "Silent"
-                on: Notifs.dnd
-                onClicked: Notifs.toggleDnd()
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Theme.icon(0xf0297)
-                label: "Game"
-                on: GameMode.active
-                onClicked: GameMode.toggle()
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Idle.inhibited ? Theme.icon(0xf0208) : Theme.icon(0xf0209)
-                label: "Awake"
-                on: Idle.inhibited
-                onClicked: Idle.toggle()
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Theme.icon(0xf019e)
-                label: "Capture"
-                onClicked: {
-                    Panels.close();
-                    Quickshell.execDetached(["sh", "-c", "sleep 0.3; ~/.config/hypr/scripts/screenshot.sh --area"]);
+            // Order and selection come from Config.ccToggles
+            Repeater {
+                model: Config.ccToggles.filter(id => id in panel.toggleDefs)
+
+                delegate: Toggle {
+                    id: tile
+                    required property string modelData
+                    readonly property var def: panel.toggleDefs[modelData]
+
+                    Layout.fillWidth: true
+                    icon: def.icon
+                    label: def.label
+                    on: def.on ?? false
+                    onClicked: def.click()
+                    onRightClicked: {
+                        if (def.rightClick)
+                            def.rightClick();
+                    }
                 }
-            }
-            Toggle {
-                Layout.fillWidth: true
-                icon: Theme.icon(0xf03d8)
-                label: "Theme"
-                onClicked: Panels.toggle("wallpaper")
             }
         }
 
         Rectangle {
             Layout.fillWidth: true
+            visible: Config.ccSliders
             implicitHeight: sliders.implicitHeight + 12
-            radius: 12
+            radius: Config.itemRadius
             color: Theme.surfaceMid
 
             Column {
@@ -121,9 +140,9 @@ Card {
         // Now playing
         Rectangle {
             Layout.fillWidth: true
-            visible: Media.available
+            visible: Config.ccMedia && Media.available
             implicitHeight: 64
-            radius: 12
+            radius: Config.itemRadius
             color: Theme.tertiaryContainer
 
             Column {
@@ -180,6 +199,7 @@ Card {
 
         RowLayout {
             Layout.fillWidth: true
+            visible: Config.ccNotifications
 
             BarText {
                 Layout.fillWidth: true
@@ -200,6 +220,7 @@ Card {
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            visible: Config.ccNotifications
             clip: true
             spacing: 8
             model: Notifs.list.slice().reverse()   // newest first

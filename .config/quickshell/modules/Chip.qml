@@ -25,7 +25,7 @@ Rectangle {
     color: hovered ? hoverBg : bg
 
     Behavior on color {
-        ColorAnimation { duration: 150 }
+        ColorAnimation { duration: Theme.dur(150) }
     }
 
     Row {

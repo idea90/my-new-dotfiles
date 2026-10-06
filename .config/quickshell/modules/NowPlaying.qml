@@ -13,7 +13,7 @@ Item {
     opacity: Media.playing ? 1 : 0.6
 
     Behavior on opacity {
-        NumberAnimation { duration: 200 }
+        NumberAnimation { duration: Theme.dur(200) }
     }
 
     Row {
@@ -78,7 +78,7 @@ Item {
                     radius: 2
                     color: Theme.tertiary
                     Behavior on width {
-                        NumberAnimation { duration: 900 }
+                        NumberAnimation { duration: Theme.dur(900) }
                     }
                 }
             }

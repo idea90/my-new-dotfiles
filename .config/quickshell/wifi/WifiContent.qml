@@ -64,7 +64,7 @@ Card {
                     x: Network.wifiEnabled ? parent.width - width - 3 : 3
                     color: Network.wifiEnabled ? Theme.primaryFg : Theme.textDim
                     Behavior on x {
-                        NumberAnimation { duration: 150 }
+                        NumberAnimation { duration: Theme.dur(150) }
                     }
                 }
 

@@ -1,73 +1,49 @@
 import QtQuick
-import QtQuick.Layouts
 import qs
 import qs.modules
 import qs.services
 
-// Three floating islands over the wallpaper: left, center, right
+// Three zones over the wallpaper (left, center, right); what goes in them is Config.barLayout
 Item {
     id: content
 
-    RowLayout {
+    // One continuous bar behind the groups ("solid" style)
+    Rectangle {
+        anchors.fill: parent
+        visible: Config.barBackground === "solid"
+        radius: Math.min(Config.barRadius, height / 2)
+        color: Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
+        border.width: Config.islandBorder
+        border.color: Theme.alpha(Theme.byName(Config.borderColor, Theme.outlineVariant), 0.8)
+    }
+
+    BarZone {
         id: left
+        name: "left"
+        // The title may grow until it reaches the center zone
+        titleLimit: center.x - left.x
         anchors {
             left: parent.left
+            leftMargin: Config.barBackground === "solid" ? 6 : 0
             verticalCenter: parent.verticalCenter
         }
-        spacing: 8
-
-        Island {
-            Launcher {}
-            Workspaces {}
-        }
-        Island {
-            shown: Hypr.title !== ""
-            padding: 14
-            Layout.maximumWidth: Math.max(0, center.x - left.x - x - 16)
-            WindowTitle {
-                width: Math.min(implicitWidth, parent.parent.Layout.maximumWidth - 28)
-            }
-        }
     }
 
-    RowLayout {
+    BarZone {
         id: center
+        name: "center"
+        // Room the now-playing module can use without running under the side zones
+        freeWidth: content.width - 2 * Math.max(left.width, right.width) - 48
         anchors.centerIn: parent
-        spacing: 8
-
-        Island {
-            id: clockIsland
-            Clock {}
-        }
-        Island {
-            shown: nowPlaying.wanted
-            NowPlaying {
-                id: nowPlaying
-                // Hide instead of running under the right island on narrow screens
-                fits: content.width / 2 + (clockIsland.implicitWidth + 8 + implicitWidth) / 2 + 8 < right.x
-            }
-        }
     }
 
-    RowLayout {
+    BarZone {
         id: right
+        name: "right"
         anchors {
             right: parent.right
+            rightMargin: Config.barBackground === "solid" ? 6 : 0
             verticalCenter: parent.verticalCenter
-        }
-        spacing: 8
-
-        Island {
-            shown: tray.hasItems
-            Tray {
-                id: tray
-            }
-        }
-        Island {
-            Status {}
-        }
-        Island {
-            Actions {}
         }
     }
 }

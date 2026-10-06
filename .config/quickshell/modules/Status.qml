@@ -50,8 +50,8 @@ Row {
             running: battery.critical
             loops: Animation.Infinite
             onRunningChanged: if (!running) battery.opacity = 1
-            NumberAnimation { to: 0.5; duration: 750 }
-            NumberAnimation { to: 1; duration: 750 }
+            NumberAnimation { to: 0.5; duration: Theme.dur(750) }
+            NumberAnimation { to: 1; duration: Theme.dur(750) }
         }
     }
 

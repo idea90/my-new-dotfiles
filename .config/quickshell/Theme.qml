@@ -31,13 +31,27 @@ Singleton {
     property color outline: "#a08c89"
     property color outlineVariant: "#534341"
 
-    readonly property string font: "RobotoMono Nerd Font"
-    readonly property int fontSize: 14
-    readonly property int iconSize: 16
-    readonly property int radius: 14       // bar
-    readonly property int pillRadius: 10   // groups
-    readonly property int innerRadius: 8   // items inside a group
-    readonly property int pillHeight: 28
+    readonly property string font: Config.font
+    readonly property int fontSize: Config.fontSize
+    readonly property int iconSize: Config.iconSize
+    readonly property int radius: Config.panelRadius
+    readonly property int pillRadius: Config.pillRadius
+    readonly property int innerRadius: Config.innerRadius
+    readonly property int pillHeight: Config.pillHeight
+
+    // Animation duration scaled by Config.animSpeed (0 = instant)
+    function dur(ms) {
+        return Config.animSpeed <= 0 ? 0 : Math.round(ms / Config.animSpeed);
+    }
+
+    // Palette color by name (Theme[name] doesn't work from other files)
+    function byName(name, fallback) {
+        return root[name] ?? fallback;
+    }
+
+    // Panel surface color / border color by Theme color name
+    readonly property color panelFill: alpha(root[Config.panelColor] ?? surfaceLow, Config.panelOpacity)
+    readonly property color panelBorderFill: root[Config.panelBorderColor] ?? outlineVariant
 
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a);
@@ -60,12 +74,35 @@ Singleton {
             if (key in root)
                 root[key] = colors[key];
         }
+        applyOverrides();
+    }
+
+    // User overrides from config.json win over the generated palette
+    function applyOverrides() {
+        const o = Config.colorOverrides;
+        for (const key in o) {
+            if (key in root)
+                root[key] = o[key];
+        }
+    }
+
+    Connections {
+        target: Config
+        function onColorOverridesChanged() {
+            if (file.loaded)
+                root.apply(file.text());
+        }
     }
 
     FileView {
+        id: file
+        property bool loaded: false
         path: Quickshell.env("HOME") + "/.config/quickshell/colors.json"
         watchChanges: true
         onFileChanged: reload()
-        onLoaded: root.apply(text())
+        onLoaded: {
+            loaded = true;
+            root.apply(text());
+        }
     }
 }

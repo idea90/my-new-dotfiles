@@ -12,15 +12,16 @@ Rectangle {
     property bool shown: true
 
     implicitWidth: row.implicitWidth + padding * 2
-    implicitHeight: 38
-    radius: 19
-    color: Theme.alpha(Theme.surfaceLow, 0.92)
-    border.width: 1
-    border.color: Theme.alpha(Theme.outlineVariant, 0.8)
+    implicitHeight: Config.barHeight
+    radius: Math.min(Config.islandRadius, height / 2)
+    readonly property bool plain: Config.barBackground !== "islands"
+    color: plain ? "transparent" : Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
+    border.width: plain ? 0 : Config.islandBorder
+    border.color: Theme.alpha(Theme.byName(Config.borderColor, Theme.outlineVariant), 0.8)
     visible: shown
 
     Behavior on implicitWidth {
-        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: Theme.dur(200); easing.type: Easing.OutCubic }
     }
 
     Row {

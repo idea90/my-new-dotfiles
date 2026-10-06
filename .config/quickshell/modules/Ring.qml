@@ -22,7 +22,7 @@ Item {
     implicitHeight: 30
 
     Behavior on implicitWidth {
-        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: Theme.dur(180); easing.type: Easing.OutCubic }
     }
 
     Rectangle {
@@ -30,7 +30,7 @@ Item {
         radius: height / 2
         color: ring.hovered ? Theme.surfaceHigh : "transparent"
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            ColorAnimation { duration: Theme.dur(150) }
         }
     }
 

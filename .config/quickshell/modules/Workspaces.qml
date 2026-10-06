@@ -19,23 +19,25 @@ Row {
             readonly property var icons: Hypr.appIcons(modelData, 3)
             readonly property bool urgent: Hypr.urgent(modelData)
 
-            width: content.implicitWidth + 16
-            height: 30
-            radius: 15
+            readonly property bool dots: Config.wsStyle === "dots"
+            width: dots ? (focused ? 24 : 10) : content.implicitWidth + 16
+            height: dots ? 10 : 30
+            radius: height / 2
             color: urgent ? Theme.error
                  : focused ? Theme.primary
                  : mouse.containsMouse ? Theme.surfaceHigh
-                 : "transparent"
+                 : (dots ? Theme.alpha(Theme.text, ws.icons.length > 0 ? 0.6 : 0.25) : "transparent")
 
             Behavior on width {
-                NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: Theme.dur(220); easing.type: Easing.OutCubic }
             }
             Behavior on color {
-                ColorAnimation { duration: 200 }
+                ColorAnimation { duration: Theme.dur(200) }
             }
 
             Row {
                 id: content
+                visible: !ws.dots
                 anchors.centerIn: parent
                 spacing: 5
 
@@ -51,7 +53,7 @@ Row {
                 }
 
                 Repeater {
-                    model: ws.icons
+                    model: Config.wsStyle === "numbers" ? [] : ws.icons
 
                     IconImage {
                         required property string modelData

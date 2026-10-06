@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import qs
 import qs.services
 
 // Floating bar: 8px from the top, 12px from the sides (matches Hyprland gaps_out)
@@ -11,17 +12,19 @@ PanelWindow {
     screen: modelData
 
     anchors {
-        top: true
+        top: Config.barPosition !== "bottom"
+        bottom: Config.barPosition === "bottom"
         left: true
         right: true
     }
     margins {
-        top: 8
-        left: 12
-        right: 12
+        top: Config.barPosition === "bottom" ? 0 : Config.barMarginTop
+        bottom: Config.barPosition === "bottom" ? Config.barMarginTop : 0
+        left: Config.barMarginSide
+        right: Config.barMarginSide
     }
 
-    implicitHeight: 38
+    implicitHeight: Config.barHeight
     color: "transparent"
 
     // Idle lock off while the eye toggle is on

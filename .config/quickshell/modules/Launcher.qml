@@ -13,5 +13,5 @@ Chip {
     bg: Theme.primary
     hoverBg: Theme.alpha(Theme.primary, 0.85)
     onLeftClicked: AppMenu.toggle()
-    onRightClicked: Panels.toggle("wallpaper")
+    onRightClicked: Panels.toggle("theme")
 }

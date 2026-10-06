@@ -10,7 +10,7 @@ Rectangle {
     color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainer : "transparent"
 
     Behavior on color {
-        ColorAnimation { duration: 150 }
+        ColorAnimation { duration: Theme.dur(150) }
     }
 
     Row {
@@ -21,14 +21,16 @@ Rectangle {
         BarText {
             anchors.verticalCenter: parent.verticalCenter
             // Qt only uses 12-hour time when AP is in the same format string
-            text: Qt.formatDateTime(Time.now, "h:mm AP").replace(/\s*[AP]M$/i, "")
+            text: Config.clock24h
+                ? Qt.formatDateTime(Time.now, Config.clockSeconds ? "HH:mm:ss" : "HH:mm")
+                : Qt.formatDateTime(Time.now, Config.clockSeconds ? "h:mm:ss AP" : "h:mm AP").replace(/\s*[AP]M$/i, "")
             font.pixelSize: 16
             font.bold: true
             color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.text
         }
         BarText {
             anchors.verticalCenter: parent.verticalCenter
-            text: Qt.formatDateTime(Time.now, "AP · ddd d MMM")
+            text: Qt.formatDateTime(Time.now, Config.clock24h ? "ddd d MMM" : "AP · ddd d MMM")
             font.pixelSize: 12
             color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.textDim
         }

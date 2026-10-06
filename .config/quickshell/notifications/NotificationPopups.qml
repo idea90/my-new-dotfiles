@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import qs
 import qs.services
 
 // New notifications, top right under the bar
@@ -8,14 +9,18 @@ PanelWindow {
     visible: Notifs.popups.length > 0 && Panels.open !== "controlcenter"
     color: "transparent"
     anchors {
-        top: true
-        right: true
+        top: Config.notifPosition.startsWith("top")
+        bottom: Config.notifPosition.startsWith("bottom")
+        right: Config.notifPosition.endsWith("right")
+        left: Config.notifPosition.endsWith("left")
     }
     margins {
-        top: 8
-        right: 12
+        top: Config.notifMarginTop
+        bottom: Config.notifMarginTop
+        right: Config.notifMarginSide
+        left: Config.notifMarginSide
     }
-    implicitWidth: 380
+    implicitWidth: Config.notifWidth
     implicitHeight: column.implicitHeight
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-notifications"

@@ -9,7 +9,7 @@ Item {
     id: root
 
     readonly property var actions: [
-        { key: "l", label: "Lock",      icon: 0xf033e, command: ["loginctl", "lock-session"] },
+        { key: "l", label: "Lock",      icon: 0xf033e, command: ["qs", "ipc", "call", "lock", "lock"] },
         { key: "e", label: "Log out",   icon: 0xf0343, command: ["hyprctl", "dispatch", "exit"] },
         { key: "u", label: "Suspend",   icon: 0xf04b2, command: ["systemctl", "suspend"] },
         { key: "h", label: "Hibernate", icon: 0xf0717, command: ["systemctl", "hibernate"] },
@@ -67,8 +67,8 @@ Item {
                 readonly property bool selected: root.current === index || mouse.containsMouse
                 readonly property bool danger: !!modelData.danger
 
-                width: 150
-                height: 170
+                width: Config.powerButtonWidth
+                height: Config.powerButtonHeight
                 radius: Theme.radius
                 color: selected ? (danger ? Theme.errorContainer : Theme.primaryContainer) : Theme.surfaceMid
                 border.width: 1
@@ -76,10 +76,10 @@ Item {
                 scale: selected ? 1.04 : 1
 
                 Behavior on color {
-                    ColorAnimation { duration: 150 }
+                    ColorAnimation { duration: Theme.dur(150) }
                 }
                 Behavior on scale {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Theme.dur(150); easing.type: Easing.OutCubic }
                 }
 
                 Column {

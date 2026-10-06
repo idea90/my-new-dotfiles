@@ -7,10 +7,31 @@
 #   screenshot.sh --area     select a region
 #   screenshot.sh --win      active window
 #   screenshot.sh --in5      all monitors after 5s (also --in10)
+#
+# Extra flags (used by the Quickshell screenshot tool):
+#   --quiet      no notification; print the file path on stdout
+#   --no-copy    don't touch the clipboard
+#   --copy-only  keep the file in the cache dir instead of Pictures/Screenshots
+
+mode="" quiet=0 copy=1 keep=1
+for arg in "$@"; do
+    case "$arg" in
+        --quiet)     quiet=1 ;;
+        --no-copy)   copy=0 ;;
+        --copy-only) keep=0 ;;
+        *)           mode="$arg" ;;
+    esac
+done
 
 dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Screenshots"
-file="$dir/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
-mkdir -p "$dir"
+if (( keep )); then
+    out="$dir"
+else
+    out="${XDG_CACHE_HOME:-$HOME/.cache}/qs-screenshots"
+    find "$out" -type f -mtime +1 -delete 2>/dev/null
+fi
+file="$out/Screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+mkdir -p "$out"
 
 # Selection colors follow matugen when colors.conf has them
 colors="$HOME/.config/hypr/colors.conf"
@@ -27,7 +48,7 @@ countdown() {
 }
 
 capture() {
-    case "$1" in
+    case "$mode" in
         --now)
             local monitor
             monitor="$(hyprctl -j activeworkspace | jq -r '.monitor')"
@@ -46,7 +67,7 @@ capture() {
             grim -g "$geometry" "$file"
             ;;
         --in5|--in10)
-            countdown "${1#--in}"
+            countdown "${mode#--in}"
             grim "$file"
             ;;
         *)
@@ -57,10 +78,15 @@ capture() {
 }
 
 # Cancelled selection or failed capture: no file, no notification
-capture "$1" || exit 0
+capture || exit 0
 [[ -s "$file" ]] || exit 0
 
-wl-copy --type image/png < "$file"
+(( copy )) && wl-copy --type image/png < "$file"
+
+if (( quiet )); then
+    echo "$file"
+    exit 0
+fi
 
 action="$(notify-send -a Screenshot -i "$file" -h string:x-canonical-private-synchronous:shot \
     --action=open=Open --action=folder="Show in folder" \

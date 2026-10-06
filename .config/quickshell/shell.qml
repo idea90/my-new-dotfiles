@@ -7,10 +7,13 @@ import Quickshell
 import qs.calendar
 import qs.controlcenter
 import qs.launcher
+import qs.lock
 import qs.notifications
 import qs.osd
 import qs.powermenu
-import qs.wallpaper
+import qs.settings
+import qs.shot
+import qs.theme
 import qs.wifi
 
 ShellRoot {
@@ -26,6 +29,10 @@ ShellRoot {
     ControlCenter {}
     Osd {}
     PowerMenu {}
-    WallpaperPicker {}
+    ThemeMenu {}
     WifiMenu {}
+    SettingsWindow {}
+    LockScreen {}
+    ShotWindow {}
+    ShotPreview {}
 }

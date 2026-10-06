@@ -20,12 +20,12 @@ Rectangle {
         : Osd.kind === "volume" && Audio.muted ? "Muted"
         : Math.round(level * 100) + "%"
 
-    implicitWidth: 300
+    implicitWidth: Config.osdWidth
     implicitHeight: 56
     radius: Theme.radius
-    color: Theme.surfaceLow
-    border.width: 1
-    border.color: Theme.outlineVariant
+    color: Theme.panelFill
+    border.width: Config.panelBorder
+    border.color: Theme.panelBorderFill
 
     BarText {
         id: iconText
@@ -58,7 +58,7 @@ Rectangle {
             color: osd.level > 1 ? Theme.error : Theme.primary
 
             Behavior on width {
-                NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: Theme.dur(120); easing.type: Easing.OutCubic }
             }
         }
     }

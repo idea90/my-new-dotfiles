@@ -28,7 +28,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.alpha("#000000", 0.35)
+        color: Theme.alpha("#000000", Config.launcherDim)
 
         MouseArea {
             anchors.fill: parent
@@ -39,14 +39,14 @@ Item {
     Rectangle {
         id: card
 
-        width: 560
+        width: Config.launcherWidth
         height: column.implicitHeight + 28
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.18
-        radius: Theme.radius
-        color: Theme.surfaceLow
-        border.width: 1
-        border.color: Theme.outlineVariant
+        y: parent.height * Config.launcherTop
+        radius: Config.launcherRadius
+        color: Theme.panelFill
+        border.width: Config.panelBorder
+        border.color: Theme.panelBorderFill
 
         // Swallow clicks so they don't close the launcher
         MouseArea {
@@ -64,7 +64,7 @@ Item {
             // Search field
             Rectangle {
                 width: parent.width
-                height: 46
+                height: Config.launcherSearchHeight
                 radius: Theme.pillRadius
                 color: Theme.surfaceHigh
 
@@ -84,14 +84,14 @@ Item {
                     id: search
                     anchors {
                         left: searchIcon.right
-                        right: counter.left
+                        right: Config.launcherCounter ? counter.left : parent.right
                         leftMargin: 10
                         rightMargin: 10
                         verticalCenter: parent.verticalCenter
                     }
                     background: null
                     color: Theme.text
-                    placeholderText: "Search apps"
+                    placeholderText: Config.launcherPlaceholder
                     placeholderTextColor: Theme.alpha(Theme.text, 0.45)
                     selectionColor: Theme.primary
                     selectedTextColor: Theme.primaryFg
@@ -119,6 +119,7 @@ Item {
 
                 BarText {
                     id: counter
+                    visible: Config.launcherCounter
                     anchors {
                         right: parent.right
                         rightMargin: 14
@@ -134,7 +135,7 @@ Item {
                 id: list
 
                 width: parent.width
-                height: Math.min(contentHeight, 8 * 52)
+                height: Math.min(contentHeight, Config.launcherRows * (Config.launcherRowHeight + 2))
                 clip: true
                 spacing: 2
                 model: root.results
@@ -155,7 +156,7 @@ Item {
                     readonly property bool selected: ListView.isCurrentItem
 
                     width: list.width
-                    height: 50
+                    height: Config.launcherRowHeight
 
                     IconImage {
                         id: appIcon
@@ -164,7 +165,7 @@ Item {
                             leftMargin: 12
                             verticalCenter: parent.verticalCenter
                         }
-                        implicitSize: 30
+                        implicitSize: Config.launcherIconSize
                         source: Quickshell.iconPath(row.modelData.icon, "application-x-executable")
                         mipmap: true
                     }
@@ -187,7 +188,7 @@ Item {
                         }
                         BarText {
                             width: parent.width
-                            visible: text !== ""
+                            visible: Config.launcherDescriptions && text !== ""
                             text: row.modelData.genericName || row.modelData.comment
                             color: row.selected ? Theme.alpha(Theme.primaryContainerFg, 0.7) : Theme.textDim
                             font.pixelSize: 11

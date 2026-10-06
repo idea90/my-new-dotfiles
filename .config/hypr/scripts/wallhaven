@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Fetch wallpapers from wallhaven.cc
+#
+#   wallhaven search [query] [page] [--sort S] [--categories CCC] [--purity PPP]
+#                    [--atleast WxH] [--ratios 16x9] [--colors RRGGBB] [--range 1M]
+#                                     print id<TAB>full-url<TAB>thumb-url<TAB>resolution
+#   wallhaven get <id|url> [--apply]  download into $WALLPAPERS_DIR (optionally apply it)
+#   wallhaven random [query]          download a random result and apply it
+#
+# Env: WALLHAVEN_API_KEY (needed only for NSFW), WALLHAVEN_SORT (toplist|random|
+# date_added|relevance|views|favorites; default toplist), WALLHAVEN_PURITY
+# (default 100 = SFW), WALLHAVEN_CATEGORIES (default 111), WALLHAVEN_ATLEAST
+# (default 1920x1080), WALLPAPERS_DIR (default ~/wallpapers).
+# A key can also go in ~/.config/wallhaven/api_key.
+
+set -euo pipefail
+
+API="https://wallhaven.cc/api/v1"
+WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
+APPLY_WAL="$(dirname "$(readlink -f "$0")")/apply-wal"
+KEY="${WALLHAVEN_API_KEY:-$(cat "$HOME/.config/wallhaven/api_key" 2>/dev/null || true)}"
+
+api() { # path, extra curl --data-urlencode args...
+    local path="$1"; shift
+    local args=()
+    [[ -n "$KEY" ]] && args+=(-H "X-API-Key: $KEY")
+    curl -fsSG --max-time 20 "${args[@]}" "$@" "$API/$path"
+}
+
+search() {
+    local query="" page=1 pos=0 extra=()
+    while (($#)); do
+        case "$1" in
+            --sort) WALLHAVEN_SORT="$2"; shift 2 ;;
+            --categories) WALLHAVEN_CATEGORIES="$2"; shift 2 ;;
+            --purity) WALLHAVEN_PURITY="$2"; shift 2 ;;
+            --atleast) WALLHAVEN_ATLEAST="$2"; shift 2 ;;
+            --ratios) extra+=(--data-urlencode "ratios=$2"); shift 2 ;;
+            --colors) extra+=(--data-urlencode "colors=$2"); shift 2 ;;
+            --range) extra+=(--data-urlencode "topRange=$2"); shift 2 ;;
+            *) if ((pos == 0)); then query="$1"; else page="$1"; fi; pos=$((pos + 1)); shift ;;
+        esac
+    done
+    api search "${extra[@]}" \
+        --data-urlencode "q=$query" \
+        --data-urlencode "page=$page" \
+        --data-urlencode "sorting=${WALLHAVEN_SORT:-toplist}" \
+        --data-urlencode "purity=${WALLHAVEN_PURITY:-100}" \
+        --data-urlencode "categories=${WALLHAVEN_CATEGORIES:-111}" \
+        --data-urlencode "atleast=${WALLHAVEN_ATLEAST:-1920x1080}" \
+        --data-urlencode "seed=${WALLHAVEN_SEED:-}" |
+        jq -r '.data[] | [.id, .path, .thumbs.large, .resolution] | @tsv'
+}
+
+get() {
+    local ref="$1" apply="${2:-}" id url dest
+    id="${ref##*/}"; id="${id%%[?#.]*}"
+    id="${id#wallhaven-}"
+    url="$(api "w/$id" | jq -r '.data.path')"
+    [[ "$url" == http* ]] || { echo "wallhaven: no wallpaper '$id'" >&2; exit 1; }
+    mkdir -p "$WALLPAPERS_DIR"
+    dest="$WALLPAPERS_DIR/wallhaven-$id.${url##*.}"
+    if [[ ! -s "$dest" ]]; then
+        curl -fsSL --max-time 120 -o "$dest.part" "$url"
+        mv -f "$dest.part" "$dest"
+    fi
+    echo "$dest"
+    [[ "$apply" == "--apply" ]] && "$APPLY_WAL" --apply "$dest"
+    return 0
+}
+
+case "${1:-}" in
+    search) shift; search "$@" ;;
+    get) [[ -n "${2:-}" ]] || { echo "usage: wallhaven get <id|url> [--apply]" >&2; exit 1; }
+         get "$2" "${3:-}" ;;
+    random)
+        id="$(WALLHAVEN_SORT=random search "${2:-}" | shuf -n 1 | cut -f1)"
+        [[ -n "$id" ]] || { echo "wallhaven: no results" >&2; exit 1; }
+        get "$id" --apply ;;
+    *) sed -n '2,16p' "$0" | sed 's/^# \?//'; exit 1 ;;
+esac

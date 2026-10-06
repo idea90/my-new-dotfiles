@@ -9,7 +9,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property string open: ""   // "" | controlcenter | calendar | power | wallpaper | wifi
+    property string open: ""   // "" | controlcenter | calendar | power | theme | wifi | settings | screenshot
 
     function toggle(name) {
         open = open === name ? "" : name;
@@ -38,15 +38,28 @@ Singleton {
         }
     }
     IpcHandler {
+        target: "theme"
+        function toggle(): void {
+            root.toggle("theme");
+        }
+    }
+    // Old name, kept so existing keybinds still work
+    IpcHandler {
         target: "wallpaper"
         function toggle(): void {
-            root.toggle("wallpaper");
+            root.toggle("theme");
         }
     }
     IpcHandler {
         target: "wifi"
         function toggle(): void {
             root.toggle("wifi");
+        }
+    }
+    IpcHandler {
+        target: "settings"
+        function toggle(): void {
+            root.toggle("settings");
         }
     }
 }

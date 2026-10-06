@@ -13,11 +13,11 @@ Rectangle {
     signal rightClicked
 
     implicitHeight: 64
-    radius: 12
+    radius: Config.itemRadius
     color: on ? Theme.primary : mouse.containsMouse ? Theme.surfaceHighest : Theme.surfaceHigh
 
     Behavior on color {
-        ColorAnimation { duration: 150 }
+        ColorAnimation { duration: Theme.dur(150) }
     }
 
     Column {

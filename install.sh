@@ -57,31 +57,103 @@ OPTIONAL_PACKAGES=(
 
 # --------------------------------------------------------------------------
 
-if [[ -t 1 ]]; then
-    C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m' C_RESET=$'\e[0m'
+# Colors only on a terminal, and never with NO_COLOR set (https://no-color.org)
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m' C_MAGENTA=$'\e[35m'
+    C_CYAN=$'\e[36m' C_BOLD=$'\e[1m' C_DIM=$'\e[2m' C_RESET=$'\e[0m'
 else
-    C_BLUE='' C_GREEN='' C_YELLOW='' C_RED='' C_RESET=''
+    C_BLUE='' C_GREEN='' C_YELLOW='' C_RED='' C_MAGENTA='' C_CYAN='' C_BOLD='' C_DIM='' C_RESET=''
 fi
 
-info() { printf '%s::%s %s\n' "$C_BLUE" "$C_RESET" "$*"; }
-ok()   { printf '%s::%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
-warn() { printf '%s::%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
-die()  { printf '%s::%s %s\n' "$C_RED" "$C_RESET" "$*" >&2; exit 1; }
+info() { printf '  %s•%s %s\n' "$C_BLUE" "$C_RESET" "$*"; }
+ok()   { printf '  %s✔%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
+warn() { printf '  %s!%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; WARNINGS=$((WARNINGS + 1)); }
+die()  { printf '\n  %s✘ %s%s\n\n' "$C_RED$C_BOLD" "$*" "$C_RESET" >&2; exit 1; }
+
+WARNINGS=0
+STEP=0
+STEPS=0
+
+banner() {
+    printf '\n'
+    printf '%s     _       _    __ _ _           %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
+    printf '%s  __| | ___ | |_ / _(_) | ___  ___ %s\n' "$C_MAGENTA$C_BOLD" "$C_RESET"
+    printf '%s / _` |/ _ \\| __| |_| | |/ _ \\/ __|%s\n' "$C_BLUE$C_BOLD" "$C_RESET"
+    printf '%s| (_| | (_) | |_|  _| | |  __/\\__ \\%s\n' "$C_BLUE$C_BOLD" "$C_RESET"
+    printf '%s \\__,_|\\___/ \\__|_| |_|_|\\___||___/%s\n' "$C_CYAN$C_BOLD" "$C_RESET"
+    printf '\n  %sHyprland · Quickshell · matugen%s\n' "$C_DIM" "$C_RESET"
+    printf '  %s%s@%s · %s%s\n' "$C_DIM" "$(id -un)" "$(uname -n)" "${REPO/#$HOME/\~}" "$C_RESET"
+}
+
+# Numbered section header: step "Packages"
+step() {
+    STEP=$((STEP + 1))
+    printf '\n%s[%d/%d]%s %s%s%s\n' "$C_MAGENTA$C_BOLD" "$STEP" "$STEPS" "$C_RESET" "$C_BOLD" "$1" "$C_RESET"
+}
+
+# What the run will do, before anything changes
+plan() {
+    local mark
+    mark() { (( $1 )) && printf '%s✔%s' "$C_GREEN" "$C_RESET" || printf '%s·%s' "$C_DIM" "$C_RESET"; }
+    printf '\n  %sThis will:%s\n' "$C_BOLD" "$C_RESET"
+    printf '    %s install packages %s\n' "$(mark "$DO_PACKAGES")" \
+        "$( (( DO_PACKAGES )) && printf '%s(%d core%s)%s' "$C_DIM" "${#PACKAGES[@]}" \
+            "$( (( DO_OPTIONAL )) && printf ' + %d optional' "${#OPTIONAL_PACKAGES[@]}")" "$C_RESET")"
+    printf '    %s link configs into %s %s(old ones are backed up)%s\n' "$(mark "$DO_LINKS")" \
+        "${CONFIG_HOME/#$HOME/\~}" "$C_DIM" "$C_RESET"
+    printf '    %s copy wallpapers to %s\n' "$(mark "$DO_WALLPAPERS")" "${WALLPAPER_DIR/#$HOME/\~}"
+    printf '    %s fonts, GTK/Qt theming, shell and login screen\n' "$(mark "$DO_EXTRAS")"
+    if (( DRY_RUN )); then
+        printf '\n  %sDry run: nothing will be changed.%s\n' "$C_YELLOW" "$C_RESET"
+    fi
+}
+
+summary() {
+    local secs=$((SECONDS))
+    local line
+    line="$(printf '─%.0s' {1..58})"
+    printf '\n%s╭%s╮%s\n' "$C_GREEN" "$line" "$C_RESET"
+    if (( DRY_RUN )); then
+        printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_BOLD" "Dry run finished, nothing was changed" "$C_RESET$C_GREEN" "$C_RESET"
+    else
+        printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_BOLD" "All set! ($((secs / 60))m $((secs % 60))s)" "$C_RESET$C_GREEN" "$C_RESET"
+    fi
+    if (( WARNINGS )); then
+        printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_YELLOW" "$WARNINGS warning(s) above, worth a look" "$C_GREEN" "$C_RESET"
+    fi
+    printf '%s├%s┤%s\n' "$C_GREEN" "$line" "$C_RESET"
+    printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_RESET" "1. Log out and pick Hyprland" "$C_GREEN" "$C_RESET"
+    printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_RESET" "2. Super+W   pick a wallpaper (colors follow it)" "$C_GREEN" "$C_RESET"
+    printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_RESET" "3. Super+I   settings: looks, bar, launcher, lock..." "$C_GREEN" "$C_RESET"
+    printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_RESET" "   Super+D   apps,  Super+N   control center" "$C_GREEN" "$C_RESET"
+    if [[ -d "$BACKUP_DIR" ]]; then
+        printf '%s│%s  %-56s%s│%s\n' "$C_GREEN" "$C_DIM" "Old configs: ${BACKUP_DIR/#$HOME/\~}" "$C_RESET$C_GREEN" "$C_RESET"
+    fi
+    printf '%s╰%s╯%s\n\n' "$C_GREEN" "$line" "$C_RESET"
+}
 
 # Run a command, or just print it in dry-run mode
 run() {
     if (( DRY_RUN )); then
-        printf '   [dry-run] %s\n' "$*"
+        printf '    %s[dry-run]%s %s\n' "$C_DIM" "$C_RESET" "$*"
     else
         "$@"
     fi
 }
 
+# confirm "Question?"       default no
+# confirm "Question?" yes   default yes
 confirm() {
     (( ASSUME_YES )) && return 0
-    local reply
-    read -rp "$1 [y/N] " reply
-    [[ "$reply" =~ ^[Yy]$ ]]
+    local reply hint="[y/N]"
+    [[ "${2:-}" == yes ]] && hint="[Y/n]"
+    printf '  %s?%s %s %s%s%s ' "$C_CYAN$C_BOLD" "$C_RESET" "$1" "$C_DIM" "$hint" "$C_RESET"
+    read -r reply
+    if [[ "${2:-}" == yes ]]; then
+        [[ ! "$reply" =~ ^[Nn]$ ]]
+    else
+        [[ "$reply" =~ ^[Yy]$ ]]
+    fi
 }
 
 usage() {
@@ -176,7 +248,7 @@ link() {
     local src="$1" dest="$2"
 
     if [[ -L "$dest" && "$(readlink -f "$dest")" == "$(readlink -f "$src")" ]]; then
-        printf '   ok      %s\n' "${dest/#$HOME/\~}"
+        printf '    %s✔ ok    %s %s%s%s\n' "$C_DIM" "$C_RESET" "$C_DIM" "${dest/#$HOME/\~}" "$C_RESET"
         return
     fi
 
@@ -184,12 +256,12 @@ link() {
         local backup="$BACKUP_DIR/${dest#"$HOME"/}"
         run mkdir -p "$(dirname "$backup")"
         run mv "$dest" "$backup"
-        printf '   backup  %s -> %s\n' "${dest/#$HOME/\~}" "${backup/#$HOME/\~}"
+        printf '    %s↺ backup%s %s %s→ %s%s\n' "$C_YELLOW" "$C_RESET" "${dest/#$HOME/\~}" "$C_DIM" "${backup/#$HOME/\~}" "$C_RESET"
     fi
 
     run mkdir -p "$(dirname "$dest")"
     run ln -s "$src" "$dest"
-    printf '   link    %s\n' "${dest/#$HOME/\~}"
+    printf '    %s→ link  %s %s\n' "$C_GREEN" "$C_RESET" "${dest/#$HOME/\~}"
 }
 
 link_configs() {
@@ -216,7 +288,7 @@ link_configs() {
     run find "$REPO/.config" -type f \( -name '*.sh' -o -name '*.py' -o -name 'apply-wal' \) -exec chmod +x {} +
 
     if [[ -d "$BACKUP_DIR" ]]; then
-        warn "Old configs saved in ${BACKUP_DIR/#$HOME/\~}"
+        info "Old configs saved in ${BACKUP_DIR/#$HOME/\~}"
     fi
 
     seed_colors
@@ -238,7 +310,7 @@ seed_colors() {
 # --------------------------------------------------------------------------
 
 copy_wallpapers() {
-    [[ -d "$REPO/Wallpapers" ]] || { warn "No Wallpapers/ in repo, skipping"; return; }
+    [[ -d "$REPO/Wallpapers" ]] || { info "No Wallpapers/ folder in the repo, skipping"; return; }
     info "Copying wallpapers to ${WALLPAPER_DIR/#$HOME/\~} (existing files kept)"
     run mkdir -p "$WALLPAPER_DIR"
     run cp -r --update=none "$REPO/Wallpapers/." "$WALLPAPER_DIR/"
@@ -264,8 +336,8 @@ install_fonts() {
     local dir="$HOME/.local/share/fonts/google"
     local base="https://github.com/google/fonts/raw/main/ofl"
     local path name url added=0
-    run mkdir -p "$dir"
     info "Installing clock fonts to ${dir/#$HOME/\~}"
+    run mkdir -p "$dir"
     for path in "${GOOGLE_FONTS[@]}"; do
         name="${path##*/}"
         [[ -s "$dir/$name" ]] && continue
@@ -279,7 +351,12 @@ install_fonts() {
             warn "Could not download $name (lock screen clock falls back to the default font)"
         fi
     done
-    if (( added )); then run fc-cache -f "$dir"; fi
+    if (( added )); then
+        run fc-cache -f "$dir"
+        ok "Fonts installed"
+    else
+        ok "Fonts already installed"
+    fi
 }
 
 # Lock screen reads a PNG copy of the current wallpaper (it blurs it itself). Create one so
@@ -327,7 +404,7 @@ setup_qt() {
         [[ -f "$conf" ]] && continue
         info "Writing ${conf/#$HOME/\~}"
         if (( DRY_RUN )); then
-            printf '   [dry-run] write %s\n' "$conf"
+            printf '    %s[dry-run]%s write %s\n' "$C_DIM" "$C_RESET" "$conf"
             continue
         fi
         mkdir -p "$(dirname "$conf")"
@@ -380,22 +457,28 @@ enable_services() {
 
 main() {
     parse_args "$@"
+    banner
     preflight
-    if (( DRY_RUN )); then warn "Dry run: nothing will be changed"; fi
 
-    if (( DO_PACKAGES ));   then install_packages; fi
-    if (( DO_LINKS ));      then link_configs; fi
-    if (( DO_WALLPAPERS )); then copy_wallpapers; fi
-    if (( DO_EXTRAS )); then
-        install_fonts
-        seed_lockscreen
-        apply_gtk_settings
-        setup_qt
-        set_fish_shell
-        enable_services
+    STEPS=$((DO_PACKAGES + DO_LINKS + DO_WALLPAPERS + DO_EXTRAS * 3))
+    (( STEPS )) || die "Nothing to do with these options."
+    plan
+    printf '\n'
+    if (( ! DRY_RUN )) && ! confirm "Start?" yes; then
+        printf '  Cancelled, nothing changed.\n\n'
+        exit 0
     fi
 
-    ok "Done. Log out and pick Hyprland, then press Super+W to choose a wallpaper and generate colors."
+    if (( DO_PACKAGES ));   then step "Packages";   install_packages; fi
+    if (( DO_LINKS ));      then step "Configs";    link_configs; fi
+    if (( DO_WALLPAPERS )); then step "Wallpapers"; copy_wallpapers; fi
+    if (( DO_EXTRAS )); then
+        step "Fonts";             install_fonts
+        step "Theming";           seed_lockscreen; apply_gtk_settings; setup_qt
+        step "Shell and services"; set_fish_shell; enable_services
+    fi
+
+    summary
 }
 
 main "$@"

@@ -10,7 +10,7 @@ Row {
     Ring {
         value: Sys.cpu / 100
         icon: Theme.icon(0xf0ee0)
-        label: "CPU " + Sys.cpu + "%  ·  RAM " + Sys.memory + "%" + (Sys.temperature >= 0 ? "  ·  " + Sys.temperature + "°C" : "")
+        hoverDetails: false
         color: Sys.cpu >= 90 ? Theme.error : Sys.cpu >= 70 ? Theme.tertiary : Theme.primary
         onLeftClicked: Quickshell.execDetached(["alacritty", "-e", "btop"])
     }

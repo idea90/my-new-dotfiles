@@ -11,7 +11,8 @@ Item {
     property string label: Math.round(value * 100) + "%"
     property color color: Theme.primary
     property color iconColor: Theme.text
-    readonly property bool hovered: mouse.containsMouse
+    property bool hoverDetails: true    // false: no highlight or label on hover
+    readonly property bool hovered: hoverDetails && mouse.containsMouse
 
     signal leftClicked
     signal rightClicked

@@ -11,6 +11,11 @@ Singleton {
     property bool available: false
     property int percent: 0
 
+    function set(fraction) {
+        percent = Math.max(1, Math.round(fraction * 100));
+        Quickshell.execDetached(["brightnessctl", "-c", "backlight", "set", percent + "%"]);
+    }
+
     function change(step) {
         Quickshell.execDetached(["brightnessctl", "-c", "backlight", "set", step > 0 ? "5%+" : "5%-"]);
         refresh.restart();

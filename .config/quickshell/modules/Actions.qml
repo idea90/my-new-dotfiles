@@ -27,6 +27,6 @@ Pill {
         fg: Theme.error
         hoverBg: Theme.error
         hoverFg: Theme.errorFg
-        onLeftClicked: Quickshell.execDetached(["sh", "-c", "~/.config/wlogout/launch.sh"])
+        onLeftClicked: Panels.toggle("power")
     }
 }

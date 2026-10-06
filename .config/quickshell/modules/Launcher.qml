@@ -3,7 +3,7 @@ import Quickshell
 import qs
 import qs.services
 
-// Left click: apps. Right click: wallpaper picker.
+// Left click: apps. Right click: wallpapers.
 Chip {
     icon: Theme.icon(0xf303)   // Arch logo
     padding: 11
@@ -12,5 +12,5 @@ Chip {
     bg: Theme.primary
     hoverBg: Theme.alpha(Theme.primary, 0.85)
     onLeftClicked: AppMenu.toggle()
-    onRightClicked: Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/apply-wal"])
+    onRightClicked: Panels.toggle("wallpaper")
 }

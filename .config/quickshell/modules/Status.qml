@@ -15,7 +15,7 @@ Pill {
              : Network.kind === "ethernet" ? "wired"
              : "offline"
         fg: Network.kind === "none" ? Theme.alpha(Theme.text, 0.45) : Theme.text
-        onLeftClicked: Quickshell.execDetached(["sh", "-c", "~/.config/hypr/scripts/rofi-wifi-menu.sh"])
+        onLeftClicked: Panels.toggle("wifi")
         onRightClicked: Quickshell.execDetached(["nm-connection-editor"])
     }
 

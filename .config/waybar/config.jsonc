@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/Alexays/Waybar/master/schemas/waybar.schema.json",
     "layer": "top",
     "position": "top",
-    "height": 34,
+    "height": 38,
     "spacing": 0,
     "reload_style_on_change": true,
     "modules-left": [
@@ -17,13 +17,8 @@
     "modules-right": [
         "tray",
         "group/hardware",
-        "idle_inhibitor",
-        "pulseaudio",
-        "backlight",
-        "network",
-        "battery",
-        "custom/notification",
-        "custom/power"
+        "group/system",
+        "group/actions"
     ],
     "custom/launcher": {
         "format": "",
@@ -175,7 +170,7 @@
             "󰤥",
             "󰤨"
         ],
-        "max-length": 22,
+        "max-length": 18,
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}  ⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}",
         "tooltip-format-ethernet": "{ifname}\n{ipaddr}  ⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}",
         "tooltip-format-disconnected": "Disconnected",
@@ -229,5 +224,26 @@
         "format": "󰐥",
         "on-click": "~/.config/wlogout/launch.sh",
         "tooltip-format": "Power menu"
+    },
+    "margin-top": 8,
+    "margin-left": 12,
+    "margin-right": 12,
+    "margin-bottom": 0,
+    "group/system": {
+        "orientation": "horizontal",
+        "modules": [
+            "network",
+            "pulseaudio",
+            "backlight",
+            "battery"
+        ]
+    },
+    "group/actions": {
+        "orientation": "horizontal",
+        "modules": [
+            "idle_inhibitor",
+            "custom/notification",
+            "custom/power"
+        ]
     }
 }

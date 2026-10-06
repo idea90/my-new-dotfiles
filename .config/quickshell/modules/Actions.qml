@@ -8,7 +8,7 @@ Row {
 
     Chip {
         visible: Config.showSettingsButton
-        implicitHeight: 30
+        implicitHeight: Theme.barItem
         radius: Theme.chipRadius
         padding: 9
         icon: Theme.icon(0xf0493)
@@ -20,11 +20,11 @@ Row {
 
     Item {
         width: bell.implicitWidth
-        height: 30
+        height: Theme.barItem
 
         Chip {
             id: bell
-            implicitHeight: 30
+            implicitHeight: Theme.barItem
             radius: Theme.chipRadius
             padding: 9
             icon: Notifs.dnd ? Theme.icon(0xf009b) : Theme.icon(0xf009a)
@@ -60,7 +60,7 @@ Row {
     }
 
     Chip {
-        implicitHeight: 30
+        implicitHeight: Theme.barItem
         radius: Theme.chipRadius
         padding: 9
         icon: Theme.icon(0xf0425)

@@ -37,7 +37,7 @@ RowLayout {
             readonly property bool hasTitle: modelData.includes("title")
 
             shown: modelData.some(id => BarModules.wanted(id, zone.freeWidth))
-            readonly property bool dotsGroup: modelData.includes("workspaces") && Config.wsStyle === "dots"
+            readonly property bool dotsGroup: modelData.includes("workspaces") && (Config.wsStyle === "dots" || Config.wsStyle === "lines")
             padding: hasTitle ? 14 : dotsGroup ? 16 : 4
             Layout.maximumWidth: hasTitle && zone.titleLimit >= 0 ? Math.max(0, zone.titleLimit - x - 16) : 100000
 

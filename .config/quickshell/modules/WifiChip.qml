@@ -7,7 +7,8 @@ import qs.services
 Chip {
     readonly property var wifiIcons: [0xf091f, 0xf0922, 0xf0925, 0xf0928]
 
-    implicitHeight: 30
+    implicitHeight: Theme.barItem
+    fontFamily: Theme.barFont
     radius: Theme.chipRadius
     icon: Network.kind === "wifi" ? Theme.icon(wifiIcons[Math.min(3, Math.floor(Network.signal / 25))])
         : Network.kind === "ethernet" ? Theme.icon(0xf0200)

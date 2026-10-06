@@ -16,6 +16,7 @@ Item {
     readonly property bool corner: Config.lockAlign === "corner"
     readonly property bool split: Config.lockLayout === "split"
     readonly property bool plainCard: !Config.lockCard
+    readonly property string fs: Config.lockFieldStyle   // box | pill | line | dots
     readonly property string home: Quickshell.env("HOME")
     readonly property string user: Quickshell.env("USER")
 
@@ -29,11 +30,22 @@ Item {
         anchors.fill: parent
         color: Theme.surfaceLow
     }
+    // "gradient" background: wallpaper colors instead of the picture
+    Rectangle {
+        anchors.fill: parent
+        visible: Config.lockBackground === "gradient"
+        gradient: Gradient {
+            orientation: Gradient.Vertical
+            GradientStop { position: 0.0; color: Theme.primaryContainer }
+            GradientStop { position: 0.55; color: Theme.surfaceLow }
+            GradientStop { position: 1.0; color: Theme.tertiaryContainer }
+        }
+    }
     Image {
         id: wall
         anchors.fill: parent
         visible: false
-        source: Config.lockWallpaper ? "file://" + root.home + "/.cache/lockscreen.png?" + Wallpapers.imageRev : ""
+        source: Config.lockWallpaper && Config.lockBackground === "wallpaper" ? "file://" + root.home + "/.cache/lockscreen.png?" + Wallpapers.imageRev : ""
         cache: false
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
@@ -139,7 +151,10 @@ Item {
             leftMargin: root.corner ? 70 : 140
         }
         columns: root.split ? 2 : 1
-        rowSpacing: 26
+        // lockFieldBottom: the clock stays up top and the password drops to the bottom
+        rowSpacing: Config.lockFieldBottom && !root.split
+            ? Math.max(26, root.height - 150 - clockText.height - card.height)
+            : 26
         columnSpacing: 90
         horizontalItemAlignment: root.leftAlign || root.corner ? Grid.AlignLeft : Grid.AlignHCenter
         verticalItemAlignment: Grid.AlignVCenter
@@ -156,6 +171,7 @@ Item {
         }
 
         BarText {
+            id: clockText
             readonly property string hm: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
             // "stacked" puts the hours above the minutes
             text: Config.lockClockStyle === "stacked" ? hm.replace(":", "\n") : hm
@@ -260,10 +276,45 @@ Item {
                     id: field
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: Config.lockFieldWidth
-                    height: 52
-                    radius: Config.panelRadius
-                    color: Theme.surfaceHigh
-                    border.width: 2
+                    height: root.fs === "dots" ? 40 : 52
+                    radius: root.fs === "pill" ? height / 2 : root.fs === "box" ? Config.panelRadius : 0
+                    color: root.fs === "box" || root.fs === "pill" ? Theme.surfaceHigh : "transparent"
+                    border.width: root.fs === "box" || root.fs === "pill" ? 2 : 0
+
+                    // "line": an underline that lights up while typing
+                    Rectangle {
+                        visible: root.fs === "line"
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            bottom: parent.bottom
+                        }
+                        height: 2
+                        color: Lock.error !== "" ? Theme.error : input.text !== "" ? Theme.primary : Theme.alpha("#ffffff", 0.5)
+                    }
+
+                    // "dots": no box, one dot per typed character
+                    Row {
+                        visible: root.fs === "dots"
+                        anchors.centerIn: parent
+                        spacing: 10
+                        Repeater {
+                            model: Math.min(24, input.text.length)
+                            delegate: Rectangle {
+                                width: 12
+                                height: 12
+                                radius: 6
+                                color: Lock.error !== "" ? Theme.error : Theme.primary
+                            }
+                        }
+                    }
+                    BarText {
+                        visible: root.fs === "dots" && input.text === ""
+                        anchors.centerIn: parent
+                        text: Lock.checking ? "Checking…" : "Type your password"
+                        color: Qt.rgba(1, 1, 1, 0.65)
+                        font.pixelSize: 15
+                    }
                     border.color: Lock.error !== "" ? Theme.error : input.activeFocus ? Theme.primary : Theme.alpha(Theme.outlineVariant, 0.9)
 
                     SequentialAnimation {
@@ -280,6 +331,7 @@ Item {
                             leftMargin: 16
                             verticalCenter: parent.verticalCenter
                         }
+                        visible: root.fs !== "dots"
                         text: Lock.checking ? Theme.icon(0xf0450) : Theme.icon(0xf033e)
                         color: Theme.primary
                         font.pixelSize: 18
@@ -295,6 +347,7 @@ Item {
                             verticalCenter: parent.verticalCenter
                         }
                         background: null
+                        opacity: root.fs === "dots" ? 0 : 1
                         echoMode: TextInput.Password
                         passwordCharacter: "●"
                         enabled: !Lock.checking
@@ -334,6 +387,7 @@ Item {
                     // Submit arrow
                     Rectangle {
                         id: submit
+                        visible: root.fs !== "dots"
                         anchors {
                             right: parent.right
                             rightMargin: 8
@@ -341,8 +395,8 @@ Item {
                         }
                         width: 36
                         height: 36
-                        radius: Math.max(0, Config.panelRadius - 4)
-                        color: input.text !== "" ? Theme.primary : Theme.surfaceHighest
+                        radius: root.fs === "pill" ? height / 2 : Math.max(0, Config.panelRadius - 4)
+                        color: input.text !== "" ? Theme.primary : root.fs === "line" ? "transparent" : Theme.surfaceHighest
 
                         Behavior on color {
                             ColorAnimation { duration: Theme.dur(150) }

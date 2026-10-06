@@ -16,6 +16,14 @@ Item {
     readonly property bool gridMode: Config.launcherLayout === "grid"
     readonly property var view: gridMode ? grid : list
     property string query: ""
+    readonly property string lfont: Config.launcherFont !== "" ? Config.launcherFont : Theme.font
+    readonly property string hl: Config.launcherHighlight      // fill | bar | outline
+    readonly property string ss: Config.launcherSearchStyle    // field | line | big
+
+    function greeting() {
+        const h = Time.now.getHours();
+        return h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 18 ? "Good afternoon" : h >= 18 && h < 22 ? "Good evening" : "Good night";
+    }
     readonly property var results: AppMenu.search(entries, query)
 
     // ---- full-screen (Launchpad-style) mode ----
@@ -120,8 +128,8 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * Config.launcherTop
         radius: Config.launcherRadius
-        color: Theme.alpha(Theme.byName(Config.panelColor, Theme.surfaceLow), Config.launcherOpacity)
-        border.width: Config.panelBorder
+        color: Theme.alpha(Theme.byName(Config.launcherCardColor !== "" ? Config.launcherCardColor : Config.panelColor, Theme.surfaceLow), Config.launcherOpacity)
+        border.width: Config.launcherBorder ? Math.max(1, Config.panelBorder) : 0
         border.color: Theme.panelBorderFill
 
         // Swallow clicks so they don't close the launcher
@@ -206,23 +214,55 @@ Item {
             }
             spacing: 10
 
-            // Search field
+            // Optional greeting above the search
+            Column {
+                visible: Config.launcherHeader
+                width: parent.width
+                topPadding: 6
+                bottomPadding: 4
+                spacing: 2
+                BarText {
+                    text: root.greeting() + ", " + Quickshell.env("USER")
+                    font.family: root.lfont
+                    font.pixelSize: 22
+                    font.bold: true
+                }
+                BarText {
+                    text: Qt.formatDateTime(Time.now, "dddd d MMMM") + "  ·  " + root.results.length + " apps"
+                    font.family: root.lfont
+                    font.pixelSize: 12
+                    color: Theme.textDim
+                }
+            }
+
+            // Search field: a filled box, an underlined line, or big bare text
             Rectangle {
                 width: parent.width
-                height: Config.launcherSearchHeight
+                height: root.ss === "big" ? 62 : Config.launcherSearchHeight
                 radius: Theme.pillRadius
-                color: Theme.surfaceHigh
+                color: root.ss === "field" ? Theme.surfaceHigh : "transparent"
+
+                Rectangle {
+                    visible: root.ss !== "field"
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    height: root.ss === "line" ? 2 : 1
+                    color: search.activeFocus && root.ss === "line" ? Theme.primary : Theme.alpha(Theme.text, 0.18)
+                }
 
                 BarText {
                     id: searchIcon
                     anchors {
                         left: parent.left
-                        leftMargin: 14
+                        leftMargin: root.ss === "field" ? 14 : 4
                         verticalCenter: parent.verticalCenter
                     }
                     text: Theme.icon(0xf0349)
                     color: Theme.primary
-                    font.pixelSize: 18
+                    font.pixelSize: root.ss === "big" ? 26 : 18
                 }
 
                 TextField {
@@ -240,8 +280,8 @@ Item {
                     placeholderTextColor: Theme.alpha(Theme.text, 0.45)
                     selectionColor: Theme.primary
                     selectedTextColor: Theme.primaryFg
-                    font.family: Theme.font
-                    font.pixelSize: 15
+                    font.family: root.lfont
+                    font.pixelSize: root.ss === "big" ? 26 : 15
                     onTextChanged: {
                         root.query = text;
                         list.currentIndex = 0;
@@ -279,7 +319,17 @@ Item {
 
                 highlight: Rectangle {
                     radius: Theme.innerRadius + 2
-                    color: Theme.primaryContainer
+                    color: root.hl === "fill" ? Theme.primaryContainer : root.hl === "bar" ? Theme.alpha(Theme.primary, 0.1) : "transparent"
+                    border.width: root.hl === "outline" ? 2 : 0
+                    border.color: Theme.primary
+                    Rectangle {
+                        visible: root.hl === "bar"
+                        width: 3
+                        height: parent.height * 0.6
+                        radius: 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: Theme.primary
+                    }
                 }
 
                 delegate: Item {
@@ -317,14 +367,15 @@ Item {
                         BarText {
                             width: parent.width
                             text: row.modelData.name
-                            color: row.selected ? Theme.primaryContainerFg : Theme.text
+                            font.family: root.lfont
+                            color: !row.selected ? Theme.text : root.hl === "fill" ? Theme.primaryContainerFg : Theme.primary
                             elide: Text.ElideRight
                         }
                         BarText {
                             width: parent.width
                             visible: Config.launcherDescriptions && text !== ""
                             text: row.modelData.genericName || row.modelData.comment
-                            color: row.selected ? Theme.alpha(Theme.primaryContainerFg, 0.7) : Theme.textDim
+                            color: row.selected && root.hl === "fill" ? Theme.alpha(Theme.primaryContainerFg, 0.7) : Theme.textDim
                             font.pixelSize: 11
                             font.weight: Font.Normal
                             elide: Text.ElideRight
@@ -357,7 +408,17 @@ Item {
 
                 highlight: Rectangle {
                     radius: Theme.innerRadius + 4
-                    color: Theme.primaryContainer
+                    color: root.hl === "fill" ? Theme.primaryContainer : root.hl === "bar" ? Theme.alpha(Theme.primary, 0.1) : "transparent"
+                    border.width: root.hl === "outline" ? 2 : 0
+                    border.color: Theme.primary
+                    Rectangle {
+                        visible: root.hl === "bar"
+                        width: 3
+                        height: parent.height * 0.6
+                        radius: 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: Theme.primary
+                    }
                 }
 
                 delegate: Item {
@@ -386,7 +447,8 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             text: cell.modelData.name
                             font.pixelSize: 12
-                            color: cell.selected ? Theme.primaryContainerFg : Theme.text
+                            font.family: root.lfont
+                            color: !cell.selected ? Theme.text : root.hl === "fill" ? Theme.primaryContainerFg : Theme.primary
                             elide: Text.ElideRight
                         }
                     }

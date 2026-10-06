@@ -20,6 +20,10 @@ Singleton {
     property int islandBorder: 1
     property int islandRadius: 19           // 0 = square, barHeight/2 = pill
     property string look: "Default"        // last look applied, see looks
+    property string barFont: ""             // font for bar text (clock, title, workspaces); empty = shell font
+    property string barClockFormat: "full"  // "full" (time · day date) | "time" | "date"
+    property string statusStyle: "rings"    // bar status: "rings" | "bars" | "text" | "icons"
+    property bool islandShadow: false       // soft drop shadow under bar islands
     property string barStyle: "Islands"     // last preset applied, see barStyles
     property string barBackground: "islands" // "islands" | "solid" (one bar) | "none"
     property int barRadius: 19              // corner radius of the solid bar
@@ -97,6 +101,11 @@ Singleton {
     property string powerLayout: "row"      // "row" | "grid" | "column"
     property string powerShape: "card"      // "card" | "circle" | "pill"
     property bool powerHeader: false        // clock and goodbye line above the buttons
+    property bool powerAvatar: false        // avatar in the header
+    property bool powerClock: true          // clock in the header
+    property string powerPosition: "center" // "center" | "bottom" | "left" | "right" | "corner"
+    property string powerHighlight: "fill"  // "fill" | "outline"
+    property bool powerBorder: true
     property bool powerLabels: true
     property bool powerKeys: true           // key hint letters
     property int powerIconSize: 48
@@ -117,6 +126,9 @@ Singleton {
     property string lockLayout: "stack"     // "stack" (clock above card) | "split" (side by side)
     property string lockClockStyle: "big"   // "big" | "stacked" | "small"
     property bool lockCard: true            // glass card behind the password field
+    property string lockFieldStyle: "box"   // "box" | "pill" | "line" (underline) | "dots" (no field, dots appear)
+    property bool lockFieldBottom: false    // clock at the top, password at the bottom
+    property string lockBackground: "wallpaper" // "wallpaper" | "gradient" | "plain"
     property string lockClockFont: ""       // empty = the shell font
     property int lockClockWeight: 700       // 100 thin ... 900 black
     property real lockClockSpacing: 0       // letter spacing
@@ -155,7 +167,7 @@ Singleton {
     // Control center
     property string ccSide: "right"         // "right" | "left"
     property int ccWidth: 400
-    property int ccTopMargin: 54            // below the bar
+    property int ccTopMargin: 8             // gap under the bar
     property int ccSideMargin: 12
     property int ccBottomMargin: 12
     property int ccPadding: 14
@@ -163,6 +175,9 @@ Singleton {
     property string ccStyle: "Classic"      // last control center preset applied
     property string ccToggleStyle: "mixed"  // "mixed" (wide + pills) | "tiles" | "icons"
     property bool ccHeader: true
+    property string ccHeaderStyle: "profile" // "profile" (avatar, name) | "clock" (big time)
+    property string ccSliderStyle: "card"   // "card" | "inline" | "big" (thick filled bars)
+    property int ccRadius: -1               // panel corner radius, -1 = panel default
     property bool ccFit: false              // panel only as tall as its content
     property int ccColumns: 4
     property bool ccSliders: true
@@ -185,6 +200,12 @@ Singleton {
     property bool launcherBlurBackdrop: false // blur the whole screen behind the launcher
     property string launcherStyle: "Classic" // last launcher preset applied
     property string launcherLayout: "list"  // "list" | "grid"
+    property string launcherFont: ""        // empty = shell font
+    property string launcherSearchStyle: "field"   // "field" (box) | "line" (underline) | "big" (large bare text)
+    property string launcherHighlight: "fill"      // "fill" | "bar" (accent bar) | "outline"
+    property bool launcherHeader: false     // greeting and date above the search
+    property string launcherCardColor: ""   // Theme color name; empty = panel color
+    property bool launcherBorder: true
     property int launcherColumns: 5         // grid only
     property int launcherCellHeight: 96     // grid only
     property bool launcherFullscreen: false // macOS Launchpad-style full-screen grid
@@ -273,25 +294,44 @@ Singleton {
     readonly property var lockBase: ({
         lockAlign: "center", lockLayout: "stack", lockClockStyle: "big", lockCard: true, lockAvatar: true,
         lockClockFont: "", lockClockWeight: 700, lockClockSpacing: 0, lockClockAccent: false,
+        lockFieldStyle: "box", lockFieldBottom: false, lockBackground: "wallpaper",
         lockBlur: 14, lockDim: 0.3, lockClockSize: 96, lockFieldWidth: 340, lockCardOpacity: 0.8,
         lockWallpaper: true, lockShowDate: true, lockShowGreeting: true, lockShowMedia: true, lockShowStatus: true
     })
     readonly property var lockStyles: [
+        // Clock above a glass card with avatar and password
         { name: "Card", values: {} },
-        { name: "Minimal", values: { lockClockFont: "Outfit", lockClockWeight: 100, lockClockSpacing: -2, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockShowStatus: false,
-            lockShowMedia: false, lockFieldWidth: 300, lockClockSize: 110 } },
-        { name: "Split", values: { lockClockFont: "Unbounded", lockClockWeight: 800, lockClockSpacing: -2, lockLayout: "split", lockClockStyle: "stacked", lockClockSize: 130 } },
-        { name: "Stacked", values: { lockClockFont: "Bebas Neue", lockClockWeight: 400, lockClockSpacing: 2, lockClockAccent: true, lockClockStyle: "stacked", lockClockSize: 140, lockAvatar: false, lockCard: false } },
-        { name: "Left", values: { lockClockFont: "Playfair Display", lockClockWeight: 500, lockAlign: "left", lockClockSize: 110 } },
-        { name: "Corner", values: { lockClockFont: "Space Grotesk", lockClockWeight: 300, lockAlign: "corner", lockClockStyle: "small", lockAvatar: false, lockFieldWidth: 300 } },
-        { name: "Glass", values: { lockClockFont: "Poppins", lockClockWeight: 100, lockClockSpacing: 2, lockCardOpacity: 0.35, lockBlur: 40, lockDim: 0.15 } },
-        { name: "Dark", values: { lockClockFont: "Sora", lockClockWeight: 200, lockClockSpacing: 6, lockClockAccent: true, lockDim: 0.7, lockBlur: 60, lockCard: false } },
-        { name: "Sharp wallpaper", values: { lockClockFont: "Poppins", lockClockWeight: 900, lockBlur: 0, lockDim: 0.2, lockCardOpacity: 0.85 } },
-        { name: "Poster", values: { lockClockFont: "Bebas Neue", lockClockWeight: 400, lockClockSize: 200, lockClockSpacing: 4,
-            lockAvatar: false, lockCard: false, lockShowGreeting: false } },
-        { name: "Bold", values: { lockClockFont: "Unbounded", lockClockWeight: 900, lockClockSize: 120, lockClockAccent: true,
-            lockAlign: "left" } },
-        { name: "Plain", values: { lockClockFont: "Playfair Display", lockClockWeight: 400, lockClockAccent: true, lockWallpaper: false, lockCard: false, lockAvatar: true } }
+        // Thin clock and an underline to type on, nothing else
+        { name: "Minimal", values: { lockCard: false, lockAvatar: false, lockShowGreeting: false, lockShowStatus: false,
+            lockShowMedia: false, lockFieldWidth: 300, lockClockSize: 110, lockClockWeight: 100, lockFieldStyle: "line" } },
+        // Stacked heavy clock on the left, card on the right
+        { name: "Split", values: { lockLayout: "split", lockClockStyle: "stacked", lockClockSize: 130, lockClockWeight: 900 } },
+        // Phone style: big stacked clock up top, pill password at the bottom
+        { name: "Phone", values: { lockClockStyle: "stacked", lockClockSize: 150, lockClockWeight: 300, lockCard: false,
+            lockAvatar: false, lockFieldBottom: true, lockFieldStyle: "pill", lockShowGreeting: false } },
+        // Everything on the left, accent clock
+        { name: "Left", values: { lockAlign: "left", lockClockSize: 110, lockClockAccent: true, lockFieldStyle: "pill" } },
+        // Small clock and password in the bottom-left corner
+        { name: "Corner", values: { lockAlign: "corner", lockClockStyle: "small", lockAvatar: false, lockFieldWidth: 300,
+            lockCard: false, lockFieldStyle: "line", lockClockWeight: 300 } },
+        // See-through card over a heavy blur
+        { name: "Glass", values: { lockCardOpacity: 0.3, lockBlur: 48, lockDim: 0.1, lockClockWeight: 200, lockClockSpacing: 4,
+            lockFieldStyle: "pill" } },
+        // No visible field: just type, dots appear
+        { name: "Dots", values: { lockCard: false, lockAvatar: true, lockFieldStyle: "dots", lockDim: 0.5, lockBlur: 30,
+            lockClockWeight: 300, lockShowGreeting: false } },
+        // Huge clock, password at the bottom, nothing else
+        { name: "Poster", values: { lockClockWeight: 900, lockClockSize: 220, lockClockSpacing: -6, lockAvatar: false,
+            lockCard: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "line", lockShowStatus: false } },
+        // Wallpaper colors as a gradient instead of the picture
+        { name: "Gradient", values: { lockBackground: "gradient", lockCard: false, lockClockWeight: 200, lockClockSize: 120,
+            lockFieldStyle: "pill", lockDim: 0 } },
+        // Sharp wallpaper, no blur, dark card at the bottom
+        { name: "Photo", values: { lockBlur: 0, lockDim: 0.15, lockCardOpacity: 0.88, lockFieldBottom: true, lockAlign: "left",
+            lockClockWeight: 800 } },
+        // Solid background, accent clock, plain and calm
+        { name: "Plain", values: { lockBackground: "plain", lockCard: false, lockClockAccent: true, lockClockWeight: 400,
+            lockFieldStyle: "box" } }
     ]
 
     function applyPowerStyle(name) {
@@ -303,19 +343,36 @@ Singleton {
     readonly property var powerBase: ({
         powerLayout: "row", powerShape: "card", powerHeader: false, powerLabels: true, powerKeys: true,
         powerIconSize: 48, powerSpacing: 12, powerOpacity: 0.85, powerButtonWidth: 150, powerButtonHeight: 170,
-        powerBlur: true
+        powerBlur: true, powerAvatar: false, powerClock: true, powerPosition: "center", powerHighlight: "fill", powerBorder: true
     })
     readonly property var powerStyles: [
+        // Row of cards in the middle
         { name: "Classic", values: {} },
-        { name: "Glass", values: { powerOpacity: 0.35, powerHeader: true } },
-        { name: "Circles", values: { powerShape: "circle", powerButtonWidth: 140, powerSpacing: 22, powerKeys: false } },
-        { name: "Circle grid", values: { powerShape: "circle", powerLayout: "grid", powerButtonWidth: 150, powerSpacing: 28, powerHeader: true } },
-        { name: "Grid", values: { powerLayout: "grid", powerButtonWidth: 170, powerButtonHeight: 140, powerHeader: true } },
-        { name: "List", values: { powerShape: "pill", powerLayout: "column", powerButtonWidth: 180, powerSpacing: 10, powerHeader: true } },
-        { name: "Pills", values: { powerShape: "pill", powerLayout: "grid", powerButtonWidth: 140, powerSpacing: 12 } },
-        { name: "Icons", values: { powerShape: "circle", powerLabels: false, powerKeys: false, powerButtonWidth: 110, powerSpacing: 18 } },
-        { name: "Compact", values: { powerButtonWidth: 110, powerButtonHeight: 120, powerIconSize: 34, powerKeys: false, powerSpacing: 8 } },
-        { name: "Big", values: { powerButtonWidth: 190, powerButtonHeight: 220, powerIconSize: 64, powerHeader: true } }
+        // See-through cards outlined on hover, clock above
+        { name: "Glass", values: { powerOpacity: 0.3, powerHeader: true, powerHighlight: "outline" } },
+        // Round buttons along the bottom of the screen, like a dock
+        { name: "Dock", values: { powerShape: "circle", powerButtonWidth: 120, powerSpacing: 18, powerKeys: false,
+            powerPosition: "bottom", powerHeader: true } },
+        // Avatar and clock over a 3x2 grid of circles
+        { name: "Profile", values: { powerShape: "circle", powerLayout: "grid", powerButtonWidth: 140, powerSpacing: 26,
+            powerHeader: true, powerAvatar: true, powerClock: false, powerHighlight: "outline" } },
+        // 3x2 grid of cards under the clock
+        { name: "Grid", values: { powerLayout: "grid", powerButtonWidth: 170, powerButtonHeight: 130, powerHeader: true } },
+        // Full-height panel on the right with a list
+        { name: "Sidebar", values: { powerShape: "pill", powerLayout: "column", powerButtonWidth: 170, powerSpacing: 10,
+            powerHeader: true, powerAvatar: true, powerPosition: "right", powerBorder: false } },
+        // Small dropdown under the bar, top-right
+        { name: "Dropdown", values: { powerShape: "pill", powerLayout: "column", powerButtonWidth: 140, powerSpacing: 6,
+            powerPosition: "corner", powerKeys: false, powerBorder: false, powerBlur: false } },
+        // Just icons in a row, outlined selection
+        { name: "Icons", values: { powerShape: "circle", powerLabels: false, powerKeys: false, powerButtonWidth: 110,
+            powerSpacing: 18, powerHighlight: "outline", powerOpacity: 0.5 } },
+        // Panel down the left side with circles in a column
+        { name: "Left rail", values: { powerShape: "circle", powerLayout: "column", powerButtonWidth: 90, powerSpacing: 8,
+            powerLabels: false, powerKeys: false, powerPosition: "left", powerHeader: false } },
+        // Huge cards with avatar, clock and goodbye line
+        { name: "Big", values: { powerButtonWidth: 190, powerButtonHeight: 220, powerIconSize: 64, powerHeader: true,
+            powerAvatar: true } }
     ]
 
     function applyCcStyle(name) {
@@ -325,23 +382,38 @@ Singleton {
     }
 
     readonly property var ccBase: ({
-        ccToggleStyle: "mixed", ccHeader: true, ccFit: false, ccSide: "right", ccWidth: 400, ccColumns: 4,
-        ccTopMargin: 54, ccSideMargin: 12, ccBottomMargin: 12, ccPadding: 14, ccSpacing: 12,
+        ccToggleStyle: "mixed", ccHeader: true, ccHeaderStyle: "profile", ccSliderStyle: "card", ccRadius: -1, ccFit: false, ccSide: "right", ccWidth: 400, ccColumns: 4,
+        ccTopMargin: 8, ccSideMargin: 12, ccBottomMargin: 12, ccPadding: 14, ccSpacing: 12,
         ccSliders: true, ccMedia: true, ccNotifications: true
     })
     readonly property var ccStyles: [
+        // Profile header, wide Wi-Fi / Sound tiles, pills, sliders card
         { name: "Classic", values: {} },
-        { name: "Tiles", values: { ccToggleStyle: "tiles", ccColumns: 4 } },
-        { name: "Icons", values: { ccToggleStyle: "icons", ccWidth: 360, ccFit: true } },
-        { name: "Compact", values: { ccToggleStyle: "icons", ccWidth: 330, ccFit: true, ccHeader: false, ccMedia: false,
-            ccNotifications: false, ccPadding: 12, ccSpacing: 10 } },
-        { name: "Left", values: { ccSide: "left" } },
-        { name: "Flush", values: { ccTopMargin: 0, ccSideMargin: 0, ccBottomMargin: 0, ccWidth: 380, ccToggleStyle: "tiles", ccColumns: 3 } },
-        { name: "Wide tiles", values: { ccToggleStyle: "tiles", ccColumns: 5, ccWidth: 520 } },
-        { name: "Floating", values: { ccFit: true, ccTopMargin: 58, ccToggleStyle: "mixed" } },
+        // Square tiles and thick filled sliders, iOS-like
+        { name: "Tiles", values: { ccToggleStyle: "tiles", ccColumns: 4, ccSliderStyle: "big", ccWidth: 420 } },
+        // Big clock header, round icon buttons, only as tall as needed
+        { name: "Clock", values: { ccToggleStyle: "icons", ccHeaderStyle: "clock", ccWidth: 360, ccFit: true,
+            ccSliderStyle: "inline", ccNotifications: false } },
+        // Just icons and sliders in a small box
+        { name: "Compact", values: { ccToggleStyle: "icons", ccWidth: 320, ccFit: true, ccHeader: false, ccMedia: false,
+            ccNotifications: false, ccPadding: 12, ccSpacing: 10, ccSliderStyle: "inline" } },
+        // Classic on the left side of the screen with the clock header
+        { name: "Left", values: { ccSide: "left", ccHeaderStyle: "clock" } },
+        // Attached to the right edge, full height, tiles and thick sliders
+        { name: "Flush", values: { ccTopMargin: 6, ccSideMargin: 0, ccBottomMargin: 0, ccWidth: 380, ccToggleStyle: "tiles",
+            ccColumns: 3, ccSliderStyle: "big" } },
+        // Wide centered hub under the bar: clock, five-across tiles, thick sliders
+        { name: "Hub", values: { ccSide: "center", ccFit: true, ccWidth: 560, ccToggleStyle: "tiles", ccColumns: 5,
+            ccHeaderStyle: "clock", ccSliderStyle: "big", ccNotifications: false, ccTopMargin: 10 } },
+        // Very round floating bubble that fits its content
+        { name: "Bubble", values: { ccFit: true, ccRadius: 32, ccPadding: 20, ccTopMargin: 12, ccSliderStyle: "big",
+            ccNotifications: false } },
+        // A slim strip of icons, nothing else
         { name: "Minimal", values: { ccToggleStyle: "icons", ccWidth: 300, ccFit: true, ccHeader: false, ccMedia: false,
-            ccNotifications: false, ccSliders: true, ccPadding: 14 } },
-        { name: "Dashboard", values: { ccToggleStyle: "tiles", ccColumns: 4, ccWidth: 460, ccTopMargin: 54, ccFit: false } }
+            ccNotifications: false, ccSliders: false, ccPadding: 14 } },
+        // Notification centre first: clock header, small icons, long notification list
+        { name: "Inbox", values: { ccToggleStyle: "icons", ccHeaderStyle: "clock", ccWidth: 420, ccSliderStyle: "inline",
+            ccMedia: true } }
     ]
 
     function applyLauncherStyle(name) {
@@ -357,22 +429,44 @@ Singleton {
         launcherRowHeight: 50, launcherIconSize: 30, launcherSearchHeight: 46, launcherRadius: 14,
         launcherCounter: true, launcherDescriptions: true, launcherSideImage: true,
         launcherImageSide: "left", launcherImageWidth: 210, launcherOpacity: 0.58,
-        launcherBlurBackdrop: false, launcherFullscreen: false, launcherFsColumns: 7, launcherFsRows: 4,
+        launcherBlurBackdrop: false, launcherFont: "", launcherSearchStyle: "field", launcherHighlight: "fill",
+        launcherHeader: false, launcherCardColor: "", launcherBorder: true, launcherPlaceholder: "Search apps", launcherFullscreen: false, launcherFsColumns: 7, launcherFsRows: 4,
         launcherFsIcon: 64, launcherFsNames: true, launcherFsBackground: "blur", launcherFsDim: 0.35
     })
     readonly property var launcherStyles: [
+        // List with the wallpaper on the side
         { name: "Classic", values: {} },
-        { name: "Spotlight", values: { launcherSideImage: false, launcherWidth: 660, launcherTop: 0.28, launcherRadius: 26,
-            launcherSearchHeight: 58, launcherRows: 6, launcherDescriptions: false, launcherCounter: false, launcherOpacity: 0.62 } },
-        { name: "Grid", values: { launcherLayout: "grid", launcherSideImage: false, launcherWidth: 720, launcherRadius: 22,
-            launcherRows: 4, launcherColumns: 6, launcherIconSize: 36, launcherTop: 0.14 } },
-        { name: "Showcase", values: { launcherLayout: "grid", launcherImageSide: "right", launcherImageWidth: 250, launcherWidth: 600,
-            launcherColumns: 4, launcherRows: 4, launcherRadius: 22, launcherIconSize: 34 } },
-        { name: "Compact", values: { launcherSideImage: false, launcherWidth: 420, launcherRows: 6, launcherRowHeight: 40,
-            launcherIconSize: 24, launcherSearchHeight: 40, launcherRadius: 10, launcherDescriptions: false, launcherCounter: false } },
-        { name: "Wide image", values: { launcherImageWidth: 320, launcherWidth: 600, launcherRadius: 20, launcherRows: 7 } },
-        { name: "Sharp", values: { launcherSideImage: false, launcherRadius: 2, launcherOpacity: 0.95, launcherDim: 0.4, launcherRowHeight: 44 } },
-        { name: "Glass", values: { launcherSideImage: false, launcherOpacity: 0.4, launcherRadius: 24, launcherBlurBackdrop: true, launcherDim: 0.3 } },
+        // macOS Spotlight: wide, big bare search text, no frills
+        { name: "Spotlight", values: { launcherSideImage: false, launcherWidth: 680, launcherTop: 0.26, launcherRadius: 24,
+            launcherSearchStyle: "big", launcherRows: 6, launcherRowHeight: 46, launcherDescriptions: false,
+            launcherCounter: false, launcherOpacity: 0.62, launcherHighlight: "fill" } },
+        // App grid under an underlined search, outlined selection
+        { name: "Grid", values: { launcherLayout: "grid", launcherSideImage: false, launcherWidth: 720, launcherRadius: 20,
+            launcherRows: 4, launcherColumns: 6, launcherIconSize: 36, launcherTop: 0.14, launcherSearchStyle: "line",
+            launcherHighlight: "outline", launcherCounter: false } },
+        // Greeting, grid and a big wallpaper on the right
+        { name: "Showcase", values: { launcherLayout: "grid", launcherImageSide: "right", launcherImageWidth: 260,
+            launcherWidth: 600, launcherColumns: 4, launcherRows: 3, launcherRadius: 22, launcherIconSize: 34,
+            launcherHeader: true, launcherCounter: false } },
+        // Small and quick, accent bar on the selected row
+        { name: "Compact", values: { launcherSideImage: false, launcherWidth: 380, launcherRows: 7, launcherRowHeight: 36,
+            launcherIconSize: 22, launcherSearchHeight: 38, launcherRadius: 10, launcherDescriptions: false,
+            launcherCounter: false, launcherHighlight: "bar", launcherTop: 0.22 } },
+        // Greeting at the top, list with descriptions and a wide wallpaper
+        { name: "Welcome", values: { launcherImageWidth: 300, launcherWidth: 580, launcherRadius: 20, launcherRows: 6,
+            launcherHeader: true, launcherSearchStyle: "line", launcherHighlight: "bar" } },
+        // Square, solid and techy, monospaced names
+        { name: "Terminal", values: { launcherSideImage: false, launcherRadius: 0, launcherOpacity: 0.97,
+            launcherDim: 0.35, launcherRowHeight: 30, launcherIconSize: 18, launcherSearchHeight: 34, launcherRows: 12,
+            launcherDescriptions: false, launcherHighlight: "bar", launcherSearchStyle: "line", launcherWidth: 520, launcherCardColor: "surfaceMid", launcherPlaceholder: "run…" } },
+        // Very see-through card over a blurred screen, outlined selection
+        { name: "Glass", values: { launcherSideImage: false, launcherOpacity: 0.32, launcherRadius: 26, launcherBlurBackdrop: true,
+            launcherDim: 0.25, launcherHighlight: "outline", launcherSearchStyle: "big",
+            launcherDescriptions: false, launcherCounter: false, launcherWidth: 600 } },
+        // Card tinted with the wallpaper's accent color
+        { name: "Accent", values: { launcherSideImage: false, launcherCardColor: "primaryContainer", launcherOpacity: 0.9,
+            launcherRadius: 22, launcherHighlight: "outline", launcherBorder: false,
+            launcherCounter: false } },
         // Full-screen, macOS Launchpad style
         { name: "Launchpad", values: { launcherFullscreen: true } },
         { name: "Launchpad XL", values: { launcherFullscreen: true, launcherFsColumns: 5, launcherFsRows: 3, launcherFsIcon: 92 } },
@@ -380,8 +474,10 @@ Singleton {
         { name: "Launchpad Wallpaper", values: { launcherFullscreen: true, launcherFsBackground: "wallpaper", launcherFsDim: 0.3 } },
         { name: "Icons only", values: { launcherFullscreen: true, launcherFsNames: false, launcherFsColumns: 8, launcherFsRows: 4, launcherFsIcon: 72 } },
         { name: "Dock row", values: { launcherFullscreen: true, launcherFsColumns: 6, launcherFsRows: 1, launcherFsIcon: 84, launcherFsDim: 0.5 } },
-        { name: "Minimal", values: { launcherSideImage: false, launcherWidth: 520, launcherDescriptions: false, launcherCounter: false,
-            launcherRows: 5, launcherOpacity: 0.7, launcherDim: 0.5, launcherRadius: 18 } }
+        // No card at all: search and names float over a dark screen
+        { name: "Minimal", values: { launcherSideImage: false, launcherWidth: 520, launcherDescriptions: false,
+            launcherCounter: false, launcherRows: 6, launcherOpacity: 0, launcherBorder: false, launcherDim: 0.6,
+            launcherSearchStyle: "big", launcherHighlight: "bar", launcherTop: 0.25 } }
     ]
 
     function applyStyle(name) {
@@ -409,9 +505,9 @@ Singleton {
     readonly property var looks: [
         { name: "Default", bar: "Islands", values: {} },
         { name: "Sharp", bar: "Docked", values: { panelRadius: 2, itemRadius: 2, launcherRadius: 2, wsStyle: "numbers" } },
-        { name: "Soft", bar: "Pill", values: { panelRadius: 26, itemRadius: 18, launcherRadius: 26, panelBorder: 0, panelColor: "surfaceMid" } },
+        { name: "Soft", bar: "Chunky", values: { panelRadius: 26, itemRadius: 18, launcherRadius: 26, panelBorder: 0, panelColor: "surfaceMid" } },
         { name: "Glass", bar: "Glass", values: { panelOpacity: 0.4, panelBorderColor: "outline", launcherRadius: 20 } },
-        { name: "Neon", bar: "Outline", values: { panelRadius: 10, itemRadius: 8, panelBorder: 2, panelBorderColor: "primary", launcherRadius: 10 } },
+        { name: "Neon", bar: "Neon", values: { panelRadius: 10, itemRadius: 8, panelBorder: 2, panelBorderColor: "primary", launcherRadius: 10 } },
         { name: "Docked", bar: "Docked", values: { panelRadius: 6, itemRadius: 6, launcherRadius: 6, notifMarginTop: 44, wsStyle: "numbers" } },
         { name: "Minimal", bar: "Minimal", values: { panelRadius: 18, itemRadius: 14, panelBorder: 0, wsStyle: "dots", animSpeed: 1.3 } },
         { name: "Terminal", bar: "Terminal", values: { panelRadius: 0, itemRadius: 0, launcherRadius: 0, panelColor: "surfaceMid", wsStyle: "numbers", notifPosition: "bottom-right", osdPosition: "top", animSpeed: 0 } },
@@ -419,66 +515,77 @@ Singleton {
     ]
 
     // Style presets: the keys they don't mention fall back to baseStyle
+    // Bar style presets fill in only what makes them different; everything else
+    // comes from here, so switching styles never leaves leftovers behind
+    readonly property var stdLayout: ({
+        left: ["launcher", "|", "workspaces", "|", "tray", "|", "title"],
+        center: ["clock", "|", "media"],
+        right: ["status", "|", "wifi", "|", "actions"]
+    })
     readonly property var baseStyle: ({
         barPosition: "top", barHeight: 38, barMarginTop: 8, barMarginSide: 12,
         islandSpacing: 8, islandOpacity: 0.92, islandBorder: 1, islandRadius: 19,
         barBackground: "islands", barRadius: 19, barColor: "surfaceLow", bandColor: "primaryContainer", bandOpacity: 0.85,
         launcherPlain: false, clockCompact: false, wsStyle: "pills",
         borderColor: "outlineVariant", fontSize: 14, pillHeight: 28,
-        pillRadius: 10, innerRadius: 8
+        pillRadius: 10, innerRadius: 8,
+        barFont: "", barClockFormat: "full", islandShadow: false, statusStyle: "rings", barLayout: stdLayout
     })
     readonly property var barStyles: [
-        { name: "Islands", values: { barLayout: {
-            left: ["launcher", "|", "workspaces", "|", "tray", "|", "title"],
-            center: ["clock", "|", "media"],
-            right: ["status", "|", "wifi", "|", "actions"] } } },
         // Blurred translucent strip behind the whole bar, islands sit on it
         { name: "Frosted", values: { barBackground: "band", barHeight: 44, barMarginTop: 6, barMarginSide: 8,
             barRadius: 12, islandRadius: 8, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 8,
             bandColor: "surfaceLow", bandOpacity: 0.45, wsStyle: "dots" } },
-        // Frosted, pinned to the bottom of the screen
+        // The original: separate rounded pills, workspaces with app icons
+        { name: "Islands", values: {} },
+        // Floating see-through islands with a soft shadow and a light edge; airy sans font
+        { name: "Glass", values: { statusStyle: "bars", islandRadius: 14, islandOpacity: 0.42, islandBorder: 1, borderColor: "outline",
+            islandShadow: true, islandSpacing: 10, barMarginTop: 10, barMarginSide: 14, wsStyle: "lines", fontSize: 14 } },
+        // Dark islands outlined in the accent color, techy font, numbered workspaces
+        { name: "Neon", values: { statusStyle: "text", islandRadius: 6, islandOpacity: 0.85, islandBorder: 2, borderColor: "primary",
+            islandSpacing: 10, barMarginTop: 8, wsStyle: "numbers", launcherPlain: true } },
+        // One small rounded capsule in the middle of the screen: just the essentials
+        { name: "Capsule", values: { barBackground: "solid", barHeight: 38, barMarginTop: 8, barMarginSide: 330,
+            barRadius: 19, islandOpacity: 0.9, islandBorder: 1, borderColor: "outlineVariant", islandRadius: 15,
+            wsStyle: "dots", barClockFormat: "time", launcherPlain: true,
+            barLayout: { left: ["launcher", "workspaces"], center: ["clock"], right: ["wifi", "actions"] } } },
+        // No background at all: text floats over the wallpaper
+        { name: "Minimal", values: { statusStyle: "icons", barBackground: "none", barHeight: 34, barMarginTop: 6, islandSpacing: 22,
+            wsStyle: "lines", barClockFormat: "time", launcherPlain: true,
+            barLayout: { left: ["workspaces", "title"], center: ["clock"], right: ["status", "wifi", "actions"] } } },
+        // Strip tinted with the wallpaper's main color
+        { name: "Accent", values: { statusStyle: "bars", barBackground: "band", barHeight: 44, barMarginTop: 6, barMarginSide: 8,
+            barRadius: 12, islandRadius: 8, islandBorder: 0, islandOpacity: 0.92, islandSpacing: 8,
+            bandColor: "primary", bandOpacity: 0.32, wsStyle: "dots", } },
+        // Big, soft and friendly: large rounded pills with app icons on workspaces
+        { name: "Chunky", values: { barBackground: "band", barHeight: 56, barMarginTop: 8, barMarginSide: 10,
+            barRadius: 20, islandRadius: 16, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 10,
+            bandColor: "surfaceLow", bandOpacity: 0.4, wsStyle: "pills", fontSize: 15, pillHeight: 34, } },
+        // Thin and tight, date only in the center
+        { name: "Compact", values: { statusStyle: "icons", barBackground: "band", barHeight: 34, barMarginTop: 4, barMarginSide: 6,
+            barRadius: 8, islandRadius: 5, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 6,
+            bandColor: "surfaceLow", bandOpacity: 0.5, wsStyle: "lines", fontSize: 12, pillHeight: 24 } },
+        // Edge to edge strip with dark islands on it, like a classic desktop panel
+        { name: "Docked", values: { statusStyle: "text", barBackground: "band", barMarginTop: 0, barMarginSide: 0, barRadius: 0,
+            barHeight: 40, bandColor: "surfaceMid", bandOpacity: 0.95, islandBorder: 0, islandRadius: 6,
+            islandOpacity: 0.95, islandSpacing: 6, wsStyle: "numbers", barColor: "surfaceLow", } },
+        // Taskbar at the bottom of the screen
+        { name: "Taskbar", values: { statusStyle: "icons", barPosition: "bottom", barBackground: "solid", barMarginTop: 0, barMarginSide: 0,
+            barRadius: 0, barHeight: 44, islandBorder: 0, islandRadius: 8, islandOpacity: 0.92, islandSpacing: 8,
+            wsStyle: "pills",
+            barLayout: { left: ["launcher", "|", "workspaces"], center: ["title"], right: ["tray", "|", "status", "|", "wifi", "|", "clock", "|", "actions"] } } },
+        // Frosted at the bottom
         { name: "Frosted bottom", values: { barPosition: "bottom", barBackground: "band", barHeight: 44, barMarginTop: 6,
             barMarginSide: 8, barRadius: 12, islandRadius: 8, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 8,
             bandColor: "surfaceLow", bandOpacity: 0.45, wsStyle: "dots" } },
-        // Smaller, tighter frosted bar
-        { name: "Compact", values: { barBackground: "band", barHeight: 36, barMarginTop: 4, barMarginSide: 6,
-            barRadius: 10, islandRadius: 6, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 6,
-            bandColor: "surfaceLow", bandOpacity: 0.45, wsStyle: "dots", fontSize: 12, pillHeight: 24 } },
-        // Bigger, roomier frosted bar
-        { name: "Chunky", values: { barBackground: "band", barHeight: 54, barMarginTop: 8, barMarginSide: 10,
-            barRadius: 16, islandRadius: 12, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 10,
-            bandColor: "surfaceLow", bandOpacity: 0.45, wsStyle: "dots", fontSize: 15, pillHeight: 34 } },
-        // Dark islands on a strip tinted with the wallpaper's accent
-        { name: "Accent", values: { barBackground: "band", barHeight: 44, barMarginTop: 6, barMarginSide: 8,
-            barRadius: 12, islandRadius: 8, islandBorder: 0, islandOpacity: 0.92, islandSpacing: 8,
-            bandColor: "primaryContainer", bandOpacity: 0.55, wsStyle: "dots" } },
-        // Separate see-through islands with a thin light edge
-        { name: "Glass", values: { islandRadius: 10, islandOpacity: 0.45, islandBorder: 1, borderColor: "outline",
-            islandSpacing: 8, barMarginTop: 8, barMarginSide: 10, wsStyle: "dots" } },
-        // Glass islands outlined in the accent color
-        { name: "Outline", values: { islandRadius: 10, islandOpacity: 0.35, islandBorder: 1, borderColor: "primary",
-            islandSpacing: 8, barMarginTop: 8, barMarginSide: 10, wsStyle: "dots" } },
-        // Fully rounded solid pills
-        { name: "Pill", values: { islandRadius: 19, islandOpacity: 0.92, islandBorder: 0, islandSpacing: 8, wsStyle: "pills" } },
-        // One continuous floating bar
-        { name: "Floating bar", values: { barBackground: "solid", barHeight: 40, barMarginTop: 8, barMarginSide: 10,
-            barRadius: 14, islandOpacity: 0.72, islandBorder: 1, borderColor: "outlineVariant", islandRadius: 8,
-            wsStyle: "dots" } },
-        // A faint glass bar, barely there
-        { name: "Minimal", values: { barBackground: "solid", barHeight: 34, barMarginTop: 6, barMarginSide: 8,
-            barRadius: 10, islandOpacity: 0.32, islandBorder: 0, islandRadius: 8, wsStyle: "dots", fontSize: 13,
-            pillHeight: 26 } },
-        // Edge to edge along the top
-        { name: "Docked", values: { barBackground: "solid", barMarginTop: 0, barMarginSide: 0, barRadius: 0,
-            barHeight: 36, islandBorder: 0, islandRadius: 6, islandOpacity: 0.78, islandSpacing: 6, wsStyle: "dots" } },
-        // Edge to edge along the bottom
-        { name: "Docked bottom", values: { barPosition: "bottom", barBackground: "solid", barMarginTop: 0,
-            barMarginSide: 0, barRadius: 0, barHeight: 36, islandBorder: 0, islandRadius: 6, islandOpacity: 0.78,
-            islandSpacing: 6, wsStyle: "dots" } },
-        // Flat, square and small, with workspace numbers
-        { name: "Terminal", values: { barBackground: "solid", barMarginTop: 0, barMarginSide: 0, barRadius: 0,
-            barHeight: 28, islandBorder: 0, islandRadius: 0, islandSpacing: 4, fontSize: 12, pillHeight: 22,
-            barColor: "surfaceMid", islandOpacity: 0.92, wsStyle: "numbers", pillRadius: 0, innerRadius: 0 } }
+        // Flat, square, monospace and tiny, like a terminal status line
+        { name: "Terminal", values: { statusStyle: "text", barBackground: "solid", barMarginTop: 0, barMarginSide: 0, barRadius: 0,
+            barHeight: 26, islandBorder: 0, islandRadius: 0, islandSpacing: 2, fontSize: 12, pillHeight: 22,
+            barColor: "surfaceMid", islandOpacity: 0.95, wsStyle: "numbers", pillRadius: 0, innerRadius: 0, launcherPlain: true } },
+        // Poster: tall condensed clock, everything else small
+        { name: "Poster", values: { statusStyle: "bars", barBackground: "band", barHeight: 46, barMarginTop: 6, barMarginSide: 8,
+            barRadius: 4, islandRadius: 2, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 6,
+            bandColor: "surfaceLow", bandOpacity: 0.5, wsStyle: "lines", fontSize: 16 } }
     ]
 
     function reset() {

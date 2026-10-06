@@ -1,7 +1,11 @@
 import QtQuick
 import qs
 
-// Circular level indicator with an icon inside; the percentage slides out on hover.
+// Level indicator for the bar's status group. Config.statusStyle picks the look:
+//   rings  icon inside a circular gauge, percentage slides out on hover
+//   bars   icon next to a slim progress bar
+//   text   icon and the percentage, always shown
+//   icons  just the icon, tinted by the level color
 // Scroll / click signals like Chip.
 Item {
     id: ring
@@ -13,13 +17,14 @@ Item {
     property color iconColor: Theme.text
     property bool hoverDetails: true    // false: no highlight or label on hover
     readonly property bool hovered: hoverDetails && mouse.containsMouse
+    readonly property string look: Config.statusStyle
 
     signal leftClicked
     signal rightClicked
     signal scrolled(int step)
 
     implicitWidth: row.implicitWidth + 12
-    implicitHeight: 30
+    implicitHeight: Theme.barItem
 
     Behavior on implicitWidth {
         NumberAnimation { duration: Theme.dur(180); easing.type: Easing.OutCubic }
@@ -40,8 +45,9 @@ Item {
         spacing: 6
 
         Item {
-            width: 26
-            height: 26
+            visible: ring.look === "rings"
+            width: Theme.barItem - 4
+            height: Theme.barItem - 4
 
             Canvas {
                 id: canvas
@@ -52,6 +58,7 @@ Item {
                 onValueChanged: requestPaint()
                 onFillChanged: requestPaint()
                 onTrackChanged: requestPaint()
+                onWidthChanged: requestPaint()
 
                 onPaint: {
                     const ctx = getContext("2d");
@@ -81,10 +88,33 @@ Item {
         }
 
         BarText {
-            visible: ring.hovered
+            visible: ring.look === "rings" && ring.hovered
             anchors.verticalCenter: parent.verticalCenter
             text: ring.label
             font.pixelSize: 12
+        }
+
+        // bars / text / icons
+        BarText {
+            visible: ring.look !== "rings"
+            anchors.verticalCenter: parent.verticalCenter
+            text: ring.icon
+            font.pixelSize: Math.round(14 * Theme.barScale)
+            color: ring.look === "icons" ? ring.color : ring.iconColor
+        }
+        MiniBar {
+            visible: ring.look === "bars"
+            anchors.verticalCenter: parent.verticalCenter
+            implicitWidth: Math.round(34 * Theme.barScale)
+            value: ring.value
+            fill: ring.color
+        }
+        BarText {
+            visible: ring.look === "text"
+            anchors.verticalCenter: parent.verticalCenter
+            text: ring.label
+            font.pixelSize: 12
+            font.family: Theme.barFont
         }
     }
 

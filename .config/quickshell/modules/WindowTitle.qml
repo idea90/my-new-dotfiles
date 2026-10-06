@@ -7,5 +7,6 @@ BarText {
     text: Hypr.title
     color: Theme.textDim
     font.pixelSize: 13
+    font.family: Theme.barFont
     elide: Text.ElideRight
 }

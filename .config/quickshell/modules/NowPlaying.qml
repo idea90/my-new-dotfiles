@@ -9,7 +9,7 @@ Item {
     property bool fits: true
     readonly property bool wanted: Media.available && fits
     implicitWidth: row.implicitWidth + 20
-    implicitHeight: 30
+    implicitHeight: Theme.barItem
     opacity: Media.playing ? 1 : 0.6
 
     Behavior on opacity {
@@ -27,8 +27,8 @@ Item {
 
         // Round album art, or an app icon when there's none
         Rectangle {
-            width: 26
-            height: 26
+            width: Theme.barItem - 4
+            height: Theme.barItem - 4
             radius: 13
             color: Theme.tertiaryContainer
             clip: true
@@ -62,6 +62,7 @@ Item {
                 text: (Media.playing ? "" : Theme.icon(0xf03e4) + " ")
                     + (Media.title.length > 22 ? Media.title.slice(0, 21) + "…" : Media.title)
                 font.pixelSize: 12
+                font.family: Theme.barFont
                 color: Theme.text
             }
 

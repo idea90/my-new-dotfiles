@@ -12,6 +12,7 @@ Rectangle {
     property color hoverBg: Theme.surfaceHighest
     property color hoverFg: fg
     property int padding: 10
+    property string fontFamily: Theme.font
     readonly property bool hovered: mouse.containsMouse
 
     signal leftClicked
@@ -42,6 +43,7 @@ Rectangle {
         BarText {
             visible: chip.label !== ""
             text: chip.label
+            font.family: chip.fontFamily
             color: chip.hovered ? chip.hoverFg : chip.fg
         }
     }

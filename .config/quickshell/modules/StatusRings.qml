@@ -42,7 +42,7 @@ Row {
 
         value: Battery.percent / 100
         icon: Battery.charging ? Theme.icon(0xf0084) : Theme.icon(0xf0079)
-        label: Battery.percent + "%" + (Battery.charging ? " charging" : "")
+        label: Battery.percent + "%"
         color: low ? Theme.error : Battery.charging ? Theme.tertiary : Theme.primary
         iconColor: low ? Theme.error : Theme.text
 

@@ -11,6 +11,15 @@ Card {
     id: panel
 
     implicitWidth: Config.ccWidth
+    radius: Config.ccRadius >= 0 ? Config.ccRadius : Theme.radius
+
+    // Touching the screen edge: square the corners on that side
+    readonly property bool edgeRight: Config.ccSideMargin === 0 && Config.ccSide !== "left"
+    readonly property bool edgeLeft: Config.ccSideMargin === 0 && Config.ccSide === "left"
+    topRightRadius: edgeRight ? 0 : radius
+    bottomRightRadius: edgeRight || Config.ccBottomMargin === 0 ? (edgeRight ? 0 : radius) : radius
+    topLeftRadius: edgeLeft ? 0 : radius
+    bottomLeftRadius: edgeLeft ? 0 : radius
     // With ccFit the panel is only as tall as its content
     implicitHeight: layoutColumn.implicitHeight + Config.ccPadding * 2
 
@@ -90,7 +99,7 @@ Card {
             Layout.fillWidth: true
             Layout.bottomMargin: 2
             spacing: 12
-            visible: Config.ccHeader
+            visible: Config.ccHeader && Config.ccHeaderStyle === "profile"
 
             Rectangle {
                 width: 42
@@ -126,6 +135,42 @@ Card {
                 onLeftClicked: Panels.toggle("settings")
             }
             Chip {
+                icon: Theme.icon(0xf033e)
+                bg: Theme.surfaceHigh
+                onLeftClicked: {
+                    Panels.close();
+                    Quickshell.execDetached(["qs", "ipc", "call", "lock", "lock"]);
+                }
+            }
+        }
+
+        // ---- "clock" header: big time and date, settings / lock on the right ----
+        RowLayout {
+            Layout.fillWidth: true
+            visible: Config.ccHeader && Config.ccHeaderStyle === "clock"
+            spacing: 8
+
+            Column {
+                Layout.fillWidth: true
+                BarText {
+                    text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
+                    font.pixelSize: 40
+                    font.bold: true
+                }
+                BarText {
+                    text: Qt.formatDateTime(Time.now, "dddd, d MMMM")
+                    color: Theme.primary
+                    font.pixelSize: 13
+                }
+            }
+            Chip {
+                Layout.alignment: Qt.AlignTop
+                icon: Theme.icon(0xf0493)
+                bg: Theme.surfaceHigh
+                onLeftClicked: Panels.toggle("settings")
+            }
+            Chip {
+                Layout.alignment: Qt.AlignTop
                 icon: Theme.icon(0xf033e)
                 bg: Theme.surfaceHigh
                 onLeftClicked: {
@@ -175,9 +220,8 @@ Card {
             visible: Config.ccToggleStyle === "mixed" && smalls.length > 0
             implicitHeight: Math.ceil(smalls.length / 3) * 54 - 8
 
-            Grid {
+            Flow {
                 anchors.fill: parent
-                columns: 3
                 spacing: 8
 
                 Repeater {
@@ -185,7 +229,10 @@ Card {
                     delegate: PillTile {
                         required property string modelData
                         readonly property var def: panel.toggleDefs[modelData]
-                        width: (pillBox.width - 16) / 3
+                        readonly property int lastRow: pillBox.smalls.length % 3 || 3
+                        readonly property int perRow: index >= pillBox.smalls.length - lastRow ? lastRow : 3
+                        required property int index
+                        width: Math.floor((pillBox.width - (perRow - 1) * 8) / perRow)
                         icon: def.icon
                         label: def.label
                         on: def.on ?? false
@@ -208,9 +255,8 @@ Card {
             visible: Config.ccToggleStyle === "tiles" && all.length > 0
             implicitHeight: Math.ceil(all.length / cols) * 84 - 8
 
-            Grid {
+            Flow {
                 anchors.fill: parent
-                columns: tileBox.cols
                 spacing: 8
 
                 Repeater {
@@ -218,7 +264,11 @@ Card {
                     delegate: SquareTile {
                         required property string modelData
                         readonly property var def: panel.toggleDefs[modelData]
-                        width: (tileBox.width - (tileBox.cols - 1) * 8) / tileBox.cols
+                        // The last row stretches so it has no hole
+                        readonly property int lastRow: tileBox.all.length % tileBox.cols || tileBox.cols
+                        readonly property int perRow: index >= tileBox.all.length - lastRow ? lastRow : tileBox.cols
+                        required property int index
+                        width: Math.floor((tileBox.width - (perRow - 1) * 8) / perRow)
                         icon: def.icon
                         label: def.label
                         on: def.on ?? false
@@ -264,10 +314,10 @@ Card {
 
         Rectangle {
             Layout.fillWidth: true
-            visible: Config.ccSliders
-            implicitHeight: sliders.implicitHeight + 12
+            visible: Config.ccSliders && Config.ccSliderStyle !== "big"
+            implicitHeight: sliders.implicitHeight + (Config.ccSliderStyle === "inline" ? 0 : 12)
             radius: Config.itemRadius + 4
-            color: Theme.surfaceHigh
+            color: Config.ccSliderStyle === "inline" ? "transparent" : Theme.surfaceHigh
 
             Column {
                 id: sliders
@@ -275,7 +325,7 @@ Card {
                     left: parent.left
                     right: parent.right
                     verticalCenter: parent.verticalCenter
-                    margins: 12
+                    margins: Config.ccSliderStyle === "inline" ? 0 : 12
                 }
 
                 Slider {
@@ -293,6 +343,29 @@ Card {
                     value: Brightness.percent / 100
                     onMoved: v => Brightness.set(v)
                 }
+            }
+        }
+
+        // "big" sliders: thick filled bars
+        Column {
+            Layout.fillWidth: true
+            visible: Config.ccSliders && Config.ccSliderStyle === "big"
+            spacing: 8
+
+            BigSlider {
+                width: parent.width
+                visible: Audio.ready
+                icon: Audio.muted ? Theme.icon(0xf075f) : Theme.icon(0xf057e)
+                value: Audio.muted ? 0 : Audio.volume
+                onMoved: v => Audio.setVolume(v)
+                onIconClicked: Audio.toggleMute()
+            }
+            BigSlider {
+                width: parent.width
+                visible: Brightness.available
+                icon: Theme.icon(0xf00df)
+                value: Brightness.percent / 100
+                onMoved: v => Brightness.set(v)
             }
         }
 

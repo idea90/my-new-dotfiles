@@ -39,6 +39,12 @@ Singleton {
     readonly property int innerRadius: Config.innerRadius
     readonly property int pillHeight: Config.pillHeight
     // Corner radius for buttons inside bar islands: follows the island corners
+    // Height of buttons, rings and the clock inside bar islands: follows the bar
+    // height so small and big bar styles stay in proportion (30 on the default bars)
+    readonly property int islandHeight: Config.barBackground === "band" ? Config.barHeight - 12 : Config.barHeight
+    readonly property int barItem: Math.max(20, Math.min(40, Config.barBackground === "band" ? islandHeight - 2 : islandHeight - 8))
+    readonly property real barScale: barItem / 30
+    readonly property string barFont: Config.barFont !== "" ? Config.barFont : font
     readonly property int chipRadius: Math.max(4, Math.min(15, Config.islandRadius - 2))
 
     // Animation duration scaled by Config.animSpeed (0 = instant)

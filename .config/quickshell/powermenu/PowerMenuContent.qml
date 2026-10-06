@@ -43,19 +43,79 @@ Item {
         current = (current + d + actions.length) % actions.length;
     }
 
+    readonly property string pos: Config.powerPosition   // center | bottom | left | right | corner
+    readonly property bool side: pos === "left" || pos === "right"
+    readonly property bool outline: Config.powerHighlight === "outline"
+
+    // Panel behind the buttons for the side / corner placements
+    Rectangle {
+        visible: root.side || root.pos === "corner"
+        // Plain x/y/width/height (no left/right anchors) so switching sides never
+        // leaves both anchors set and collapses the width
+        x: root.pos === "left" ? 0 : parent.width - width - (root.pos === "corner" ? 12 : 0)
+        y: root.side ? 0 : Config.barMarginTop + Config.barHeight + 8
+        width: menu.width + 64
+        height: root.side ? parent.height : menu.height + 48
+        radius: root.side ? 0 : Config.panelRadius
+        color: Theme.alpha(Theme.surfaceHigh, 0.9)
+        border.width: root.side ? 0 : Config.panelBorder
+        border.color: Theme.panelBorderFill
+
+        // Inner edge line for the side panels
+        Rectangle {
+            visible: root.side
+            width: 1
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: root.pos === "left" ? parent.right : undefined
+                left: root.pos === "left" ? undefined : parent.left
+            }
+            color: Theme.alpha(Theme.outline, 0.6)
+        }
+
+        MouseArea {
+            anchors.fill: parent
+        }
+    }
+
     Column {
-        anchors.centerIn: parent
+        id: menu
+        x: root.pos === "left" ? 32
+         : root.side || root.pos === "corner" ? parent.width - width - 32 - (root.pos === "corner" ? 12 : 0)
+         : (parent.width - width) / 2
+        y: root.pos === "bottom" ? parent.height - height - 70
+         : root.pos === "corner" ? Config.barMarginTop + Config.barHeight + 32
+         : (parent.height - height) / 2
         spacing: 28
 
-        // Optional header: big clock and a goodbye line
+        // Optional header: avatar, big clock and a goodbye line
         Column {
             visible: Config.powerHeader
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 4
+            Rectangle {
+                visible: Config.powerAvatar
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 72
+                height: 72
+                radius: 36
+                color: Theme.primaryContainer
+                border.width: 3
+                border.color: Theme.primary
+                BarText {
+                    anchors.centerIn: parent
+                    text: Quickshell.env("USER").charAt(0).toUpperCase()
+                    font.pixelSize: 32
+                    font.bold: true
+                    color: Theme.primaryContainerFg
+                }
+            }
             BarText {
                 anchors.horizontalCenter: parent.horizontalCenter
+                visible: Config.powerClock
                 text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
-                font.pixelSize: 72
+                font.pixelSize: root.side || root.pos === "corner" ? 48 : 72
                 font.bold: true
                 color: "#ffffff"
             }
@@ -105,7 +165,7 @@ Item {
                     required property int index
                     readonly property bool selected: root.current === index || mouse.containsMouse
                     readonly property bool danger: !!modelData.danger
-                    readonly property color fg: !selected ? Theme.text : danger ? Theme.errorContainerFg : Theme.primaryContainerFg
+                    readonly property color fg: !selected ? Theme.text : root.outline ? (danger ? Theme.error : Theme.primary) : danger ? Theme.errorContainerFg : Theme.primaryContainerFg
 
                     width: root.shape === "pill" ? Config.powerButtonWidth * 1.6
                          : root.shape === "circle" ? Config.powerButtonWidth * 0.62 + 20 : Config.powerButtonWidth
@@ -119,9 +179,9 @@ Item {
                         height: root.shape === "circle" ? width : parent.height
                         anchors.horizontalCenter: parent.horizontalCenter
                         radius: root.shape === "circle" || root.shape === "pill" ? height / 2 : Theme.radius
-                        color: button.selected ? (button.danger ? Theme.errorContainer : Theme.primaryContainer)
+                        color: button.selected && !root.outline ? (button.danger ? Theme.errorContainer : Theme.primaryContainer)
                              : Theme.alpha(Theme.surfaceMid, Config.powerOpacity)
-                        border.width: 1
+                        border.width: button.selected && root.outline ? 2 : Config.powerBorder ? 1 : 0
                         border.color: button.selected ? (button.danger ? Theme.error : Theme.primary) : Theme.alpha(Theme.outlineVariant, 0.8)
                         scale: button.selected ? 1.05 : 1
 

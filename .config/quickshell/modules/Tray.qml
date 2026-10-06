@@ -17,7 +17,7 @@ Row {
             required property SystemTrayItem modelData
 
             width: 26
-            height: 30
+            height: Theme.barItem
 
             IconImage {
                 anchors.centerIn: parent

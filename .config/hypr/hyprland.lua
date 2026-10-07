@@ -45,6 +45,8 @@ local menu        = "qs ipc call launcher toggle" -- Quickshell app launcher
 hl.on("hyprland.start", function()
     hl.exec_cmd(hypr .. "/scripts/seed-colors.sh") -- generated colors missing? create a starter set
     hl.exec_cmd("awww-daemon")
+    hl.exec_cmd("wl-paste --type text --watch cliphist store")  -- clipboard history (Super+V)
+    hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("qs") -- Quickshell: bar, launcher, notifications, OSD, menus (~/.config/quickshell)
     hl.exec_cmd("nm-applet")
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Ice 24")
@@ -201,7 +203,8 @@ hl.bind(mainMod .. " + SHIFT + M",   hl.dsp.exit())
 hl.bind(mainMod .. " + Escape",      hl.dsp.exec_cmd("qs ipc call power toggle"))
 hl.bind(mainMod .. " + N",           hl.dsp.exec_cmd("qs ipc call controlcenter toggle"))
 hl.bind(mainMod .. " + G",           hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + V",           hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + V",           hl.dsp.exec_cmd("qs ipc call clipboard toggle"))  -- clipboard history
+hl.bind(mainMod .. " + SHIFT + V",   hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",           hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + Z",           hl.dsp.exec_cmd("firefox"))
 hl.bind(mainMod .. " + B",           hl.dsp.exec_cmd("qs ipc call config bar toggle")) -- hide / bring back the bar

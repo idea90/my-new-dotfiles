@@ -6,6 +6,7 @@ import QtQuick
 import Quickshell
 import qs.bluetooth
 import qs.calendar
+import qs.clipboard
 import qs.controlcenter
 import qs.dock
 import qs.goodbye
@@ -48,6 +49,7 @@ ShellRoot {
     SettingsWindow {}
     LockScreen {}
     Mixer {}
+    ClipboardMenu {}
     BluetoothMenu {}
     GoodbyeScreen {}
     ShotWindow {}

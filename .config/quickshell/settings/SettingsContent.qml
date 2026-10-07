@@ -279,6 +279,8 @@ Card {
             { key: "goodbyeSeconds", label: "How long (seconds)", type: "real", min: 0.5, max: 6, step: 0.25 }
         ]},
         { group: "Desktop", name: "Wallpaper and widgets", icon: 0xf0e09, rows: [
+            { type: "header", label: "Get wallpapers from Wallhaven" },
+            { type: "wallhaven" },
             { type: "header", label: "Desktop widgets" },
             { key: "widgetsEnabled", label: "Widgets on the wallpaper", type: "bool" },
             { key: "widgetsStyle", label: "Look", type: "choice", options: ["cards", "plain"] },
@@ -570,6 +572,7 @@ Card {
                         stepMs: 18
                     }
                     sourceComponent: modelData.type === "header" ? headerRow
+                    : modelData.type === "wallhaven" ? wallhavenEditor
                     : modelData.type === "backup" ? backupEditor
                     : modelData.type === "islandStyles" ? islandStylesEditor
                     : modelData.type === "ccStyles" ? ccStylesEditor
@@ -590,6 +593,243 @@ Card {
                     visible: panel.shownRows.length === 0
                     text: "No settings match"
                     color: Theme.textDim
+                }
+            }
+        }
+    }
+
+    // Browse wallhaven.cc: search, filters, click a picture to download and use it
+    Component {
+        id: wallhavenEditor
+
+        Rectangle {
+            id: wh
+            implicitHeight: whCol.implicitHeight + 24
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Component.onCompleted: {
+                if (Wallpapers.onlineItems.length === 0 && !Wallpapers.searching)
+                    Wallpapers.search("", 1);
+            }
+
+            Column {
+                id: whCol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                // Search
+                Rectangle {
+                    width: parent.width
+                    height: 36
+                    radius: Theme.innerRadius + 2
+                    color: Theme.surfaceHigh
+                    border.width: whSearch.activeFocus ? 1 : 0
+                    border.color: Theme.primary
+
+                    BarText {
+                        id: whIcon
+                        anchors {
+                            left: parent.left
+                            leftMargin: 12
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: Theme.icon(0xf0349)
+                        color: Theme.primary
+                    }
+                    TextInput {
+                        id: whSearch
+                        anchors {
+                            left: whIcon.right
+                            right: whStatus.left
+                            leftMargin: 10
+                            rightMargin: 10
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: Wallpapers.query
+                        color: Theme.text
+                        font.family: Theme.font
+                        font.pixelSize: 14
+                        clip: true
+                        onAccepted: Wallpapers.search(text, 1)
+                        Text {
+                            visible: whSearch.text === "" && !whSearch.activeFocus
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "Search wallhaven, then Enter (empty = top picks)"
+                            color: Theme.alpha(Theme.text, 0.45)
+                            font: whSearch.font
+                        }
+                    }
+                    BarText {
+                        id: whStatus
+                        anchors {
+                            right: parent.right
+                            rightMargin: 12
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: Wallpapers.downloading ? "downloading…" : Wallpapers.searching ? "searching…"
+                            : Wallpapers.error ? "wallhaven unreachable" : Wallpapers.onlineItems.length + " results"
+                        color: Wallpapers.error ? Theme.error : Theme.textDim
+                        font.pixelSize: 11
+                    }
+                }
+
+                // Filters: click a chip to step through its options, right-click to go back
+                Flow {
+                    width: parent.width
+                    spacing: 6
+
+                    Repeater {
+                        model: [{ label: "General", i: 0 }, { label: "Anime", i: 1 }, { label: "People", i: 2 }]
+                        Chip {
+                            required property var modelData
+                            readonly property bool on: Wallpapers.categories[modelData.i] === "1"
+                            implicitHeight: 26
+                            label: modelData.label
+                            fg: on ? Theme.primaryFg : Theme.textDim
+                            bg: on ? Theme.primary : Theme.surfaceHigh
+                            hoverBg: on ? Theme.primary : Theme.surfaceHighest
+                            onLeftClicked: Wallpapers.toggleCategory(modelData.i)
+                        }
+                    }
+                    Repeater {
+                        model: [
+                            { prop: "sort", list: Wallpapers.sorts, name: "sort" },
+                            { prop: "range", list: Wallpapers.ranges, name: "top" },
+                            { prop: "resolution", list: Wallpapers.resolutions, name: "min" },
+                            { prop: "ratio", list: Wallpapers.ratioList, name: "ratio" },
+                            { prop: "color", list: Wallpapers.colorList, name: "color" }
+                        ]
+                        Chip {
+                            required property var modelData
+                            readonly property string value: Wallpapers[modelData.prop]
+                            visible: modelData.prop !== "range" || Wallpapers.sort === "toplist"
+                            implicitHeight: 26
+                            label: modelData.name + ": " + (value === "any" ? "any" : modelData.prop === "color" ? "     " : value.replace("_", " "))
+                            bg: Theme.surfaceHigh
+                            function step(d) {
+                                const l = modelData.list;
+                                Wallpapers.set(modelData.prop, l[(l.indexOf(value) + d + l.length) % l.length]);
+                            }
+                            onLeftClicked: step(1)
+                            onRightClicked: step(-1)
+                            Rectangle {
+                                visible: modelData.prop === "color" && value !== "any"
+                                anchors {
+                                    right: parent.right
+                                    rightMargin: 8
+                                    verticalCenter: parent.verticalCenter
+                                }
+                                width: 14
+                                height: 14
+                                radius: 7
+                                color: "#" + value
+                                border.width: 1
+                                border.color: Theme.outline
+                            }
+                        }
+                    }
+                    Chip {
+                        implicitHeight: 26
+                        label: "NSFW"
+                        fg: Wallpapers.nsfw ? Theme.errorFg : Theme.textDim
+                        bg: Wallpapers.nsfw ? Theme.error : Theme.surfaceHigh
+                        hoverBg: Wallpapers.nsfw ? Theme.error : Theme.surfaceHighest
+                        onLeftClicked: Wallpapers.set("nsfw", !Wallpapers.nsfw)
+                    }
+                }
+
+                // Results
+                Grid {
+                    id: whGrid
+                    width: parent.width
+                    columns: 3
+                    spacing: 8
+                    readonly property real cell: (width - 16) / 3
+
+                    Repeater {
+                        model: Wallpapers.onlineItems
+                        delegate: Item {
+                            required property var modelData
+                            required property int index
+                            width: whGrid.cell
+                            height: whGrid.cell * 0.62 + 18
+
+                            Rectangle {
+                                id: shotFrame
+                                width: parent.width
+                                height: whGrid.cell * 0.62
+                                radius: Theme.innerRadius + 2
+                                clip: true
+                                color: Theme.surfaceHigh
+                                border.width: whMouse.containsMouse ? 2 : 0
+                                border.color: Theme.primary
+
+                                Image {
+                                    anchors.fill: parent
+                                    source: modelData.thumb
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                    sourceSize.width: 360
+                                }
+                                Rectangle {
+                                    visible: whMouse.containsMouse
+                                    anchors.fill: parent
+                                    color: Qt.rgba(0, 0, 0, 0.45)
+                                    BarText {
+                                        anchors.centerIn: parent
+                                        text: Theme.icon(0xf01da) + "  Use this"
+                                        color: "#ffffff"
+                                        font.bold: true
+                                    }
+                                }
+                            }
+                            BarText {
+                                anchors.top: shotFrame.bottom
+                                anchors.topMargin: 2
+                                width: parent.width
+                                horizontalAlignment: Text.AlignHCenter
+                                text: modelData.name.split("  ")[1] || ""
+                                color: Theme.textDim
+                                font.pixelSize: 10
+                            }
+                            MouseArea {
+                                id: whMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Wallpapers.download(modelData.path)
+                            }
+                        }
+                    }
+                }
+
+                Row {
+                    spacing: 8
+                    Chip {
+                        visible: Wallpapers.onlineItems.length > 0
+                        icon: Theme.icon(0xf0140)
+                        label: Wallpapers.searching ? "Loading…" : "Load more"
+                        bg: Theme.surfaceHigh
+                        onLeftClicked: if (!Wallpapers.searching) Wallpapers.search(Wallpapers.query, Wallpapers.page + 1)
+                    }
+                    Chip {
+                        icon: Theme.icon(0xf049d)
+                        label: "Surprise me"
+                        bg: Theme.surfaceHigh
+                        onLeftClicked: Quickshell.execDetached([Wallpapers.havenScript, "random", Wallpapers.query])
+                    }
+                    BarText {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "Downloads go to ~/wallpapers"
+                        color: Theme.alpha(Theme.textDim, 0.8)
+                        font.pixelSize: 11
+                    }
                 }
             }
         }

@@ -115,11 +115,12 @@
   "launcherFsDim": 0.35,
   "widgetsStyle": "cards",
   "widgetsPosition": "top-left",
-  "widgetsEnabled": true,
+  "widgetsEnabled": false,
   "slideMinutes": 11,
   "showResources": true,
   "showActions": true,
   "showStatus": true,
   "showWeather": false,
-  "dockEnabled": false
+  "dockEnabled": false,
+  "slideMorning": ""
 }

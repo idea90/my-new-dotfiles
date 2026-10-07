@@ -5,7 +5,7 @@ import qs.modules
 import qs.services
 
 // Wallpaper grid with dark/light, scheme and random. Keys: arrows, Enter,
-// D (dark/light), R (random), W (Wallhaven), / (search), Esc.
+// D (dark/light), R (random), Esc. Wallhaven browsing is in Settings.
 Card {
     id: picker
 
@@ -32,24 +32,13 @@ Card {
         }
     }
 
-    readonly property var shown: Wallpapers.online ? Wallpapers.onlineItems : Wallpapers.items
+    readonly property var shown: Wallpapers.items
 
     function activate(item) {
-        if (Wallpapers.online) {
-            Wallpapers.download(item.path);
-        } else {
-            Wallpapers.apply(item.path);
-        }
+        Wallpapers.apply(item.path);
         Panels.close();
     }
 
-    function goOnline(on) {
-        Wallpapers.online = on;
-        if (on && Wallpapers.onlineItems.length === 0)
-            Wallpapers.search("", 1);
-        grid.currentIndex = 0;
-        grid.forceActiveFocus();
-    }
 
     ColumnLayout {
         anchors {
@@ -70,19 +59,20 @@ Card {
             BarText {
                 Layout.fillWidth: true
                 leftPadding: 6
-                text: Wallpapers.online
-                    ? (Wallpapers.downloading ? "downloading…" : Wallpapers.searching ? "searching…" : Wallpapers.error ? "wallhaven unreachable" : picker.shown.length + " results")
-                    : Wallpapers.loading ? "preparing thumbnails…" : Wallpapers.items.length + " images"
+                text: Wallpapers.loading ? "preparing thumbnails…" : Wallpapers.items.length + " images"
                 color: Theme.textDim
                 font.pixelSize: 12
             }
             Chip {
                 icon: Theme.icon(0xf0ac)
-                label: "Wallhaven"
-                fg: Wallpapers.online ? Theme.primaryFg : Theme.text
-                bg: Wallpapers.online ? Theme.primary : Theme.surfaceHigh
-                hoverBg: Wallpapers.online ? Theme.primary : Theme.surfaceHighest
-                onLeftClicked: picker.goOnline(!Wallpapers.online)
+                label: "Get more"
+                bg: Theme.surfaceHigh
+                // Wallhaven browsing lives in Settings → Wallpaper and widgets
+                onLeftClicked: {
+                    Panels.settingsTab = "";
+                    Panels.settingsTab = "Wallpaper and widgets";
+                    Panels.open = "settings";
+                }
             }
             Chip {
                 icon: Wallpapers.mode === "dark" ? Theme.icon(0xf0594) : Theme.icon(0xf0599)
@@ -101,115 +91,8 @@ Card {
             }
         }
 
-        // Wallhaven search
-        Rectangle {
-            visible: Wallpapers.online
-            Layout.fillWidth: true
-            implicitHeight: 32
-            radius: Theme.innerRadius
-            color: Theme.surfaceMid
-            border.width: search.activeFocus ? 1 : 0
-            border.color: Theme.primary
-
-            TextInput {
-                id: search
-                anchors {
-                    fill: parent
-                    leftMargin: 10
-                    rightMargin: 10
-                }
-                verticalAlignment: TextInput.AlignVCenter
-                color: Theme.text
-                font.family: Theme.font
-                font.pixelSize: Theme.fontSize
-                clip: true
-                onAccepted: {
-                    Wallpapers.search(text, 1);
-                    grid.forceActiveFocus();
-                }
-                Keys.onEscapePressed: grid.forceActiveFocus()
-
-                BarText {
-                    visible: !search.text && !search.activeFocus
-                    text: "Search wallhaven, Enter to run (empty = toplist)"
-                    color: Theme.alpha(Theme.text, 0.45)
-                }
-            }
-        }
-
-        // Wallhaven filters. Each chip cycles through its options on click.
-        Flow {
-            visible: Wallpapers.online
-            Layout.fillWidth: true
-            spacing: 6
-
-            Repeater {
-                model: [{ label: "General", i: 0 }, { label: "Anime", i: 1 }, { label: "People", i: 2 }]
-
-                Chip {
-                    required property var modelData
-                    readonly property bool on: Wallpapers.categories[modelData.i] === "1"
-                    implicitHeight: 26
-                    label: modelData.label
-                    fg: on ? Theme.primaryFg : Theme.textDim
-                    bg: on ? Theme.primary : Theme.surfaceMid
-                    hoverBg: on ? Theme.primary : Theme.surfaceHighest
-                    onLeftClicked: Wallpapers.toggleCategory(modelData.i)
-                }
-            }
-            Repeater {
-                model: [
-                    { prop: "sort", list: Wallpapers.sorts, name: "sort" },
-                    { prop: "range", list: Wallpapers.ranges, name: "top" },
-                    { prop: "resolution", list: Wallpapers.resolutions, name: "min" },
-                    { prop: "ratio", list: Wallpapers.ratioList, name: "ratio" },
-                    { prop: "color", list: Wallpapers.colorList, name: "color" }
-                ]
-
-                Chip {
-                    required property var modelData
-                    readonly property string value: Wallpapers[modelData.prop]
-                    visible: modelData.prop !== "range" || Wallpapers.sort === "toplist"
-                    implicitHeight: 26
-                    label: modelData.name + ": " + (value === "any" ? "any" : modelData.prop === "color" ? "" : value)
-                    bg: Theme.surfaceMid
-                    // Step forward on click, back on right click
-                    function step(d) {
-                        const l = modelData.list;
-                        Wallpapers.set(modelData.prop, l[(l.indexOf(value) + d + l.length) % l.length]);
-                    }
-                    onLeftClicked: step(1)
-                    onRightClicked: step(-1)
-
-                    Rectangle {
-                        visible: modelData.prop === "color" && value !== "any"
-                        anchors {
-                            right: parent.right
-                            rightMargin: 6
-                            verticalCenter: parent.verticalCenter
-                        }
-                        width: 12
-                        height: 12
-                        radius: 6
-                        color: "#" + value
-                        border.width: 1
-                        border.color: Theme.outline
-                    }
-                }
-            }
-            Chip {
-                implicitHeight: 26
-                label: "NSFW"
-                fg: Wallpapers.nsfw ? Theme.errorFg : Theme.textDim
-                bg: Wallpapers.nsfw ? Theme.error : Theme.surfaceMid
-                hoverBg: Wallpapers.nsfw ? Theme.error : Theme.surfaceHighest
-                onLeftClicked: Wallpapers.set("nsfw", !Wallpapers.nsfw)
-            }
-        }
-
         // Color scheme chips
         Flow {
-            visible: !Wallpapers.online
             Layout.fillWidth: true
             spacing: 6
 
@@ -246,12 +129,6 @@ Card {
                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                     if (picker.shown.length > 0)
                         picker.activate(picker.shown[currentIndex]);
-                } else if (event.text === "/" && Wallpapers.online) {
-                    search.forceActiveFocus();
-                } else if (event.text.toLowerCase() === "w") {
-                    picker.goOnline(!Wallpapers.online);
-                } else if (Wallpapers.online && event.key === Qt.Key_PageDown && !Wallpapers.searching) {
-                    Wallpapers.search(Wallpapers.query, Wallpapers.page + 1);
                 } else if (event.text.toLowerCase() === "d") {
                     Wallpapers.toggleMode();
                 } else if (event.text.toLowerCase() === "r") {
@@ -296,7 +173,7 @@ Card {
 
                     Image {
                         anchors.fill: parent
-                        source: Wallpapers.online ? tile.modelData.thumb : "file://" + tile.modelData.thumb
+                        source: "file://" + tile.modelData.thumb
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         sourceSize.width: 400
@@ -304,7 +181,7 @@ Card {
 
                     // Current wallpaper badge
                     Rectangle {
-                        visible: !Wallpapers.online && tile.modelData.path === Wallpapers.current
+                        visible: tile.modelData.path === Wallpapers.current
                         anchors {
                             top: parent.top
                             right: parent.right
@@ -349,14 +226,14 @@ Card {
 
             BarText {
                 anchors.centerIn: parent
-                visible: Wallpapers.online ? (!Wallpapers.searching && picker.shown.length === 0) : (!Wallpapers.loading && picker.shown.length === 0)
-                text: Wallpapers.online ? "No results" : "No images in ~/wallpapers"
+                visible: !Wallpapers.loading && picker.shown.length === 0
+                text: "No images in ~/wallpapers · Get more from Wallhaven"
                 color: Theme.textDim
             }
         }
 
         BarText {
-            text: Wallpapers.online ? "Enter download + apply · / search · PgDn more · click filter: next, right click: back · W local · Esc close" : "Enter apply · D dark/light · R random · W wallhaven · Esc close"
+            text: "Enter apply · D dark/light · R random · Esc close"
             color: Theme.alpha(Theme.text, 0.45)
             font.pixelSize: 11
         }

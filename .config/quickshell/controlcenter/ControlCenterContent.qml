@@ -484,13 +484,52 @@ Card {
             visible: Config.ccNotifications
             clip: true
             spacing: 8
-            model: Notifs.list.slice().reverse()   // newest first
+            // Grouped by app; groups with several notifications fold to the newest
+            model: Config.notifGroup ? Notifs.groups : Notifs.list.slice().reverse().map(n => ({ app: "", items: [n] }))
             boundsBehavior: Flickable.StopAtBounds
 
-            delegate: NotificationCard {
+            delegate: Column {
+                id: group
                 required property var modelData
+                property bool expanded: false
+                readonly property bool many: modelData.items.length > 1
                 width: ListView.view.width
-                notification: modelData
+                spacing: 6
+
+                RowLayout {
+                    visible: group.many
+                    width: parent.width
+                    BarText {
+                        Layout.fillWidth: true
+                        text: group.modelData.app + "  ·  " + group.modelData.items.length
+                        font.pixelSize: 12
+                        font.bold: true
+                        color: Theme.primary
+                    }
+                    Chip {
+                        implicitHeight: 24
+                        label: group.expanded ? "Show less" : "Show all"
+                        onLeftClicked: group.expanded = !group.expanded
+                    }
+                    Chip {
+                        implicitHeight: 24
+                        icon: Theme.icon(0xf0156)
+                        hoverBg: Theme.error
+                        hoverFg: Theme.errorFg
+                        onLeftClicked: {
+                            for (const n of group.modelData.items.slice())
+                                n.dismiss();
+                        }
+                    }
+                }
+                Repeater {
+                    model: group.expanded ? group.modelData.items : group.modelData.items.slice(0, 1)
+                    delegate: NotificationCard {
+                        required property var modelData
+                        width: group.width
+                        notification: modelData
+                    }
+                }
             }
 
             Column {

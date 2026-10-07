@@ -93,6 +93,10 @@ Singleton {
 
     // Notification pop-ups
     property string notifPosition: "top-right"  // top-right | top-left | bottom-right | bottom-left
+    property bool notifGroup: true          // group by app in the control center
+    property bool dndAuto: false            // silent by itself between these times
+    property string dndFrom: "23:00"
+    property string dndTo: "07:00"
     property real notifOpacity: 0.55        // pop-up fill; the blur shows through
     property int notifWidth: 380
     property int notifMarginTop: 8

@@ -118,6 +118,57 @@ Rectangle {
             }
         }
 
+        // Quick reply (apps that support it, e.g. chat apps)
+        Rectangle {
+            visible: card.notification.hasInlineReply
+            width: parent.width
+            height: 34
+            radius: Theme.innerRadius + 2
+            color: Theme.surfaceHighest
+            border.width: replyField.activeFocus ? 1 : 0
+            border.color: Theme.primary
+
+            TextInput {
+                id: replyField
+                anchors {
+                    left: parent.left
+                    right: sendBtn.left
+                    leftMargin: 10
+                    rightMargin: 6
+                    verticalCenter: parent.verticalCenter
+                }
+                color: Theme.text
+                font.family: Theme.font
+                font.pixelSize: 13
+                clip: true
+                onAccepted: {
+                    if (text !== "") {
+                        card.notification.sendInlineReply(text);
+                        text = "";
+                    }
+                }
+                Text {
+                    visible: replyField.text === ""
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: card.notification.inlineReplyPlaceholder || "Reply…"
+                    color: Theme.alpha(Theme.text, 0.45)
+                    font: replyField.font
+                }
+            }
+            Chip {
+                id: sendBtn
+                anchors {
+                    right: parent.right
+                    rightMargin: 4
+                    verticalCenter: parent.verticalCenter
+                }
+                implicitHeight: 26
+                icon: Theme.icon(0xf048a)
+                fg: Theme.primary
+                onLeftClicked: replyField.accepted()
+            }
+        }
+
         Row {
             visible: card.buttons.length > 0
             spacing: 6

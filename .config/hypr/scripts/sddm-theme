@@ -33,7 +33,9 @@ write_data() {
     cp "$SRC/theme.conf" "$out/theme.conf"
 
     if [[ -f "$WALL" ]]; then
-        magick "$WALL" -resize 3840x2160\> -gravity center -blur 0x10 -fill black -colorize 30% "$out/background.png.new" \
+        # Blur a small copy, then scale it up: same soft look, a fraction of the CPU
+        MAGICK_THREAD_LIMIT=1 nice -n 19 magick "$WALL" -resize 640x360^ -blur 0x3 -resize 1920x1080^ \
+            -gravity center -extent 1920x1080 -fill black -colorize 30% "$out/background.png.new" \
             && mv -f "$out/background.png.new" "$out/background.png"
     fi
 

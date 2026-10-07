@@ -6,7 +6,7 @@ import qs.services
 
 // Bottom-center pop-up on volume / brightness keys
 PanelWindow {
-    visible: Osd.shown
+    visible: Osd.shown && !(Config.barMode === "island" && Config.islandOsd)
     color: "transparent"
     anchors.bottom: Config.osdPosition !== "top"
     anchors.top: Config.osdPosition === "top"

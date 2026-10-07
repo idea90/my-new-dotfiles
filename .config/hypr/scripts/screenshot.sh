@@ -47,6 +47,14 @@ countdown() {
     done
 }
 
+# Windows on the visible workspaces, as "x,y wxh" lines for slurp to snap to
+window_boxes() {
+    local ws
+    ws="$(hyprctl -j monitors | jq -c '[.[].activeWorkspace.id]')"
+    hyprctl -j clients | jq -r --argjson ws "$ws" \
+        '.[] | select(.mapped and (.hidden | not) and ([.workspace.id] | inside($ws))) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
+}
+
 capture() {
     case "$mode" in
         --now)
@@ -55,8 +63,12 @@ capture() {
             grim -o "$monitor" "$file"
             ;;
         --area)
+            # Drag to select an area, or click a window to take just that window.
+            # Only one selection at a time: a forgotten one would swallow the clicks.
+            pkill -x slurp 2>/dev/null
             local region
-            region="$(slurp -b "${scrim}66" -c "${accent}ff" -s "${accent}22" -w 2)" || return 1
+            region="$(window_boxes | slurp -b "${scrim}99" -c "${accent}ff" -s "${accent}33" -B "${accent}22" -w 3)" || return 1
+            [[ "$region" =~ [0-9]+x[0-9]+ ]] || return 1
             sleep 0.1  # let the selection overlay fade before capturing
             grim -g "$region" "$file"
             ;;

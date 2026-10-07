@@ -46,6 +46,7 @@ Item {
                 : card.kind === "cc" ? ccPreview
                 : card.kind === "power" ? powerPreview
                 : card.kind === "lock" ? lockPreview
+                : card.kind === "island" ? islandPreview
                 : card.kind === "look" ? lookPreview : barPreview
         }
 
@@ -547,6 +548,73 @@ Item {
                         color: Theme.alpha(Theme.text, 0.35)
                     }
                 }
+            }
+        }
+    }
+
+    // ---- the dynamic island: a pill at the top with its contents ------------
+    Component {
+        id: islandPreview
+        Item {
+            readonly property var v: card.vals
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 4 + (v.islandTop ?? 6) / 3
+                height: Math.max(10, (v.islandCompactHeight ?? 34) / 2.4)
+                width: pillRow.implicitWidth + 16
+                radius: height / 2
+                color: Theme.alpha((v.islandColor ?? "black") === "black" ? "#000000" : Theme.surfaceLow, v.islandPillOpacity ?? 1)
+                Row {
+                    id: pillRow
+                    anchors.centerIn: parent
+                    spacing: 4
+                    Row {
+                        visible: v.islandWorkspaces ?? true
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+                        Rectangle { width: 7; height: 3; radius: 2; color: Theme.primary }
+                        Repeater {
+                            model: 3
+                            delegate: Rectangle { width: 3; height: 3; radius: 2; color: Qt.rgba(1, 1, 1, 0.5) }
+                        }
+                    }
+                    Rectangle {
+                        visible: v.islandClock ?? true
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 14
+                        height: 4
+                        radius: 2
+                        color: "#ffffff"
+                    }
+                    Rectangle {
+                        visible: v.islandDate ?? false
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 12
+                        height: 3
+                        radius: 2
+                        color: Qt.rgba(1, 1, 1, 0.6)
+                    }
+                    Rectangle {
+                        visible: v.islandBattery ?? true
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 6
+                        height: 4
+                        radius: 1
+                        color: Qt.rgba(1, 1, 1, 0.7)
+                    }
+                }
+            }
+            // A hint of the hover panel underneath, when enabled
+            Rectangle {
+                visible: v.islandHover ?? true
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 34
+                width: 96
+                height: 28
+                radius: 10
+                color: Theme.alpha((v.islandColor ?? "black") === "black" ? "#000000" : Theme.surfaceLow, 0.45 * (v.islandPillOpacity ?? 1))
+                border.width: 1
+                border.color: Qt.rgba(1, 1, 1, 0.15)
             }
         }
     }

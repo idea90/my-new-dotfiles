@@ -34,10 +34,10 @@ Singleton {
         switch (id) {
         case "launcher": return Config.showLauncher;
         case "workspaces": return Config.showWorkspaces;
-        case "title": return Config.showWindowTitle && Hypr.title !== "";
+        case "title": return !Theme.vertical && Config.showWindowTitle && Hypr.title !== "";
         case "clock": return Config.showClock;
         case "media": {
-            if (!Config.showNowPlaying || !Media.available)
+            if (Theme.vertical || !Config.showNowPlaying || !Media.available)
                 return false;
             const needs = 260 + (Config.showClock && (Config.barLayout.center ?? []).includes("clock") ? 220 : 0);
             return free < 0 || free > needs;
@@ -47,8 +47,8 @@ Singleton {
         case "wifi": return Config.showWifi;
         case "network": return Config.showWifi;
         case "shortcuts": return Config.showShortcuts;
-        case "resources": return Config.showResources;
-        case "controls": return Config.showControls;
+        case "resources": return !Theme.vertical && Config.showResources;
+        case "controls": return !Theme.vertical && Config.showControls;
         case "actions": return Config.showActions;
         }
         return false;

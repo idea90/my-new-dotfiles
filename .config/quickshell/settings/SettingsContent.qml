@@ -115,6 +115,8 @@ Card {
             { key: "panelColor", label: "Panel color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
             { key: "panelBorderColor", label: "Panel border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
+            { type: "header", label: "Window switcher (Alt+Tab)" },
+            { key: "switcherStyle", label: "Switcher look", type: "choice", options: ["cards", "list", "icons"] },
             { type: "header", label: "Notifications" },
             { key: "notifPosition", label: "Notifications at", type: "choice", options: ["top-right", "top-left", "bottom-right", "bottom-left"] },
             { key: "notifOpacity", label: "Notification opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
@@ -126,8 +128,32 @@ Card {
             { key: "osdMargin", label: "Volume pop-up gap", type: "int", min: 0, max: 300, step: 5 },
             { key: "osdWidth", label: "Volume pop-up width", type: "int", min: 200, max: 500, step: 10 },
         ]},
+        { name: "Dynamic island", icon: 0xf0e2c, rows: [
+            { type: "islandStyles" },
+            { key: "barMode", label: "Bar, dynamic island or none", type: "choice", options: ["bar", "island", "none"] },
+            { type: "header", label: "Look" },
+            { key: "islandColor", label: "Color", type: "choice", options: ["black", "theme"] },
+            { key: "islandPillOpacity", label: "Opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
+            { key: "islandCompactHeight", label: "Height", type: "int", min: 26, max: 46, step: 1 },
+            { key: "islandTop", label: "Gap from the top", type: "int", min: 0, max: 20, step: 1 },
+            { type: "header", label: "When idle it shows" },
+            { key: "islandWorkspaces", label: "Workspace dots", type: "bool" },
+            { key: "islandClock", label: "Time", type: "bool" },
+            { key: "islandDate", label: "Date", type: "bool" },
+            { key: "islandBattery", label: "Battery", type: "bool" },
+            { type: "header", label: "It takes over" },
+            { key: "islandMedia", label: "Music (song and equalizer)", type: "bool" },
+            { key: "islandOsd", label: "Volume and brightness pop-up", type: "bool" },
+            { key: "islandNotifs", label: "Notification pop-ups", type: "bool" },
+            { key: "islandHover", label: "Grow into a panel on hover", type: "bool" },
+            { key: "islandHoverWidth", label: "Hover panel width", type: "int", min: 560, max: 800, step: 10 },
+            { type: "header", label: "Clicks" },
+            { key: "islandClick", label: "Click opens", type: "choice", options: ["controlcenter", "launcher", "calendar", "none"] },
+            { key: "islandRightClick", label: "Right-click opens", type: "choice", options: ["launcher", "controlcenter", "calendar", "none"] }
+        ]},
         { name: "Bar", icon: 0xf0e2c, rows: [
             { type: "header", label: "Background" },
+            { key: "barMode", label: "Bar, dynamic island or none", type: "choice", options: ["bar", "island", "none"] },
             { key: "barBackground", label: "Background", type: "choice", options: ["islands", "band", "solid", "none"] },
             { key: "bandColor", label: "Strip color (band)", type: "choice", options: ["surfaceLow", "primaryContainer", "tertiaryContainer", "surfaceMid", "surfaceHigh", "primary"] },
             { key: "bandOpacity", label: "Strip opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
@@ -135,10 +161,10 @@ Card {
             { key: "borderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "barFont", label: "Bar font", type: "choice", options: ["", "Outfit", "Poppins", "Space Grotesk", "Sora", "Bebas Neue", "Roboto"] },
             { key: "barClockFormat", label: "Clock shows", type: "choice", options: ["full", "time", "date"] },
-            { key: "statusStyle", label: "Status (cpu, volume...)", type: "choice", options: ["rings", "bars", "text", "icons"] },
+            { key: "statusStyle", label: "Status (cpu, volume...)", type: "choice", options: ["rings", "bars", "sliders", "pills", "meter", "text", "labels", "icons"] },
             { key: "islandShadow", label: "Island shadow", type: "bool" },
             { key: "barRadius", label: "Solid bar radius", type: "int", min: 0, max: 32, step: 1 },
-            { key: "barPosition", label: "Position", type: "choice", options: ["top", "bottom"] },
+            { key: "barPosition", label: "Position", type: "choice", options: ["top", "bottom", "left", "right"] },
             { type: "header", label: "Size and spacing" },
             { key: "barHeight", label: "Height", type: "int", min: 24, max: 64, step: 1 },
             { key: "barMarginTop", label: "Edge gap", type: "int", min: 0, max: 40, step: 1 },
@@ -442,6 +468,7 @@ Card {
                     required property var modelData
                     width: list.width - 12
                     sourceComponent: modelData.type === "header" ? headerRow
+                    : modelData.type === "islandStyles" ? islandStylesEditor
                     : modelData.type === "ccStyles" ? ccStylesEditor
                     : modelData.type === "powerStyles" ? powerStylesEditor
                     : modelData.type === "lockStyles" ? lockStylesEditor
@@ -732,6 +759,48 @@ Card {
                         selectedTextColor: Theme.primaryFg
                         text: setting.value
                         onEditingFinished: Config.set(setting.cfg.key, text)
+                    }
+                }
+            }
+        }
+    }
+
+    // Dynamic island style presets
+    Component {
+        id: islandStylesEditor
+
+        Rectangle {
+            implicitHeight: iscol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: iscol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Island styles: pick one, then fine-tune below"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.islandStyles
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "island"
+                            name: modelData.name
+                            selected: Config.barMode === "island" && Config.islandStyle === modelData.name
+                            vals: Object.assign({}, Config.islandBase, modelData.values)
+                            onPicked: Config.applyIslandStyle(modelData.name)
+                        }
                     }
                 }
             }

@@ -5,8 +5,12 @@ import qs.services
 
 // Workspace pills: number plus the icons of the apps on it.
 // Focused = filled accent, occupied = normal, empty = dim. Scroll to cycle.
-Row {
-    spacing: Config.wsStyle === "dots" ? 10 : Config.wsStyle === "lines" ? 6 : 2
+Grid {
+    // a row on a top/bottom bar, a column on a side bar
+    columns: Theme.vertical ? 1 : 100
+    horizontalItemAlignment: Grid.AlignHCenter
+    verticalItemAlignment: Grid.AlignVCenter
+    spacing: Config.wsStyle === "dots" ? (Theme.vertical ? 8 : 10) : Config.wsStyle === "lines" ? 6 : 2
 
     Repeater {
         model: Hypr.ids
@@ -21,10 +25,13 @@ Row {
 
             readonly property bool dots: Config.wsStyle === "dots"
             readonly property bool lines: Config.wsStyle === "lines"
-            width: lines ? (focused ? Math.round(30 * Theme.barScale) : Math.round(16 * Theme.barScale))
+            // Long side of a dot / line runs along the bar
+            readonly property int along: lines ? (focused ? Math.round(30 * Theme.barScale) : Math.round(16 * Theme.barScale))
                  : dots ? (focused ? Math.round(34 * Theme.barScale) : Math.round(11 * Theme.barScale)) : content.implicitWidth + 16
-            height: lines ? 4 : dots ? Math.round(11 * Theme.barScale) : Theme.barItem
-            radius: dots || lines ? height / 2 : Theme.chipRadius
+            readonly property int across: lines ? 4 : dots ? Math.round(11 * Theme.barScale) : Theme.barItem
+            width: Theme.vertical && (dots || lines) ? across : Theme.vertical ? Theme.barItem : along
+            height: Theme.vertical && (dots || lines) ? along : Theme.vertical ? content.implicitHeight + 10 : across
+            radius: dots || lines ? Math.min(width, height) / 2 : Theme.chipRadius
             color: urgent ? Theme.error
                  : focused ? Theme.primary
                  : mouse.containsMouse ? Theme.surfaceHigh
@@ -37,14 +44,16 @@ Row {
                 ColorAnimation { duration: Theme.dur(200) }
             }
 
-            Row {
+            Grid {
                 id: content
+                columns: Theme.vertical ? 1 : 100
+                horizontalItemAlignment: Grid.AlignHCenter
+                verticalItemAlignment: Grid.AlignVCenter
                 visible: !ws.dots && !ws.lines
                 anchors.centerIn: parent
                 spacing: 5
 
                 BarText {
-                    anchors.verticalCenter: parent.verticalCenter
                     text: ws.modelData
                     font.bold: ws.focused
                     font.pixelSize: 13
@@ -60,7 +69,6 @@ Row {
 
                     IconImage {
                         required property string modelData
-                        anchors.verticalCenter: parent.verticalCenter
                         implicitSize: 16
                         source: modelData
                         mipmap: true

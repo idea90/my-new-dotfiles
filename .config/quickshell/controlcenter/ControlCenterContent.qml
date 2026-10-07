@@ -69,10 +69,8 @@ Card {
         capture: {
             icon: Theme.icon(0xf019e),
             label: "Capture",
-            click: () => {
-                Panels.close();
-                Quickshell.execDetached(["sh", "-c", "sleep 0.3; ~/.config/hypr/scripts/screenshot.sh --area"]);
-            }
+            click: () => Panels.toggle("screenshot"),
+            rightClick: () => Shot.capture("screen")
         },
         theme: {
             icon: Theme.icon(0xf03d8),

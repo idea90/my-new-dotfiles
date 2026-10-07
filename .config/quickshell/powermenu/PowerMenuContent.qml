@@ -53,7 +53,7 @@ Item {
         // Plain x/y/width/height (no left/right anchors) so switching sides never
         // leaves both anchors set and collapses the width
         x: root.pos === "left" ? 0 : parent.width - width - (root.pos === "corner" ? 12 : 0)
-        y: root.side ? 0 : Config.barMarginTop + Config.barHeight + 8
+        y: root.side ? 0 : Theme.barSpaceTop + 8
         width: menu.width + 64
         height: root.side ? parent.height : menu.height + 48
         radius: root.side ? 0 : Config.panelRadius
@@ -85,7 +85,7 @@ Item {
          : root.side || root.pos === "corner" ? parent.width - width - 32 - (root.pos === "corner" ? 12 : 0)
          : (parent.width - width) / 2
         y: root.pos === "bottom" ? parent.height - height - 70
-         : root.pos === "corner" ? Config.barMarginTop + Config.barHeight + 32
+         : root.pos === "corner" ? Theme.barSpaceTop + 32
          : (parent.height - height) / 2
         spacing: 28
 

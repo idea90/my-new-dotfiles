@@ -8,6 +8,7 @@ import qs.calendar
 import qs.controlcenter
 import qs.dock
 import qs.goodbye
+import qs.island
 import qs.launcher
 import qs.lock
 import qs.notifications
@@ -15,6 +16,7 @@ import qs.osd
 import qs.powermenu
 import qs.settings
 import qs.shot
+import qs.switcher
 import qs.theme
 import qs.wifi
 
@@ -23,6 +25,13 @@ ShellRoot {
         model: Quickshell.screens
 
         Bar {}
+    }
+
+    // Dynamic island bar mode (Config.barMode)
+    Variants {
+        model: Quickshell.screens
+
+        DynamicIsland {}
     }
 
     LauncherWindow {}
@@ -38,5 +47,6 @@ ShellRoot {
     LockScreen {}
     GoodbyeScreen {}
     ShotWindow {}
+    SwitcherWindow {}
     ShotPreview {}
 }

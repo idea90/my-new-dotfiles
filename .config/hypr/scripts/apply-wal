@@ -41,15 +41,27 @@ list_images() {
 
 thumb_of() { printf '%s/%s.png' "$THUMBS_DIR" "$1"; }
 
-# Square thumbnails for the picker, rebuilt when the source changes
+# Run image work in the background without making the desktop stutter:
+# lowest CPU and disk priority, one ImageMagick thread per process
+gentle() {
+    MAGICK_THREAD_LIMIT=1 nice -n 19 ionice -c 3 "$@"
+}
+
+# Square thumbnails for the picker, rebuilt when the source changes.
+# jpeg:size lets JPEGs decode at reduced size (several times faster); at most
+# half the cores are used, so the desktop keeps running smoothly.
 make_thumbs() {
     local name missing=()
     while IFS= read -r name; do
         [[ "$(thumb_of "$name")" -nt "$WALLPAPERS_DIR/$name" ]] || missing+=("$name")
     done
     (( ${#missing[@]} )) || return 0
-    printf '%s\0' "${missing[@]}" | xargs -0 -P "$(nproc)" -I{} \
-        magick "$WALLPAPERS_DIR/{}[0]" -thumbnail '400x300^' -gravity center -extent 400x300 "$THUMBS_DIR/{}.png"
+    local jobs=$(( $(nproc) / 2 ))
+    (( jobs >= 1 )) || jobs=1
+    export MAGICK_THREAD_LIMIT=1
+    printf '%s\0' "${missing[@]}" | gentle xargs -0 -P "$jobs" -I{} \
+        magick -define jpeg:size=800x600 "$WALLPAPERS_DIR/{}[0]" -thumbnail '400x300^' -gravity center \
+        -extent 400x300 "$THUMBS_DIR/{}.png"
 }
 
 list() {
@@ -76,9 +88,9 @@ apply_wallpaper() {
         notify-send -a Wallpaper -u critical "Failed to generate colors"
         exit 1
     fi
-    magick "$wallpaper" -resize "2560x2560>" "$LOCK_IMAGE"
+    gentle magick -define jpeg:size=2560x2560 "$wallpaper[0]" -resize "2560x2560>" "$LOCK_IMAGE"
     # Login screen follows too (no-op unless the sddm theme is installed)
-    "$SCRIPT_PATH/sddm-theme" sync >/dev/null 2>&1 &
+    gentle "$SCRIPT_PATH/sddm-theme" sync >/dev/null 2>&1 &
     notify-send -a Wallpaper -i "$(thumb_of "$(basename "$wallpaper")")" "Theme updated" "$(basename "$wallpaper") · $MODE · ${TYPE#scheme-}"
 }
 

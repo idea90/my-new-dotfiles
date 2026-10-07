@@ -5,8 +5,9 @@ import qs.modules
 import qs.services
 
 // One zone of the bar (left, center or right), built from Config.barLayout.
-// The zone's list is split into islands at each "|" entry.
-RowLayout {
+// The zone's list is split into islands at each "|" entry. On a side bar the
+// zone stacks its islands top to bottom.
+GridLayout {
     id: zone
 
     required property string name
@@ -25,7 +26,11 @@ RowLayout {
         return out.filter(g => g.length > 0);
     }
 
-    spacing: Config.islandSpacing
+    flow: Theme.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
+    rows: Theme.vertical ? -1 : 1
+    columns: Theme.vertical ? 1 : -1
+    rowSpacing: Config.islandSpacing
+    columnSpacing: Config.islandSpacing
 
     Repeater {
         model: zone.groups
@@ -38,7 +43,8 @@ RowLayout {
 
             shown: modelData.some(id => BarModules.wanted(id, zone.freeWidth))
             readonly property bool dotsGroup: modelData.includes("workspaces") && (Config.wsStyle === "dots" || Config.wsStyle === "lines")
-            padding: hasTitle ? 14 : dotsGroup ? 16 : 4
+            padding: Theme.vertical ? (dotsGroup ? 14 : 4) : hasTitle ? 14 : dotsGroup ? 16 : 4
+            Layout.alignment: Qt.AlignHCenter
             Layout.maximumWidth: hasTitle && zone.titleLimit >= 0 ? Math.max(0, zone.titleLimit - x - 16) : 100000
 
             Repeater {

@@ -5,7 +5,11 @@ import qs
 import qs.services
 
 // Wi-Fi (name) and a Bluetooth toggle side by side
-Row {
+Grid {
+    // a row on a top/bottom bar, a column on a side bar
+    columns: Theme.vertical ? 1 : 100
+    horizontalItemAlignment: Grid.AlignHCenter
+    verticalItemAlignment: Grid.AlignVCenter
     spacing: 2
 
     WifiChip {}

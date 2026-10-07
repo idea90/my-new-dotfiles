@@ -5,7 +5,11 @@ import Quickshell.Widgets
 import qs
 
 // Left click: activate. Right click: the app's menu.
-Row {
+Grid {
+    // a row on a top/bottom bar, a column on a side bar
+    columns: Theme.vertical ? 1 : 100
+    horizontalItemAlignment: Grid.AlignHCenter
+    verticalItemAlignment: Grid.AlignVCenter
     readonly property bool hasItems: SystemTray.items.values.length > 0
 
     Repeater {

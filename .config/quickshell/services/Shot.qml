@@ -17,13 +17,21 @@ Singleton {
     property string lastFile: ""
     property bool previewShown: false
     property string pendingMode: ""
+    readonly property bool selecting: capturing && pendingMode === "area"
 
     readonly property string script: Quickshell.env("HOME") + "/.config/hypr/scripts/screenshot.sh"
     readonly property var flags: ({ area: "--area", window: "--win", screen: "--now" })
 
     // mode: "area" | "window" | "screen"; empty uses Config.shotMode
     function capture(mode) {
-        if (countdown > 0 || capturing)
+        // A capture already waiting (e.g. a forgotten area selection) is
+        // replaced instead of silently ignoring the click
+        if (capturing) {
+            Quickshell.execDetached(["pkill", "-x", "slurp"]);
+            proc.running = false;
+            capturing = false;
+        }
+        if (countdown > 0)
             return;
         pendingMode = mode || Config.shotMode;
         Panels.close();
@@ -117,6 +125,10 @@ Singleton {
         }
         function cancel(): void {
             root.cancel();
+        }
+        function status(): string {
+            return "countdown=" + root.countdown + " capturing=" + root.capturing + " running=" + proc.running
+                + " last=" + root.lastFile + " mode=" + Config.shotMode + " delay=" + Config.shotDelay;
         }
     }
 }

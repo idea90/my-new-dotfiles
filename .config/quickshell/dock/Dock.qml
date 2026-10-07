@@ -27,7 +27,7 @@ PanelWindow {
     }
     // Sit above a bottom bar instead of under it
     margins {
-        bottom: Config.dockPosition === "bottom" && Config.barPosition === "bottom" ? Config.barMarginTop + Config.barHeight : 0
+        bottom: Config.dockPosition === "bottom" ? Theme.barSpaceBottom : 0
         left: 0
         right: 0
     }

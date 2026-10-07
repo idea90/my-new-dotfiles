@@ -10,7 +10,7 @@ PanelWindow {
     id: win
 
     readonly property bool counting: Shot.countdown > 0
-    visible: counting || (Shot.previewShown && Shot.lastFile !== "")
+    visible: counting || Shot.selecting || (Shot.previewShown && Shot.lastFile !== "")
     color: "transparent"
 
     anchors {
@@ -34,7 +34,7 @@ PanelWindow {
     Card {
         id: card
         width: parent.width
-        implicitHeight: win.counting ? 96 : content.implicitHeight + 24
+        implicitHeight: win.counting || Shot.selecting ? 96 : content.implicitHeight + 24
 
         Timer {
             id: hide
@@ -44,6 +44,23 @@ PanelWindow {
         }
         HoverHandler {
             id: hover
+        }
+
+        Column {
+            visible: Shot.selecting && !win.counting
+            anchors.centerIn: parent
+            spacing: 4
+            BarText {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: Theme.icon(0xf0f28) + "  Drag to select an area"
+                font.bold: true
+            }
+            BarText {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "or click a window · Esc cancels"
+                color: Theme.textDim
+                font.pixelSize: 12
+            }
         }
 
         BarText {
@@ -56,7 +73,7 @@ PanelWindow {
 
         Column {
             id: content
-            visible: !win.counting
+            visible: !win.counting && !Shot.selecting
             anchors {
                 left: parent.left
                 right: parent.right

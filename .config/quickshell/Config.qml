@@ -22,7 +22,7 @@ Singleton {
     property string look: "Default"        // last look applied, see looks
     property string barFont: ""             // font for bar text (clock, title, workspaces); empty = shell font
     property string barClockFormat: "full"  // "full" (time · day date) | "time" | "date"
-    property string statusStyle: "rings"    // bar status: "rings" | "bars" | "text" | "icons"
+    property string statusStyle: "rings"    // bar status: rings | bars | sliders | pills | meter | text | labels | icons
     property bool islandShadow: false       // soft drop shadow under bar islands
     property string barStyle: "Islands"     // last preset applied, see barStyles
     property string barBackground: "islands" // "islands" | "solid" (one bar) | "none"
@@ -39,6 +39,28 @@ Singleton {
         { icon: 0xf0361, cmd: "qs ipc call controlcenter toggle" }
     ]
     property string borderColor: "outlineVariant"
+
+    // "bar" = the normal bar; "island" = one dynamic-island pill at the top center;
+    // "none" = no bar at all (Super+B toggles it back)
+    property string barMode: "bar"
+    property int islandCompactHeight: 34
+    property int islandTop: 6
+    property string islandColor: "black"    // "black" (like a phone) | "theme"
+    property real islandPillOpacity: 1.0
+    property string islandStyle: "Phone"    // last island preset applied
+    // What the resting island shows
+    property bool islandWorkspaces: true
+    property bool islandClock: true
+    property bool islandBattery: true
+    property bool islandDate: false
+    // What takes over the island
+    property bool islandMedia: true         // song and equalizer while music plays
+    property bool islandOsd: true           // volume / brightness (otherwise the normal pop-up)
+    property bool islandNotifs: true        // notifications (otherwise the normal pop-ups)
+    property bool islandHover: true         // grow into a panel on hover
+    property int islandHoverWidth: 720
+    property string islandClick: "controlcenter"   // controlcenter | launcher | calendar | none
+    property string islandRightClick: "launcher"   // same choices
 
     // Bar layout: modules per zone, left to right. "|" starts a new island.
     // Modules: launcher workspaces title clock media tray status wifi actions
@@ -95,6 +117,8 @@ Singleton {
     })
 
     property bool powerBlur: true            // blur the whole screen behind the power menu and goodbye screen
+
+    property string switcherStyle: "cards"  // Alt+Tab look: "cards" | "list" | "icons"
 
     // Power menu buttons
     property string powerStyle: "Classic"   // last power menu preset applied
@@ -334,6 +358,34 @@ Singleton {
             lockFieldStyle: "box" } }
     ]
 
+    function applyIslandStyle(name) {
+        const st = islandStyles.find(x => x.name === name);
+        if (st)
+            setMany(Object.assign({ islandStyle: name, barMode: "island" }, islandBase, st.values));
+    }
+
+    readonly property var islandBase: ({
+        islandColor: "black", islandPillOpacity: 1.0, islandCompactHeight: 34, islandTop: 6,
+        islandWorkspaces: true, islandClock: true, islandBattery: true, islandDate: false,
+        islandMedia: true, islandOsd: true, islandNotifs: true, islandHover: true, islandHoverWidth: 720
+    })
+    readonly property var islandStyles: [
+        // Black pill like a phone: workspaces, time, battery
+        { name: "Phone", values: {} },
+        // Same, in the wallpaper's colors
+        { name: "Theme", values: { islandColor: "theme" } },
+        // See-through glass pill
+        { name: "Glass", values: { islandColor: "theme", islandPillOpacity: 0.55 } },
+        // Just the time, nothing else
+        { name: "Clock", values: { islandWorkspaces: false, islandBattery: false, islandCompactHeight: 32 } },
+        // Taller pill with the date next to the time
+        { name: "Big", values: { islandCompactHeight: 42, islandDate: true, islandTop: 8, islandHoverWidth: 780 } },
+        // Tiny pill, no hover panel; only reacts to events
+        { name: "Tiny", values: { islandCompactHeight: 28, islandBattery: false, islandHover: false, islandTop: 4 } },
+        // Only the time; volume and notifications keep their normal pop-ups
+        { name: "Quiet", values: { islandWorkspaces: false, islandBattery: false, islandOsd: false, islandNotifs: false } }
+    ]
+
     function applyPowerStyle(name) {
         const st = powerStyles.find(x => x.name === name);
         if (st)
@@ -480,10 +532,17 @@ Singleton {
             launcherSearchStyle: "big", launcherHighlight: "bar", launcherTop: 0.25 } }
     ]
 
+    // A bar on the left / right edge stays there when you switch styles; the
+    // style only decides how the bar looks
     function applyStyle(name) {
         const st = barStyles.find(x => x.name === name);
-        if (st)
-            setMany(Object.assign({ barStyle: name }, baseStyle, st.values));
+        if (!st)
+            return;
+        const side = barPosition === "left" || barPosition === "right";
+        const vals = Object.assign({ barStyle: name }, baseStyle, st.values);
+        if (side && vals.barPosition !== "left" && vals.barPosition !== "right")
+            vals.barPosition = barPosition;
+        setMany(vals);
     }
 
     // Looks restyle everything: a bar style plus panel/notification/OSD settings
@@ -574,6 +633,13 @@ Singleton {
             barRadius: 0, barHeight: 44, islandBorder: 0, islandRadius: 8, islandOpacity: 0.92, islandSpacing: 8,
             wsStyle: "pills",
             barLayout: { left: ["launcher", "|", "workspaces"], center: ["title"], right: ["tray", "|", "status", "|", "wifi", "|", "clock", "|", "actions"] } } },
+        // Frosted strip down the left edge of the screen
+        { name: "Side left", values: { barPosition: "left", barBackground: "band", barHeight: 48, barMarginTop: 6,
+            barMarginSide: 8, barRadius: 14, islandRadius: 10, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 8,
+            bandColor: "surfaceLow", bandOpacity: 0.45, wsStyle: "dots", statusStyle: "icons" } },
+        // Separate islands down the right edge
+        { name: "Side right", values: { barPosition: "right", barHeight: 46, barMarginTop: 8, barMarginSide: 6,
+            islandRadius: 14, islandOpacity: 0.9, islandBorder: 1, islandSpacing: 6, wsStyle: "dots", statusStyle: "icons" } },
         // Frosted at the bottom
         { name: "Frosted bottom", values: { barPosition: "bottom", barBackground: "band", barHeight: 44, barMarginTop: 6,
             barMarginSide: 8, barRadius: 12, islandRadius: 8, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 8,
@@ -611,13 +677,30 @@ Singleton {
     }
 
     // qs ipc call config look Glass | qs ipc call config style Neon
+    property string lastBarMode: "bar"
     IpcHandler {
         target: "config"
+        // qs ipc call config bar none|bar|island, or "toggle" (hide / bring back)
+        function bar(mode: string): void {
+            if (mode === "toggle") {
+                if (root.barMode === "none") {
+                    root.set("barMode", root.lastBarMode === "none" ? "bar" : root.lastBarMode);
+                } else {
+                    root.lastBarMode = root.barMode;
+                    root.set("barMode", "none");
+                }
+            } else if (["bar", "island", "none"].includes(mode)) {
+                root.set("barMode", mode);
+            }
+        }
         function look(name: string): void {
             root.applyLook(name);
         }
         function lock(name: string): void {
             root.applyLockStyle(name);
+        }
+        function island(name: string): void {
+            root.applyIslandStyle(name);
         }
         function power(name: string): void {
             root.applyPowerStyle(name);

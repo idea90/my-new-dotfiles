@@ -3,7 +3,11 @@ import qs
 import qs.services
 
 // Settings gear, notification bell with unread badge, power button
-Row {
+Grid {
+    // a row on a top/bottom bar, a column on a side bar
+    columns: Theme.vertical ? 1 : 100
+    horizontalItemAlignment: Grid.AlignHCenter
+    verticalItemAlignment: Grid.AlignVCenter
     spacing: 0
 
     Chip {

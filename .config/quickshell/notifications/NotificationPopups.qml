@@ -6,7 +6,7 @@ import qs.services
 
 // New notifications, top right under the bar
 PanelWindow {
-    visible: Notifs.popups.length > 0 && Panels.open !== "controlcenter"
+    visible: Notifs.popups.length > 0 && Panels.open !== "controlcenter" && !(Config.barMode === "island" && Config.islandNotifs)
     color: "transparent"
     anchors {
         top: Config.notifPosition.startsWith("top")

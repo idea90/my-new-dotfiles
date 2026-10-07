@@ -11,20 +11,28 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
+    readonly property string edge: Config.barPosition   // top | bottom | left | right
+    readonly property bool vertical: edge === "left" || edge === "right"
+    readonly property int endGapMax: Math.max(8, (modelData.height - 420) / 2)
+
     anchors {
-        top: Config.barPosition !== "bottom"
-        bottom: Config.barPosition === "bottom"
-        left: true
-        right: true
+        top: edge !== "bottom"
+        bottom: edge !== "top"
+        left: edge !== "right"
+        right: edge !== "left"
     }
+    // barMarginTop is the gap to the screen edge the bar sits on, barMarginSide the gap at its ends
     margins {
-        top: Config.barPosition === "bottom" ? 0 : Config.barMarginTop
-        bottom: Config.barPosition === "bottom" ? Config.barMarginTop : 0
-        left: Config.barMarginSide
-        right: Config.barMarginSide
+        // On a side bar the end gaps are capped so short "capsule" styles still fit their contents
+        top: edge === "top" ? Config.barMarginTop : vertical ? Math.min(Config.barMarginSide, endGapMax) : 0
+        bottom: edge === "bottom" ? Config.barMarginTop : vertical ? Math.min(Config.barMarginSide, endGapMax) : 0
+        left: edge === "left" ? Config.barMarginTop : vertical ? 0 : Config.barMarginSide
+        right: edge === "right" ? Config.barMarginTop : vertical ? 0 : Config.barMarginSide
     }
 
-    implicitHeight: Config.barHeight
+    implicitHeight: vertical ? 0 : Config.barHeight
+    implicitWidth: vertical ? Config.barHeight : 0
+    visible: Config.barMode === "bar"
     color: "transparent"
     WlrLayershell.namespace: "qs-bar"
 

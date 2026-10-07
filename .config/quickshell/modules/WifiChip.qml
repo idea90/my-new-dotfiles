@@ -13,7 +13,7 @@ Chip {
     icon: Network.kind === "wifi" ? Theme.icon(wifiIcons[Math.min(3, Math.floor(Network.signal / 25))])
         : Network.kind === "ethernet" ? Theme.icon(0xf0200)
         : Theme.icon(0xf092e)
-    label: Network.kind === "wifi" ? (Network.name.length > 14 ? Network.name.slice(0, 13) + "…" : Network.name)
+    label: Theme.vertical ? "" : Network.kind === "wifi" ? (Network.name.length > 14 ? Network.name.slice(0, 13) + "…" : Network.name)
          : Network.kind === "ethernet" ? "wired" : "offline"
     fg: Network.kind === "none" ? Theme.alpha(Theme.text, 0.45) : Theme.text
     hoverBg: Theme.surfaceHigh

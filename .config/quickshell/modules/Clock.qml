@@ -4,8 +4,8 @@ import qs.services
 
 // Time and date; click for the calendar
 Rectangle {
-    implicitWidth: row.implicitWidth + 28
-    implicitHeight: Theme.barItem
+    implicitWidth: Theme.vertical ? Theme.barItem : row.implicitWidth + 28
+    implicitHeight: Theme.vertical ? stack.implicitHeight + 14 : Theme.barItem
     radius: Theme.chipRadius
     color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainer : "transparent"
 
@@ -13,8 +13,30 @@ Rectangle {
         ColorAnimation { duration: Theme.dur(150) }
     }
 
+    // Side bar: hours over minutes, centered
+    Column {
+        id: stack
+        visible: Theme.vertical
+        anchors.centerIn: parent
+        BarText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH" : "h")
+            font.pixelSize: 15
+            font.bold: true
+            color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.text
+        }
+        BarText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: Qt.formatDateTime(Time.now, "mm")
+            font.pixelSize: 15
+            font.bold: true
+            color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainerFg : Theme.primary
+        }
+    }
+
     Row {
         id: row
+        visible: !Theme.vertical
         anchors.centerIn: parent
         spacing: 10
 

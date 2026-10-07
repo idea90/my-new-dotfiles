@@ -12,9 +12,9 @@ Rectangle {
     // hidden island also hides them (and could then never come back)
     property bool shown: true
 
-    implicitWidth: row.implicitWidth + padding * 2
-    implicitHeight: Theme.islandHeight
-    radius: Math.min(Config.islandRadius, height / 2)
+    implicitWidth: Theme.vertical ? Theme.islandHeight : row.implicitWidth + padding * 2
+    implicitHeight: Theme.vertical ? row.implicitHeight + padding * 2 : Theme.islandHeight
+    radius: Math.min(Config.islandRadius, Math.min(width, height) / 2)
     readonly property bool plain: Config.barBackground === "solid" || Config.barBackground === "none"
     color: plain ? "transparent" : Theme.alpha(Theme.byName(Config.barColor, Theme.surfaceLow), Config.islandOpacity)
     border.width: plain ? 0 : Config.islandBorder
@@ -29,13 +29,21 @@ Rectangle {
         shadowVerticalOffset: 3
     }
 
+    Behavior on implicitHeight {
+        enabled: Theme.vertical
+        NumberAnimation { duration: Theme.dur(200); easing.type: Easing.OutCubic }
+    }
     Behavior on implicitWidth {
         NumberAnimation { duration: Theme.dur(200); easing.type: Easing.OutCubic }
     }
 
-    Row {
+    // A row on a top/bottom bar, a column on a side bar
+    Grid {
         id: row
         anchors.centerIn: parent
+        columns: Theme.vertical ? 1 : 100
         spacing: 2
+        horizontalItemAlignment: Grid.AlignHCenter
+        verticalItemAlignment: Grid.AlignVCenter
     }
 }

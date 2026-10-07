@@ -67,11 +67,17 @@ Singleton {
         return !!ws && ws.urgent;
     }
 
+    // The Lua config only accepts Lua dispatchers (hl.dsp.*), not the old
+    // "workspace 3" strings
     function focus(id) {
-        Hyprland.dispatch("workspace " + id);
+        Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })");
     }
 
     function cycle(step) {
-        Hyprland.dispatch(step > 0 ? "workspace r+1" : "workspace r-1");
+        Hyprland.dispatch('hl.dsp.focus({ workspace = "' + (step > 0 ? "r+1" : "r-1") + '" })');
+    }
+
+    function focusWindow(address) {
+        Hyprland.dispatch('hl.dsp.focus({ window = "address:0x' + address + '" })');
     }
 }

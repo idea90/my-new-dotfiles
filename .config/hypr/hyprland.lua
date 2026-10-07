@@ -204,6 +204,7 @@ hl.bind(mainMod .. " + G",           hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V",           hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",           hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + Z",           hl.dsp.exec_cmd("firefox"))
+hl.bind(mainMod .. " + B",           hl.dsp.exec_cmd("qs ipc call config bar toggle")) -- hide / bring back the bar
 hl.bind(mainMod .. " + I",           hl.dsp.exec_cmd("qs ipc call settings toggle")) -- Settings from anywhere
 hl.bind(mainMod .. " + W",           hl.dsp.exec_cmd("qs ipc call theme toggle"))
 hl.bind(mainMod .. " + P",           hl.dsp.window.pseudo())          -- dwindle
@@ -211,14 +212,22 @@ hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))    -- dwindle
 hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + F",   hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })) -- maximize, keep bar
 
--- Screenshots (copied to clipboard, saved to the Screenshots folder)
--- The Quickshell tool is still there: qs ipc call screenshot toggle|area|window|screen
+-- Screenshots: the Quickshell tool (toolbar, delay, preview card). If Quickshell
+-- isn't running, `qs ipc` fails and the plain script takes over.
 local shot = hypr .. "/scripts/screenshot.sh"
-hl.bind("Print",                     hl.dsp.exec_cmd(shot .. " --area"))
-hl.bind("SHIFT + Print",             hl.dsp.exec_cmd(shot .. " --now"))
-hl.bind("ALT + Print",               hl.dsp.exec_cmd(shot .. " --win"))
-hl.bind(mainMod .. " + K",           hl.dsp.exec_cmd(shot .. " --area"))
-hl.bind(mainMod .. " + SHIFT + K",   hl.dsp.exec_cmd(shot .. " --now"))
+local function capture(mode, flag)
+    return hl.dsp.exec_cmd("qs ipc call screenshot " .. mode .. " || " .. shot .. " " .. flag)
+end
+hl.bind("Print",                     capture("area", "--area"))
+hl.bind("SHIFT + Print",             capture("screen", "--now"))
+hl.bind("ALT + Print",               capture("window", "--win"))
+hl.bind(mainMod .. " + K",           capture("toggle", "--area")) -- toolbar: mode, delay, copy/save
+hl.bind(mainMod .. " + SHIFT + K",   capture("screen", "--now"))
+
+-- Alt+Tab window switcher (Quickshell); releasing Alt picks the window
+hl.bind("ALT + Tab",                 hl.dsp.exec_cmd("qs ipc call switcher next"))
+hl.bind("ALT + SHIFT + Tab",         hl.dsp.exec_cmd("qs ipc call switcher prev"))
+hl.bind("ALT + Alt_L",               hl.dsp.exec_cmd("qs ipc call switcher commit"), { release = true, transparent = true })
 
 -- Move focus with mainMod + arrow keys
 -- Move windows with mainMod + SHIFT + arrow keys

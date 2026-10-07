@@ -44,6 +44,16 @@ Singleton {
     readonly property int islandHeight: Config.barBackground === "band" ? Config.barHeight - 12 : Config.barHeight
     readonly property int barItem: Math.max(20, Math.min(40, Config.barBackground === "band" ? islandHeight - 2 : islandHeight - 8))
     readonly property real barScale: barItem / 30
+    // Screen space the bar (or the dynamic island) takes at the top / bottom
+    readonly property bool islandMode: Config.barMode === "island"
+    readonly property bool noBar: Config.barMode === "none"
+    // Bar on the left or right edge: everything in it stacks top to bottom
+    readonly property bool vertical: Config.barMode === "bar" && (Config.barPosition === "left" || Config.barPosition === "right")
+    readonly property int barSpaceLeft: vertical && Config.barPosition === "left" ? Config.barMarginTop + Config.barHeight : 0
+    readonly property int barSpaceRight: vertical && Config.barPosition === "right" ? Config.barMarginTop + Config.barHeight : 0
+    readonly property int barSpaceTop: noBar || vertical ? 0 : islandMode ? Config.islandTop + Config.islandCompactHeight
+        : Config.barPosition !== "bottom" ? Config.barMarginTop + Config.barHeight : 0
+    readonly property int barSpaceBottom: noBar || islandMode || vertical || Config.barPosition !== "bottom" ? 0 : Config.barMarginTop + Config.barHeight
     readonly property string barFont: Config.barFont !== "" ? Config.barFont : font
     readonly property int chipRadius: Math.max(4, Math.min(15, Config.islandRadius - 2))
 

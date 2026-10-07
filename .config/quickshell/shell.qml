@@ -9,6 +9,7 @@ import qs.calendar
 import qs.clipboard
 import qs.controlcenter
 import qs.dock
+import qs.emoji
 import qs.goodbye
 import qs.island
 import qs.launcher
@@ -50,6 +51,7 @@ ShellRoot {
     LockScreen {}
     Mixer {}
     ClipboardMenu {}
+    EmojiPicker {}
     BluetoothMenu {}
     GoodbyeScreen {}
     ShotWindow {}

@@ -141,8 +141,11 @@ Singleton {
 
     // Wallpaper slideshow
     property bool slideshow: false
-    property string slideMode: "minutes"    // "minutes" (random every N) | "daytime"
+    property string slideMode: "hours"      // "minutes" | "hours" | "daytime"
     property int slideMinutes: 30
+    property int slideHours: 24
+    property string slideSource: "local"    // "local" (~/wallpapers) | "wallhaven"
+    property string slideTopics: "nature, landscape, city night"  // wallhaven topics, comma separated
     // For "daytime": a file name in ~/wallpapers (or a full path); empty = random
     property string slideMorning: ""
     property string slideDay: ""

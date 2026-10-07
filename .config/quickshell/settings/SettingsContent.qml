@@ -291,7 +291,11 @@ Card {
             { key: "widgetSystem", label: "CPU / memory / battery", type: "bool" },
             { type: "header", label: "Wallpaper slideshow" },
             { key: "slideshow", label: "Change the wallpaper by itself", type: "bool" },
-            { key: "slideMode", label: "Mode", type: "choice", options: ["minutes", "daytime"] },
+            { type: "slideshow" },
+            { key: "slideSource", label: "From", type: "choice", options: ["local", "wallhaven"] },
+            { key: "slideTopics", label: "Wallhaven topics (comma separated)", type: "string" },
+            { key: "slideMode", label: "How often", type: "choice", options: ["hours", "minutes", "daytime"] },
+            { key: "slideHours", label: "Every (hours)", type: "int", min: 1, max: 168, step: 1 },
             { key: "slideMinutes", label: "Every (minutes)", type: "int", min: 1, max: 240, step: 1 },
             { key: "slideMorning", label: "Morning wallpaper (6-11, empty = random)", type: "string" },
             { key: "slideDay", label: "Day wallpaper (11-17)", type: "string" },
@@ -573,6 +577,7 @@ Card {
                     }
                     sourceComponent: modelData.type === "header" ? headerRow
                     : modelData.type === "wallhaven" ? wallhavenEditor
+                    : modelData.type === "slideshow" ? slideshowStatus
                     : modelData.type === "backup" ? backupEditor
                     : modelData.type === "islandStyles" ? islandStylesEditor
                     : modelData.type === "ccStyles" ? ccStylesEditor
@@ -831,6 +836,48 @@ Card {
                         font.pixelSize: 11
                     }
                 }
+            }
+        }
+    }
+
+    // Slideshow status: next change, last topic, change-now button
+    Component {
+        id: slideshowStatus
+
+        Rectangle {
+            implicitHeight: 50
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                anchors {
+                    left: parent.left
+                    leftMargin: 14
+                    verticalCenter: parent.verticalCenter
+                }
+                BarText {
+                    text: !Config.slideshow ? "Off"
+                        : Config.slideMode === "daytime" ? "Changes with the time of day"
+                        : Slideshow.nextChange > 0 ? "Next change " + Qt.formatDateTime(new Date(Slideshow.nextChange), "ddd h:mm AP")
+                        : "Starts counting now"
+                }
+                BarText {
+                    visible: Slideshow.lastTopic !== "" && Config.slideSource === "wallhaven"
+                    text: "Last topic: " + Slideshow.lastTopic
+                    color: Theme.textDim
+                    font.pixelSize: 11
+                }
+            }
+            Chip {
+                anchors {
+                    right: parent.right
+                    rightMargin: 12
+                    verticalCenter: parent.verticalCenter
+                }
+                icon: Theme.icon(0xf049d)
+                label: Slideshow.busy ? "Downloading…" : "Change now"
+                bg: Theme.surfaceHigh
+                onLeftClicked: Slideshow.next()
             }
         }
     }

@@ -16,6 +16,11 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
+    // Background services that only run timers are created on first use; this
+    // window always exists, so it keeps them alive
+    readonly property var _slideshow: Slideshow
+    readonly property var _nightLight: NightLight
+
     readonly property bool plain: Config.widgetsStyle === "plain"
     readonly property string pos: Config.widgetsPosition
 

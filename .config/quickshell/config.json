@@ -122,5 +122,9 @@
   "showStatus": true,
   "showWeather": false,
   "dockEnabled": false,
-  "slideMorning": ""
+  "slideMorning": "",
+  "slideshow": true,
+  "slideSource": "wallhaven",
+  "slideMode": "hours",
+  "slideHours": 24
 }

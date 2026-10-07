@@ -368,6 +368,11 @@ Singleton {
         // Clock above a glass card with avatar and password
         { name: "Card", values: {} },
         // Thin clock and an underline to type on, nothing else
+        // Android Pixel look: date and weather over a big stacked clock tinted with the wallpaper,
+        // password pill at the bottom
+        { name: "Pixel", values: { lockClockStyle: "pixel", lockClockSize: 130, lockClockWeight: 600, lockClockSpacing: -2,
+            lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill",
+            lockBlur: 8, lockDim: 0.22 } },
         { name: "Minimal", values: { lockCard: false, lockAvatar: false, lockShowGreeting: false, lockShowStatus: false,
             lockShowMedia: false, lockFieldWidth: 300, lockClockSize: 110, lockClockWeight: 100, lockFieldStyle: "line" } },
         // Stacked heavy clock on the left, card on the right

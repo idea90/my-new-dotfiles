@@ -545,12 +545,12 @@ Item {
                 // clock, drawn in the style's font
                 Text {
                     readonly property string hm: "8:17"
-                    text: cs === "stacked" ? "8\n17" : hm
-                    lineHeight: cs === "stacked" ? 0.8 : 1
+                    text: cs === "stacked" || cs === "pixel" ? "8\n17" : hm
+                    lineHeight: cs === "stacked" || cs === "pixel" ? 0.8 : 1
                     font.family: (v.lockClockFont ?? "") !== "" ? v.lockClockFont : Theme.font
                     font.weight: v.lockClockWeight ?? 700
                     font.pixelSize: cs === "small" ? 13 : cs === "stacked" ? 15 : 22
-                    color: (v.lockClockAccent ?? false) ? Theme.primary : "#ffffff"
+                    color: cs === "pixel" ? Qt.lighter(Theme.primary, 1.25) : (v.lockClockAccent ?? false) ? Theme.primary : "#ffffff"
                 }
                 // card
                 Rectangle {

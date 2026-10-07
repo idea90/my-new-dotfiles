@@ -241,7 +241,7 @@ Card {
             { key: "lockFieldWidth", label: "Password field width", type: "int", min: 200, max: 600, step: 20 },
             { key: "lockCardOpacity", label: "Card opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
             { type: "header", label: "Clock" },
-            { key: "lockClockStyle", label: "Style", type: "choice", options: ["big", "stacked", "small"] },
+            { key: "lockClockStyle", label: "Style", type: "choice", options: ["big", "stacked", "small", "pixel"] },
             { key: "lockClockSize", label: "Size", type: "int", min: 40, max: 200, step: 8 },
             { key: "lockClockWeight", label: "Weight", type: "int", min: 100, max: 900, step: 100 },
             { key: "lockClockSpacing", label: "Letter spacing", type: "int", min: -8, max: 12, step: 1 },

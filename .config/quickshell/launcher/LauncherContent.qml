@@ -137,16 +137,22 @@ Item {
         id: card
 
         visible: !root.fs
-        readonly property bool hasImage: Config.launcherSideImage
+        // How the wallpaper is used: side strip | bleed (poster, edge to edge) |
+        // banner (across the top) | background (behind everything) | avatar (round, in the header)
+        readonly property string imgMode: Config.launcherSideImage ? Config.launcherImageMode : "none"
+        readonly property bool hasImage: imgMode === "side" || imgMode === "bleed"
         readonly property bool imageLeft: Config.launcherImageSide !== "right"
-        readonly property int imageSpace: hasImage ? Config.launcherImageWidth + 10 : 0
+        readonly property int imageSpace: imgMode === "side" ? Config.launcherImageWidth + 10
+            : imgMode === "bleed" ? Config.launcherImageWidth : 0
+        readonly property int bannerH: imgMode === "banner" ? Config.launcherBannerHeight : 0
 
         width: Config.launcherWidth + imageSpace
-        height: column.implicitHeight + 28
+        height: column.implicitHeight + 28 + bannerH
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * Config.launcherTop
         radius: Config.launcherRadius
-        color: Theme.alpha(Theme.byName(Config.launcherCardColor !== "" ? Config.launcherCardColor : Config.panelColor, Theme.surfaceLow), Config.launcherOpacity)
+        color: imgMode === "background" ? Theme.alpha("#000000", 0.001)
+            : Theme.alpha(Theme.byName(Config.launcherCardColor !== "" ? Config.launcherCardColor : Config.panelColor, Theme.surfaceLow), Config.launcherOpacity)
         border.width: Config.launcherBorder ? Math.max(1, Config.panelBorder) : 0
         border.color: Theme.panelBorderFill
 
@@ -155,43 +161,124 @@ Item {
             anchors.fill: parent
         }
 
-        // Wallpaper on the side
-        Item {
-            id: side
-            visible: card.hasImage
-            x: card.imageLeft ? 10 : card.width - width - 10
-            y: 10
-            width: Config.launcherImageWidth
-            height: card.height - 20
+        // The wallpaper, loaded once and shown in whichever way the style asks for
+        Image {
+            id: wallImg
+            visible: false
+            width: 640
+            height: 480
+            source: "file://" + Quickshell.env("HOME") + "/.cache/lockscreen.png?" + Wallpapers.imageRev
+            cache: false
+            sourceSize.height: 900
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+        }
 
-            Image {
-                id: sideImg
-                anchors.fill: parent
-                visible: false
-                source: "file://" + Quickshell.env("HOME") + "/.cache/lockscreen.png?" + Wallpapers.imageRev
-                cache: false
-                sourceSize.height: 900
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-            }
+        // background: the picture fills the whole card, dimmed and optionally blurred
+        Item {
+            visible: card.imgMode === "background"
+            anchors.fill: parent
             Rectangle {
-                id: sideMask
+                id: bgMask
                 anchors.fill: parent
-                radius: Math.max(4, Config.launcherRadius - 4)
+                radius: card.radius
                 visible: false
                 layer.enabled: true
             }
             MultiEffect {
                 anchors.fill: parent
-                source: sideImg
-                visible: sideImg.status === Image.Ready
+                source: wallImg
+                maskEnabled: true
+                maskSource: bgMask
+                blurEnabled: Config.launcherImageBlur > 0
+                blurMax: 64
+                blur: Config.launcherImageBlur
+                autoPaddingEnabled: false
+            }
+            Rectangle {
+                anchors.fill: parent
+                radius: card.radius
+                color: Theme.alpha("#000000", Config.launcherImageDim)
+            }
+        }
+
+        // banner: a wide strip across the top that fades into the card
+        Item {
+            visible: card.imgMode === "banner"
+            x: 0
+            y: 0
+            width: card.width
+            height: card.bannerH
+            Rectangle {
+                id: bannerMask
+                width: parent.width
+                height: parent.height + card.radius
+                radius: card.radius
+                visible: false
+                layer.enabled: true
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: wallImg
+                maskEnabled: true
+                maskSource: bannerMask
+            }
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                height: parent.height * 0.6
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 1.0; color: Theme.alpha(Theme.byName(Config.launcherCardColor !== "" ? Config.launcherCardColor : Config.panelColor, Theme.surfaceLow), Math.max(0.6, Config.launcherOpacity)) }
+                }
+            }
+            BarText {
+                anchors {
+                    left: parent.left
+                    bottom: parent.bottom
+                    margins: 16
+                }
+                text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "") + "  ·  " + Qt.formatDateTime(Time.now, "dddd d MMMM")
+                color: Qt.rgba(1, 1, 1, 0.95)
+                font.pixelSize: 13
+                font.bold: true
+            }
+        }
+
+        // Wallpaper on the side
+        Item {
+            id: side
+            readonly property bool bleed: card.imgMode === "bleed"
+            visible: card.hasImage
+            x: bleed ? (card.imageLeft ? 0 : card.width - width) : card.imageLeft ? 10 : card.width - width - 10
+            y: bleed ? 0 : 10
+            width: Config.launcherImageWidth
+            height: bleed ? card.height : card.height - 20
+
+            Rectangle {
+                id: sideMask
+                // bleed: the inner corners are pushed outside the strip so only the outer ones are round
+                x: side.bleed ? (card.imageLeft ? 0 : -card.radius) : 0
+                width: side.bleed ? parent.width + card.radius : parent.width
+                height: parent.height
+                radius: side.bleed ? card.radius : Math.max(4, Config.launcherRadius - 4)
+                visible: false
+                layer.enabled: true
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: wallImg
+                visible: wallImg.status === Image.Ready
                 maskEnabled: true
                 maskSource: sideMask
             }
             Rectangle {
                 anchors.fill: parent
                 radius: sideMask.radius
-                visible: sideImg.status !== Image.Ready
+                visible: wallImg.status !== Image.Ready
                 color: Theme.primaryContainer
             }
             // Soft fade at the bottom, with a little caption
@@ -228,13 +315,58 @@ Item {
                 top: parent.top
                 leftMargin: 14 + (card.hasImage && card.imageLeft ? card.imageSpace : 0)
                 rightMargin: 14 + (card.hasImage && !card.imageLeft ? card.imageSpace : 0)
-                topMargin: 14
+                topMargin: 14 + card.bannerH
             }
             spacing: 10
 
+            // avatar: a round picture with the greeting next to it
+            Row {
+                visible: card.imgMode === "avatar"
+                spacing: 14
+                topPadding: 4
+                bottomPadding: 4
+                Item {
+                    width: 62
+                    height: 62
+                    Rectangle {
+                        id: avMask
+                        anchors.fill: parent
+                        radius: width / 2
+                        visible: false
+                        layer.enabled: true
+                    }
+                    MultiEffect {
+                        anchors.fill: parent
+                        source: wallImg
+                        maskEnabled: true
+                        maskSource: avMask
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: width / 2
+                        color: "transparent"
+                        border.width: 2
+                        border.color: Theme.primary
+                    }
+                }
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    BarText {
+                        text: root.greeting() + ", " + Quickshell.env("USER")
+                        font.pixelSize: 20
+                        font.bold: true
+                    }
+                    BarText {
+                        text: Qt.formatDateTime(Time.now, "dddd d MMMM") + "  ·  " + root.results.length + " apps"
+                        font.pixelSize: 12
+                        color: card.imgMode === "background" ? Qt.rgba(1, 1, 1, 0.75) : Theme.textDim
+                    }
+                }
+            }
+
             // Optional greeting above the search
             Column {
-                visible: Config.launcherHeader
+                visible: Config.launcherHeader && card.imgMode !== "avatar"
                 width: parent.width
                 topPadding: 6
                 bottomPadding: 4

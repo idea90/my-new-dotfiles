@@ -277,6 +277,10 @@ Singleton {
     property bool launcherFsNames: true
     property string launcherFsBackground: "blur"   // "blur" (live screen) | "wallpaper"
     property real launcherFsDim: 0.35
+    property string launcherImageMode: "side"  // side | bleed | banner | background | avatar
+    property int launcherBannerHeight: 120
+    property real launcherImageBlur: 0.0       // background mode
+    property real launcherImageDim: 0.45       // background mode: how dark
     property bool launcherSideImage: true   // wallpaper beside the list
     property string launcherImageSide: "left"
     property int launcherImageWidth: 210
@@ -518,7 +522,8 @@ Singleton {
         launcherWidth: 560, launcherTop: 0.18, launcherDim: 0.2, launcherRows: 8,
         launcherRowHeight: 50, launcherIconSize: 30, launcherSearchHeight: 46, launcherRadius: 14,
         launcherCounter: true, launcherDescriptions: true, launcherSideImage: true,
-        launcherImageSide: "left", launcherImageWidth: 210, launcherOpacity: 0.58,
+        launcherImageSide: "left", launcherImageWidth: 210, launcherImageMode: "side", launcherBannerHeight: 120,
+        launcherImageBlur: 0.0, launcherImageDim: 0.45, launcherOpacity: 0.58,
         launcherBlurBackdrop: false, launcherFont: "", launcherSearchStyle: "field", launcherHighlight: "fill",
         launcherHeader: false, launcherCardColor: "", launcherBorder: true, launcherPlaceholder: "Search apps", launcherFullscreen: false, launcherFsColumns: 7, launcherFsRows: 4,
         launcherFsIcon: 64, launcherFsNames: true, launcherFsBackground: "blur", launcherFsDim: 0.35
@@ -557,6 +562,34 @@ Singleton {
         { name: "Accent", values: { launcherSideImage: false, launcherCardColor: "primaryContainer", launcherOpacity: 0.9,
             launcherRadius: 22, launcherHighlight: "outline", launcherBorder: false,
             launcherCounter: false } },
+        // Wide picture across the top that fades into the list
+        { name: "Banner", values: { launcherImageMode: "banner", launcherBannerHeight: 130, launcherWidth: 600,
+            launcherRadius: 22, launcherHeader: false, launcherSearchStyle: "field", launcherCounter: false, launcherTop: 0.12 } },
+        // Cinema: a taller banner, grid below
+        { name: "Cinema", values: { launcherImageMode: "banner", launcherBannerHeight: 170, launcherWidth: 720, launcherLayout: "grid",
+            launcherColumns: 6, launcherRows: 3, launcherIconSize: 36, launcherRadius: 24, launcherSearchStyle: "line",
+            launcherHighlight: "outline", launcherCounter: false, launcherTop: 0.1 } },
+        // Poster: the picture runs edge to edge down one side
+        { name: "Poster", values: { launcherImageMode: "bleed", launcherImageWidth: 230, launcherWidth: 520, launcherRadius: 24,
+            launcherHeader: true, launcherSearchStyle: "line", launcherHighlight: "bar", launcherCounter: false } },
+        // Postcard: bleed picture on the right with an app grid
+        { name: "Postcard", values: { launcherImageMode: "bleed", launcherImageSide: "right", launcherImageWidth: 260, launcherWidth: 500,
+            launcherLayout: "grid", launcherColumns: 4, launcherRows: 3, launcherIconSize: 34, launcherRadius: 26,
+            launcherCounter: false, launcherHeader: true } },
+        // Frame: the whole card is the wallpaper, softly blurred and darkened
+        { name: "Frame", values: { launcherImageMode: "background", launcherImageBlur: 0.35, launcherImageDim: 0.55, launcherWidth: 600,
+            launcherRadius: 28, launcherSearchStyle: "line", launcherHighlight: "outline", launcherBorder: false, launcherCounter: false,
+            launcherDescriptions: false } },
+        // Scenic: sharp picture behind a big bare search
+        { name: "Scenic", values: { launcherImageMode: "background", launcherImageBlur: 0, launcherImageDim: 0.4, launcherWidth: 680,
+            launcherRadius: 30, launcherSearchStyle: "big", launcherHighlight: "fill", launcherBorder: false, launcherCounter: false,
+            launcherDescriptions: false, launcherRows: 5, launcherTop: 0.2 } },
+        // Mist: heavily blurred picture, like frosted glass tinted with the wallpaper
+        { name: "Mist", values: { launcherImageMode: "background", launcherImageBlur: 1.0, launcherImageDim: 0.3, launcherWidth: 560,
+            launcherRadius: 24, launcherHighlight: "bar", launcherBorder: true, launcherCounter: false } },
+        // Profile: round picture and a greeting above a compact list
+        { name: "Profile", values: { launcherImageMode: "avatar", launcherWidth: 440, launcherRadius: 22, launcherRows: 6,
+            launcherRowHeight: 44, launcherIconSize: 26, launcherDescriptions: false, launcherCounter: false, launcherHighlight: "bar" } },
         // Full-screen, macOS Launchpad style
         { name: "Launchpad", values: { launcherFullscreen: true } },
         { name: "Launchpad XL", values: { launcherFullscreen: true, launcherFsColumns: 5, launcherFsRows: 3, launcherFsIcon: 92 } },

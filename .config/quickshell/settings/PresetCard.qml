@@ -278,8 +278,39 @@ Item {
                 border.width: 1
                 border.color: Theme.alpha(Theme.outlineVariant, 0.9)
 
+                // image modes: background fills the card, banner runs across the top
                 Rectangle {
-                    visible: v.launcherSideImage ?? false
+                    visible: (v.launcherSideImage ?? false) && (v.launcherImageMode ?? "side") === "background"
+                    anchors.fill: parent
+                    anchors.margins: 1
+                    radius: parent.radius
+                    color: Theme.primary
+                    opacity: 0.4
+                }
+                Rectangle {
+                    visible: (v.launcherSideImage ?? false) && (v.launcherImageMode ?? "side") === "banner"
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                        margins: 1
+                    }
+                    height: 14
+                    radius: parent.radius
+                    color: Theme.primary
+                    opacity: 0.8
+                }
+                Rectangle {
+                    visible: (v.launcherSideImage ?? false) && (v.launcherImageMode ?? "side") === "avatar"
+                    x: 7
+                    y: 5
+                    width: 10
+                    height: 10
+                    radius: 5
+                    color: Theme.primary
+                }
+                Rectangle {
+                    visible: (v.launcherSideImage ?? false) && ["side", "bleed"].includes(v.launcherImageMode ?? "side")
                     width: 22
                     anchors {
                         top: parent.top

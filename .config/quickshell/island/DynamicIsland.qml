@@ -165,14 +165,10 @@ PanelWindow {
                     }
                 }
             }
-            Text {
+            IslandClock {
                 visible: Config.islandClock
                 anchors.verticalCenter: parent.verticalCenter
-                text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
-                color: "#ffffff"
-                font.family: Theme.font
-                font.pixelSize: Config.islandCompactHeight >= 40 ? 17 : 15
-                font.bold: true
+                u: Config.islandCompactHeight >= 40 ? 1.12 : 1
             }
             Text {
                 visible: Config.islandDate
@@ -377,13 +373,9 @@ PanelWindow {
                 }
                 Column {
                     anchors.centerIn: parent
-                    Text {
+                    IslandClock {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
-                        color: "#ffffff"
-                        font.family: Theme.font
-                        font.pixelSize: 18
-                        font.bold: true
+                        u: 1.2
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter

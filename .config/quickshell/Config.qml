@@ -51,6 +51,7 @@ Singleton {
     // What the resting island shows
     property bool islandWorkspaces: true
     property bool islandClock: true
+    property string islandClockStyle: "text"   // text accent words analog ring flip capsule stack bar
     property bool islandBattery: true
     property bool islandDate: false
     // What takes over the island
@@ -431,7 +432,7 @@ Singleton {
 
     readonly property var islandBase: ({
         islandColor: "black", islandPillOpacity: 1.0, islandCompactHeight: 34, islandTop: 6,
-        islandWorkspaces: true, islandClock: true, islandBattery: true, islandDate: false,
+        islandWorkspaces: true, islandClock: true, islandBattery: true, islandDate: false, islandClockStyle: "text",
         islandMedia: true, islandOsd: true, islandNotifs: true, islandHover: true, islandHoverWidth: 720
     })
     readonly property var islandStyles: [
@@ -448,7 +449,23 @@ Singleton {
         // Tiny pill, no hover panel; only reacts to events
         { name: "Tiny", values: { islandCompactHeight: 28, islandBattery: false, islandHover: false, islandTop: 4 } },
         // Only the time; volume and notifications keep their normal pop-ups
-        { name: "Quiet", values: { islandWorkspaces: false, islandBattery: false, islandOsd: false, islandNotifs: false } }
+        { name: "Quiet", values: { islandWorkspaces: false, islandBattery: false, islandOsd: false, islandNotifs: false } },
+        // Tiny analog watch face
+        { name: "Watch", values: { islandClockStyle: "analog", islandWorkspaces: false, islandBattery: false, islandCompactHeight: 38 } },
+        // Time in words
+        { name: "Words", values: { islandClockStyle: "words", islandWorkspaces: false, islandBattery: false } },
+        // Ring that fills with the minute
+        { name: "Ring", values: { islandClockStyle: "ring", islandWorkspaces: false, islandCompactHeight: 38 } },
+        // Flip-clock cards
+        { name: "Flip", values: { islandClockStyle: "flip", islandWorkspaces: false, islandBattery: false, islandCompactHeight: 38 } },
+        // Time in an accent-colored pill, workspace dots beside it
+        { name: "Capsule", values: { islandClockStyle: "capsule", islandBattery: false } },
+        // Wallpaper-colored hours and minutes
+        { name: "Tinted", values: { islandClockStyle: "accent", islandColor: "black" } },
+        // Hours over minutes in a tall island
+        { name: "Tall", values: { islandClockStyle: "stack", islandWorkspaces: false, islandBattery: false, islandCompactHeight: 44 } },
+        // Time with a bar for the minute
+        { name: "Bar", values: { islandClockStyle: "bar", islandCompactHeight: 40 } }
     ]
 
     function applyPowerStyle(name) {

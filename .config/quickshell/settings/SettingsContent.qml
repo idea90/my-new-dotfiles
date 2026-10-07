@@ -136,6 +136,7 @@ Card {
             { type: "header", label: "When idle it shows" },
             { key: "islandWorkspaces", label: "Workspace dots", type: "bool" },
             { key: "islandClock", label: "Time", type: "bool" },
+            { key: "islandClockStyle", label: "Clock style", type: "choice", options: ["text", "accent", "words", "analog", "ring", "flip", "capsule", "stack", "bar"] },
             { key: "islandDate", label: "Date", type: "bool" },
             { key: "islandBattery", label: "Battery", type: "bool" },
             { type: "header", label: "It takes over" },

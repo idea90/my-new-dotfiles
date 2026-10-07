@@ -104,6 +104,10 @@ Item {
             label: Network.kind === "wifi" ? Network.name : "wired"
         }
         Pill {
+            visible: Config.weatherEnabled && Weather.ready
+            label: Weather.glyph + "  " + Weather.temp + Weather.unit
+        }
+        Pill {
             visible: Battery.available
             glyph: Battery.charging ? 0xf0084 : 0xf0079
             label: Battery.percent + "%"
@@ -125,6 +129,7 @@ Item {
             anchors.centerIn: parent
             spacing: 8
             BarText {
+                visible: glyph > 0
                 text: Theme.icon(glyph)
                 color: Theme.primary
                 font.pixelSize: 15

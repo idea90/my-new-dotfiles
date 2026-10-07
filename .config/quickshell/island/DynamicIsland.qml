@@ -387,7 +387,7 @@ PanelWindow {
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatDateTime(Time.now, "ddd d MMM")
+                        text: Qt.formatDateTime(Time.now, "ddd d MMM") + (Weather.ready && Config.weatherEnabled ? "  ·  " + Weather.line : "")
                         color: Qt.rgba(1, 1, 1, 0.6)
                         font.family: Theme.font
                         font.pixelSize: 11

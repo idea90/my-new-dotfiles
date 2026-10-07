@@ -12,7 +12,7 @@ import qs.services
 Singleton {
     id: root
 
-    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "wifi", "shortcuts", "resources", "controls", "network", "actions"]
+    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "wifi", "shortcuts", "resources", "controls", "network", "weather", "actions"]
 
     readonly property var modules: ({
         launcher: launcher,
@@ -26,6 +26,7 @@ Singleton {
         resources: resources,
         controls: controls,
         network: network,
+        weather: weather,
         actions: actions
     })
 
@@ -46,6 +47,7 @@ Singleton {
         case "status": return Config.showStatus;
         case "wifi": return Config.showWifi;
         case "network": return Config.showWifi;
+        case "weather": return Config.showWeather && Config.weatherEnabled && Weather.ready;
         case "shortcuts": return Config.showShortcuts;
         case "resources": return !Theme.vertical && Config.showResources;
         case "controls": return !Theme.vertical && Config.showControls;
@@ -65,5 +67,6 @@ Singleton {
     Component { id: resources; Resources {} }
     Component { id: controls; Controls {} }
     Component { id: network; NetworkChip {} }
+    Component { id: weather; WeatherChip {} }
     Component { id: actions; Actions {} }
 }

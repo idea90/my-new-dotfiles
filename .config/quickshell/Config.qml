@@ -67,7 +67,7 @@ Singleton {
     property var barLayout: ({
         left: ["launcher", "|", "workspaces", "|", "tray", "|", "title"],
         center: ["clock", "|", "media"],
-        right: ["status", "|", "wifi", "|", "actions"]
+        right: ["weather", "|", "status", "|", "wifi", "|", "actions"]
     })
     property string wsStyle: "pills"        // "pills" | "dots" | "numbers"
 
@@ -119,6 +119,18 @@ Singleton {
     property bool powerBlur: true            // blur the whole screen behind the power menu and goodbye screen
 
     property string switcherStyle: "cards"  // Alt+Tab look: "cards" | "list" | "icons"
+
+    // Night light (hyprsunset)
+    property int nightTemp: 4000            // K; lower = warmer
+    property bool nightAuto: false          // turn on by itself between the times below
+    property string nightFrom: "20:00"
+    property string nightTo: "07:00"
+
+    // Weather (wttr.in)
+    property bool weatherEnabled: true
+    property string weatherLocation: ""     // empty = guess from your IP; or a city
+    property string weatherUnit: "c"        // "c" | "f"
+    property bool showWeather: true         // in the bar
 
     // Power menu buttons
     property string powerStyle: "Classic"   // last power menu preset applied
@@ -209,7 +221,7 @@ Singleton {
     property bool ccNotifications: true
     // Quick toggles to show, in order. Available: wifi, sound, mic, silent,
     // game, awake, capture, theme, settings
-    property var ccToggles: ["wifi", "sound", "bluetooth", "mic", "silent", "game", "awake", "capture", "theme"]
+    property var ccToggles: ["wifi", "sound", "bluetooth", "mic", "silent", "night", "power", "game", "awake", "capture", "theme"]
 
     // Launcher
     property int launcherWidth: 560
@@ -579,7 +591,7 @@ Singleton {
     readonly property var stdLayout: ({
         left: ["launcher", "|", "workspaces", "|", "tray", "|", "title"],
         center: ["clock", "|", "media"],
-        right: ["status", "|", "wifi", "|", "actions"]
+        right: ["weather", "|", "status", "|", "wifi", "|", "actions"]
     })
     readonly property var baseStyle: ({
         barPosition: "top", barHeight: 38, barMarginTop: 8, barMarginSide: 12,

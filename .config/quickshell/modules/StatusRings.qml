@@ -53,6 +53,7 @@ Grid {
 
         value: Battery.percent / 100
         shortName: "BAT"
+        onLeftClicked: Panels.toggle("battery")
         icon: Battery.charging ? Theme.icon(0xf0084) : Theme.icon(0xf0079)
         label: Battery.percent + "%"
         color: low ? Theme.error : Battery.charging ? Theme.tertiary : Theme.primary

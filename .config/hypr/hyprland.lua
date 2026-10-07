@@ -45,6 +45,7 @@ local menu        = "qs ipc call launcher toggle" -- Quickshell app launcher
 hl.on("hyprland.start", function()
     hl.exec_cmd(hypr .. "/scripts/seed-colors.sh") -- generated colors missing? create a starter set
     hl.exec_cmd("awww-daemon")
+    hl.exec_cmd("hyprsunset -i")  -- night light, controlled from the control center
     hl.exec_cmd("wl-paste --type text --watch cliphist store")  -- clipboard history (Super+V)
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("qs") -- Quickshell: bar, launcher, notifications, OSD, menus (~/.config/quickshell)

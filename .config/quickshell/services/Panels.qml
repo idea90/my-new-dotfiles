@@ -80,4 +80,10 @@ Singleton {
             root.toggle("bluetooth");
         }
     }
+    IpcHandler {
+        target: "battery"
+        function toggle(): void {
+            root.toggle("battery");
+        }
+    }
 }

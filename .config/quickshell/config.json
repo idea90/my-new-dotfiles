@@ -41,6 +41,8 @@
       "media"
     ],
     "right": [
+      "weather",
+      "|",
       "status",
       "|",
       "wifi",

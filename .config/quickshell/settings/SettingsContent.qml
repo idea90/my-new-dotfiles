@@ -115,6 +115,16 @@ Card {
             { key: "panelColor", label: "Panel color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
             { key: "panelBorderColor", label: "Panel border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
+            { type: "header", label: "Night light" },
+            { key: "nightTemp", label: "Warmth (K, lower = warmer)", type: "int", min: 2500, max: 6000, step: 100 },
+            { key: "nightAuto", label: "Turn on by itself at night", type: "bool" },
+            { key: "nightFrom", label: "From", type: "string" },
+            { key: "nightTo", label: "Until", type: "string" },
+            { type: "header", label: "Weather" },
+            { key: "weatherEnabled", label: "Weather (wttr.in)", type: "bool" },
+            { key: "weatherLocation", label: "City (empty = automatic)", type: "string" },
+            { key: "weatherUnit", label: "Unit", type: "choice", options: ["c", "f"] },
+            { key: "showWeather", label: "Weather in the bar", type: "bool" },
             { type: "header", label: "Window switcher (Alt+Tab)" },
             { key: "switcherStyle", label: "Switcher look", type: "choice", options: ["cards", "list", "icons"] },
             { type: "header", label: "Notifications" },
@@ -261,7 +271,7 @@ Card {
         ]}
     ]
 
-    readonly property var allToggles: ["wifi", "sound", "bluetooth", "mic", "silent", "game", "awake", "capture", "theme", "settings"]
+    readonly property var allToggles: ["wifi", "sound", "bluetooth", "night", "power", "mic", "silent", "game", "awake", "capture", "theme", "settings"]
     readonly property var colorKeys: ["primary", "primaryContainer", "tertiary", "tertiaryContainer", "error", "surfaceLow", "surfaceHigh", "text", "textDim", "outline"]
 
     RowLayout {

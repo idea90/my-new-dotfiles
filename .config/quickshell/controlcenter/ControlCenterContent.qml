@@ -89,6 +89,19 @@ Card {
             click: () => Panels.toggle("screenshot"),
             rightClick: () => Shot.capture("screen")
         },
+        night: {
+            icon: Theme.icon(0xf0594),
+            label: "Night",
+            on: NightLight.active,
+            click: () => NightLight.toggle()
+        },
+        power: {
+            icon: Power.glyph(Power.profile),
+            label: Power.label(Power.profile),
+            on: Power.profile !== "balanced",
+            click: () => Power.cycle(),
+            rightClick: () => Panels.toggle("battery")
+        },
         theme: {
             icon: Theme.icon(0xf03d8),
             label: "Theme",

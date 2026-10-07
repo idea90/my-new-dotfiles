@@ -4,6 +4,7 @@
 // Edits hot-reload; restart with `qs` if something gets stuck.
 import QtQuick
 import Quickshell
+import qs.battery
 import qs.bluetooth
 import qs.calendar
 import qs.clipboard
@@ -51,6 +52,7 @@ ShellRoot {
     SettingsWindow {}
     LockScreen {}
     Mixer {}
+    BatteryPanel {}
     ClipboardMenu {}
     EmojiPicker {}
     Overview {}

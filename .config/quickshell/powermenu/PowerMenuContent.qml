@@ -167,6 +167,14 @@ Item {
                     readonly property bool danger: !!modelData.danger
                     readonly property color fg: !selected ? Theme.text : root.outline ? (danger ? Theme.error : Theme.primary) : danger ? Theme.errorContainerFg : Theme.primaryContainerFg
 
+                    PopIn {
+                        order: button.index
+                        trigger: Panels.open === "power"
+                        fromScale: 0.6
+                        rise: 24
+                        stepMs: 45
+                    }
+
                     width: root.shape === "pill" ? Config.powerButtonWidth * 1.6
                          : root.shape === "circle" ? Config.powerButtonWidth * 0.62 + 20 : Config.powerButtonWidth
                     height: root.shape === "pill" ? 58

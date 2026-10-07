@@ -28,6 +28,28 @@ Rectangle {
     border.width: 1
     border.color: critical ? Theme.error : Theme.outlineVariant
 
+    // Pop-ups slide in from the screen edge
+    Translate {
+        id: slide
+        x: 0
+    }
+    transform: [slide]
+    Component.onCompleted: {
+        if (popup && Config.animSpeed > 0) {
+            slide.x = Config.notifPosition.endsWith("left") ? -420 : 420;
+            slideIn.start();
+        }
+    }
+    NumberAnimation {
+        id: slideIn
+        target: slide
+        property: "x"
+        to: 0
+        duration: Theme.dur(520)
+        easing.type: Easing.OutBack
+        easing.overshoot: 0.9
+    }
+
     Behavior on color {
         ColorAnimation { duration: Theme.dur(150) }
     }

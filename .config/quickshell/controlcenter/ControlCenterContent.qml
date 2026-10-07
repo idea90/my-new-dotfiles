@@ -225,6 +225,11 @@ Card {
                     model: bigBox.bigs
                     delegate: BigTile {
                         required property string modelData
+                        required property int index
+                        PopIn {
+                            order: index
+                            trigger: Panels.open === "controlcenter"
+                        }
                         readonly property var def: panel.toggleDefs[modelData]
                         width: (bigBox.width - (bigBox.bigs.length - 1) * 8) / bigBox.bigs.length
                         icon: def.icon
@@ -256,10 +261,14 @@ Card {
                     model: pillBox.smalls
                     delegate: PillTile {
                         required property string modelData
+                        required property int index
+                        PopIn {
+                            order: index
+                            trigger: Panels.open === "controlcenter"
+                        }
                         readonly property var def: panel.toggleDefs[modelData]
                         readonly property int lastRow: pillBox.smalls.length % 3 || 3
                         readonly property int perRow: index >= pillBox.smalls.length - lastRow ? lastRow : 3
-                        required property int index
                         width: Math.floor((pillBox.width - (perRow - 1) * 8) / perRow)
                         icon: def.icon
                         label: def.label
@@ -291,11 +300,15 @@ Card {
                     model: tileBox.all
                     delegate: SquareTile {
                         required property string modelData
+                        required property int index
+                        PopIn {
+                            order: index
+                            trigger: Panels.open === "controlcenter"
+                        }
                         readonly property var def: panel.toggleDefs[modelData]
                         // The last row stretches so it has no hole
                         readonly property int lastRow: tileBox.all.length % tileBox.cols || tileBox.cols
                         readonly property int perRow: index >= tileBox.all.length - lastRow ? lastRow : tileBox.cols
-                        required property int index
                         width: Math.floor((tileBox.width - (perRow - 1) * 8) / perRow)
                         icon: def.icon
                         label: def.label
@@ -327,6 +340,11 @@ Card {
                     model: iconBox.all
                     delegate: CircleTile {
                         required property string modelData
+                        required property int index
+                        PopIn {
+                            order: index
+                            trigger: Panels.open === "controlcenter"
+                        }
                         readonly property var def: panel.toggleDefs[modelData]
                         icon: def.icon
                         on: def.on ?? false

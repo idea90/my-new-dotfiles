@@ -120,5 +120,6 @@
   "showResources": true,
   "showActions": true,
   "showStatus": true,
-  "showWeather": false
+  "showWeather": false,
+  "dockEnabled": false
 }

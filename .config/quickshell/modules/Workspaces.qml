@@ -38,7 +38,10 @@ Grid {
                  : (dots || lines ? Theme.alpha(Theme.text, ws.icons.length > 0 ? 0.95 : 0.28) : "transparent")
 
             Behavior on width {
-                NumberAnimation { duration: Theme.dur(220); easing.type: Easing.OutCubic }
+                NumberAnimation { duration: Theme.dur(420); easing.type: Easing.OutBack; easing.overshoot: 2 }
+            }
+            Behavior on height {
+                NumberAnimation { duration: Theme.dur(420); easing.type: Easing.OutBack; easing.overshoot: 2 }
             }
             Behavior on color {
                 ColorAnimation { duration: Theme.dur(200) }

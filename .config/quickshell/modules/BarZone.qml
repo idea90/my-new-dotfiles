@@ -39,9 +39,17 @@ GridLayout {
             id: isl
 
             required property var modelData
+            required property int index
             readonly property bool hasTitle: modelData.includes("title")
 
             shown: modelData.some(id => BarModules.wanted(id, zone.freeWidth))
+
+            PopIn {
+                order: index
+                rise: -16
+                fromScale: 0.8
+                stepMs: 60
+            }
             readonly property bool dotsGroup: modelData.includes("workspaces") && (Config.wsStyle === "dots" || Config.wsStyle === "lines")
             padding: Theme.vertical ? (dotsGroup ? 14 : 4) : hasTitle ? 14 : dotsGroup ? 16 : 4
             Layout.alignment: Qt.AlignHCenter

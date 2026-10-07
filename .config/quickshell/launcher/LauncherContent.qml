@@ -360,6 +360,13 @@ Item {
                     width: list.width
                     height: Config.launcherRowHeight
 
+                    PopIn {
+                        order: row.index
+                        trigger: AppMenu.open
+                        fromScale: 0.96
+                        rise: 14
+                    }
+
                     IconImage {
                         id: appIcon
                         anchors {
@@ -448,6 +455,11 @@ Item {
 
                     width: grid.cellWidth
                     height: grid.cellHeight
+
+                    PopIn {
+                        order: cell.index
+                        trigger: AppMenu.open
+                    }
 
                     Column {
                         anchors.centerIn: parent
@@ -625,6 +637,14 @@ Item {
 
                         width: pageArea.cellW
                         height: pageArea.cellH
+
+                        PopIn {
+                            order: cell.index
+                            trigger: AppMenu.open
+                            fromScale: 0.5
+                            rise: 30
+                            stepMs: 14
+                        }
 
                         Rectangle {
                             anchors.centerIn: parent

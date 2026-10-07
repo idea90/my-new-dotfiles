@@ -560,7 +560,15 @@ Card {
 
                 delegate: Loader {
                     required property var modelData
+                    required property int index
                     width: list.width - 12
+                    PopIn {
+                        order: index
+                        trigger: panel.tab >= 0 && panel.shownRows !== null
+                        fromScale: 0.98
+                        rise: 12
+                        stepMs: 18
+                    }
                     sourceComponent: modelData.type === "header" ? headerRow
                     : modelData.type === "backup" ? backupEditor
                     : modelData.type === "islandStyles" ? islandStylesEditor

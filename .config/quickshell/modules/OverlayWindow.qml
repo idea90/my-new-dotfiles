@@ -40,8 +40,8 @@ PanelWindow {
     // Panels fade and grow in
     ParallelAnimation {
         id: appear
-        NumberAnimation { target: holder; property: "opacity"; from: 0; to: 1; duration: Theme.dur(180); easing.type: Easing.OutCubic }
-        NumberAnimation { target: holder; property: "scale"; from: 0.96; to: 1; duration: Theme.dur(220); easing.type: Easing.OutCubic }
+        NumberAnimation { target: holder; property: "opacity"; from: 0; to: 1; duration: Theme.dur(200); easing.type: Easing.OutCubic }
+        NumberAnimation { target: holder; property: "scale"; from: 0.92; to: 1; duration: Theme.dur(420); easing.type: Easing.OutBack; easing.overshoot: 1.3 }
     }
 
     Rectangle {

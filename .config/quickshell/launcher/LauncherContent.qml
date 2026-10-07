@@ -88,6 +88,24 @@ Item {
         }
     }
 
+    Connections {
+        target: AppMenu
+        function onPrefill(text) {
+            prefillTimer.text = text;
+            prefillTimer.restart();
+        }
+    }
+    // After the open-reset below has run
+    Timer {
+        id: prefillTimer
+        property string text: ""
+        interval: 30
+        onTriggered: {
+            search.text = text;
+            fsSearch.text = text;
+        }
+    }
+
     // Reset every time it opens
     Connections {
         target: AppMenu

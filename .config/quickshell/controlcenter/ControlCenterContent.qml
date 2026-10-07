@@ -40,7 +40,8 @@ Card {
             big: true,
             sub: Audio.muted ? "Muted" : Math.round(Audio.volume * 100) + "%",
             on: !Audio.muted,
-            click: () => Audio.toggleMute()
+            click: () => Audio.toggleMute(),
+            rightClick: () => Panels.toggle("mixer")
         },
         mic: {
             icon: Audio.micMuted ? Theme.icon(0xf036d) : Theme.icon(0xf036c),

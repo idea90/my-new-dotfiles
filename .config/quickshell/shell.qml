@@ -11,6 +11,7 @@ import qs.goodbye
 import qs.island
 import qs.launcher
 import qs.lock
+import qs.mixer
 import qs.notifications
 import qs.osd
 import qs.powermenu
@@ -45,6 +46,7 @@ ShellRoot {
     WifiMenu {}
     SettingsWindow {}
     LockScreen {}
+    Mixer {}
     GoodbyeScreen {}
     ShotWindow {}
     SwitcherWindow {}

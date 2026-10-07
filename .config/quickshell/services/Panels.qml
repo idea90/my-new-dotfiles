@@ -68,4 +68,10 @@ Singleton {
             root.open = "settings";
         }
     }
+    IpcHandler {
+        target: "mixer"
+        function toggle(): void {
+            root.toggle("mixer");
+        }
+    }
 }

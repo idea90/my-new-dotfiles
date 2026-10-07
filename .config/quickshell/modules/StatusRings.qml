@@ -27,7 +27,7 @@ Grid {
         iconColor: Audio.muted ? Theme.alpha(Theme.text, 0.45) : Theme.text
         label: Audio.muted ? "muted" : Math.round(Audio.volume * 100) + "%"
         color: Audio.volume > 1 ? Theme.error : Theme.primary
-        onLeftClicked: Quickshell.execDetached(["pavucontrol"])
+        onLeftClicked: Panels.toggle("mixer")
         onRightClicked: Audio.toggleMute()
         onScrolled: step => Audio.change(step * 0.02)
         shortName: "VOL"

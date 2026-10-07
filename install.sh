@@ -42,7 +42,7 @@ PACKAGES=(
     # files
     thunar thunar-archive-plugin thunar-volman tumbler gvfs
     # scripts: screenshots, audio, brightness, network, notifications
-    curl grim slurp wl-clipboard playerctl pavucontrol brightnessctl btop
+    curl grim slurp wl-clipboard playerctl cliphist wtype hyprsunset power-profiles-daemon bluez bluez-utils pavucontrol brightnessctl btop
     pipewire pipewire-pulse wireplumber
     networkmanager network-manager-applet libnotify jq xdg-user-dirs xdg-utils
     python python-gobject
@@ -437,6 +437,15 @@ enable_services() {
         info "Enabling NetworkManager"
         run sudo systemctl enable --now NetworkManager
     fi
+
+    local svc
+    for svc in bluetooth power-profiles-daemon; do
+        if systemctl list-unit-files "$svc.service" >/dev/null 2>&1 \
+            && ! systemctl is-enabled --quiet "$svc" 2>/dev/null; then
+            info "Enabling $svc"
+            run sudo systemctl enable --now "$svc"
+        fi
+    done
 
     if systemctl list-unit-files sddm.service >/dev/null 2>&1 \
         && ! systemctl is-enabled --quiet sddm 2>/dev/null; then

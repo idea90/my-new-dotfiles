@@ -25,6 +25,7 @@ import qs.settings
 import qs.shot
 import qs.switcher
 import qs.theme
+import qs.welcome
 import qs.wifi
 import qs.services as Services
 
@@ -68,6 +69,7 @@ ShellRoot {
     ClipboardMenu {}
     EmojiPicker {}
     Overview {}
+    Welcome {}
     BluetoothMenu {}
     GoodbyeScreen {}
     ShotWindow {}

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell
 import qs
 import qs.modules
 import qs.services
@@ -279,6 +280,9 @@ Card {
             { key: "launcherCounter", label: "Result counter", type: "bool" },
             { key: "launcherDescriptions", label: "Descriptions", type: "bool" }
         ]},
+        { name: "Backup", icon: 0xf0293, rows: [
+            { type: "backup" }
+        ]},
         { name: "Style", icon: 0xf03d8, rows: [
             { type: "header", label: "Text" },
             { key: "font", label: "Font family", type: "string" },
@@ -498,6 +502,7 @@ Card {
                     required property var modelData
                     width: list.width - 12
                     sourceComponent: modelData.type === "header" ? headerRow
+                    : modelData.type === "backup" ? backupEditor
                     : modelData.type === "islandStyles" ? islandStylesEditor
                     : modelData.type === "ccStyles" ? ccStylesEditor
                     : modelData.type === "powerStyles" ? powerStylesEditor
@@ -517,6 +522,110 @@ Card {
                     visible: panel.shownRows.length === 0
                     text: "No settings match"
                     color: Theme.textDim
+                }
+            }
+        }
+    }
+
+    // Export / import the whole setup
+    Component {
+        id: backupEditor
+
+        Rectangle {
+            implicitHeight: bcol.implicitHeight + 24
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+            Component.onCompleted: Config.listBackups()
+
+            Column {
+                id: bcol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    text: "Save every Kaleido setting (styles, layout, panels...) to one file in ~/Kaleido-backups, or bring one back. Handy before experimenting, or to copy your setup to another computer."
+                    color: Theme.textDim
+                    font.pixelSize: 12
+                }
+                Row {
+                    spacing: 8
+                    Chip {
+                        icon: Theme.icon(0xf0193)
+                        label: "Save a backup now"
+                        bg: Theme.primary
+                        fg: Theme.primaryFg
+                        hoverBg: Theme.alpha(Theme.primary, 0.85)
+                        onLeftClicked: Config.exportBackup()
+                    }
+                    Chip {
+                        icon: Theme.icon(0xf0770)
+                        label: "Open folder"
+                        bg: Theme.surfaceHigh
+                        onLeftClicked: Quickshell.execDetached(["xdg-open", Config.backupDir])
+                    }
+                }
+                BarText {
+                    visible: Config.backupNote !== ""
+                    text: Config.backupNote
+                    color: Theme.primary
+                    font.pixelSize: 12
+                }
+                BarText {
+                    text: Config.backups.length ? "RESTORE ONE" : "No backups yet"
+                    color: Config.backups.length ? Theme.primary : Theme.textDim
+                    font.pixelSize: 11
+                    font.bold: true
+                }
+                Repeater {
+                    model: Config.backups
+                    delegate: Rectangle {
+                        required property string modelData
+                        width: bcol.width
+                        height: 36
+                        radius: Theme.innerRadius
+                        color: bm.containsMouse ? Theme.surfaceHigh : "transparent"
+                        BarText {
+                            anchors {
+                                left: parent.left
+                                leftMargin: 10
+                                verticalCenter: parent.verticalCenter
+                            }
+                            text: modelData.replace("kaleido-", "").replace(".json", "").replace("_", "  ")
+                        }
+                        BarText {
+                            anchors {
+                                right: parent.right
+                                rightMargin: 10
+                                verticalCenter: parent.verticalCenter
+                            }
+                            text: "Restore"
+                            color: Theme.primary
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            id: bm
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Config.importBackup(modelData)
+                        }
+                    }
+                }
+                Chip {
+                    icon: Theme.icon(0xf02d7)
+                    label: "Show the welcome tour again"
+                    bg: Theme.surfaceHigh
+                    onLeftClicked: {
+                        Panels.close();
+                        Quickshell.execDetached(["qs", "ipc", "call", "welcome", "start"]);
+                    }
                 }
             }
         }

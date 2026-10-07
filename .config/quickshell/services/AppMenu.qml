@@ -120,10 +120,10 @@ Singleton {
         function toggle(): void {
             root.toggle();
         }
-        function show(): void {
+        function open(): void {
             root.open = true;
         }
-        function hide(): void {
+        function close(): void {
             root.open = false;
         }
         // qs ipc call launcher search "2+2"

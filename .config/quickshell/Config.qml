@@ -689,6 +689,56 @@ Singleton {
             bandColor: "surfaceLow", bandOpacity: 0.5, wsStyle: "lines", fontSize: 16 } }
     ]
 
+    // Backups: whole setup as one JSON file in ~/Kaleido-backups
+    readonly property string backupDir: Quickshell.env("HOME") + "/Kaleido-backups"
+    property var backups: []          // file names, newest first
+    property string backupNote: ""    // last result, shown in settings
+
+    function exportBackup() {
+        const name = "kaleido-" + Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss") + ".json";
+        backupProc.command = ["sh", "-c", 'mkdir -p "$1" && printf "%s" "$2" > "$1/$3" && echo "$3"',
+            "sh", backupDir, JSON.stringify(raw, null, 2), name];
+        backupProc.running = true;
+        backupNote = "Saved " + name;
+    }
+
+    function importBackup(name) {
+        importView.path = name.startsWith("/") ? name : backupDir + "/" + name;
+    }
+
+    function listBackups() {
+        listProc.running = true;
+    }
+
+    FileView {
+        id: importView
+        printErrors: false
+        onLoaded: {
+            try {
+                const cfg = JSON.parse(text());
+                root.setMany(cfg);
+                root.backupNote = "Restored " + path.split("/").pop();
+            } catch (e) {
+                root.backupNote = "That file isn't a Kaleido backup";
+            }
+            path = "";
+        }
+        onLoadFailed: root.backupNote = "Couldn't read that file"
+    }
+
+    Process {
+        id: backupProc
+        onExited: root.listBackups()
+    }
+
+    Process {
+        id: listProc
+        command: ["sh", "-c", 'ls -1t "$1" 2>/dev/null | grep "\\.json$" | head -n 12', "sh", root.backupDir]
+        stdout: StdioCollector {
+            onStreamFinished: root.backups = text.split("\n").filter(s => s !== "")
+        }
+    }
+
     function reset() {
         for (const key in defaults)
             root[key] = defaults[key];
@@ -716,6 +766,12 @@ Singleton {
     IpcHandler {
         target: "config"
         // qs ipc call config bar none|bar|island, or "toggle" (hide / bring back)
+        function backup(): void {
+            root.exportBackup();
+        }
+        function restore(file: string): void {
+            root.importBackup(file);
+        }
         function bar(mode: string): void {
             if (mode === "toggle") {
                 if (root.barMode === "none") {

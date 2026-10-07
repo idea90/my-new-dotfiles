@@ -17,6 +17,7 @@ import qs.lock
 import qs.mixer
 import qs.notifications
 import qs.osd
+import qs.overview
 import qs.powermenu
 import qs.settings
 import qs.shot
@@ -52,6 +53,7 @@ ShellRoot {
     Mixer {}
     ClipboardMenu {}
     EmojiPicker {}
+    Overview {}
     BluetoothMenu {}
     GoodbyeScreen {}
     ShotWindow {}

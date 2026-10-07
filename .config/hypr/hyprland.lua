@@ -204,6 +204,7 @@ hl.bind(mainMod .. " + Escape",      hl.dsp.exec_cmd("qs ipc call power toggle")
 hl.bind(mainMod .. " + N",           hl.dsp.exec_cmd("qs ipc call controlcenter toggle"))
 hl.bind(mainMod .. " + G",           hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V",           hl.dsp.exec_cmd("qs ipc call clipboard toggle"))  -- clipboard history
+hl.bind(mainMod .. " + Tab",         hl.dsp.exec_cmd("qs ipc call overview toggle"))  -- workspace overview
 hl.bind(mainMod .. " + period",      hl.dsp.exec_cmd("qs ipc call emoji toggle"))  -- emoji picker
 hl.bind(mainMod .. " + SHIFT + V",   hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",           hl.dsp.exec_cmd(menu))

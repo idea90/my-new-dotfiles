@@ -65,6 +65,7 @@ PanelWindow {
     }
     FileView {
         id: recentFile
+        printErrors: false
         path: Quickshell.env("HOME") + "/.cache/quickshell/emoji-recent.json"
         onLoaded: {
             try {

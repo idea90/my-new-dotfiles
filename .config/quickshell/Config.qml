@@ -126,6 +126,25 @@ Singleton {
     property string nightFrom: "20:00"
     property string nightTo: "07:00"
 
+    // Desktop widgets (on the wallpaper, under windows)
+    property bool widgetsEnabled: false
+    property string widgetsStyle: "cards"   // "cards" | "plain"
+    property string widgetsPosition: "top-left"  // top-left | top-right | bottom-left | bottom-right | center
+    property bool widgetClock: true
+    property bool widgetWeather: true
+    property bool widgetMusic: true
+    property bool widgetSystem: true
+
+    // Wallpaper slideshow
+    property bool slideshow: false
+    property string slideMode: "minutes"    // "minutes" (random every N) | "daytime"
+    property int slideMinutes: 30
+    // For "daytime": a file name in ~/wallpapers (or a full path); empty = random
+    property string slideMorning: ""
+    property string slideDay: ""
+    property string slideEvening: ""
+    property string slideNight: ""
+
     // Weather (wttr.in)
     property bool weatherEnabled: true
     property string weatherLocation: ""     // empty = guess from your IP; or a city

@@ -175,17 +175,17 @@ Item {
             NumberAnimation { target: col; property: "rise"; to: 0; duration: Theme.dur(450); easing.type: Easing.OutCubic }
         }
 
-        // The clock: plain text styles, or the Pixel-style stacked clock
+        // The clock: plain text styles here, designed ones in LockClock.qml
         Item {
             id: clockBox
-            readonly property bool pixel: Config.lockClockStyle === "pixel"
+            readonly property bool fancy: ["pixel", "analog", "words", "ring", "flip", "neon", "outline", "editorial", "progress"].includes(Config.lockClockStyle)
             readonly property bool onLeft: root.leftAlign || root.corner
-            implicitWidth: pixel ? pix.implicitWidth : clockText.implicitWidth
-            implicitHeight: pixel ? pix.implicitHeight : clockText.implicitHeight
+            implicitWidth: fancy ? fancyClock.implicitWidth : clockText.implicitWidth
+            implicitHeight: fancy ? fancyClock.implicitHeight : clockText.implicitHeight
 
             BarText {
                 id: clockText
-                visible: !clockBox.pixel
+                visible: !clockBox.fancy
                 anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
                 readonly property string hm: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
                 // "stacked" puts the hours above the minutes
@@ -201,62 +201,12 @@ Item {
                 styleColor: Theme.alpha("#000000", 0.25)
             }
 
-            // Pixel: "Wed, Oct 7 · ☀ 22°" over big stacked hours and minutes, tinted
-            // with the wallpaper's colors (hours in the accent, minutes in the soft secondary)
-            Column {
-                id: pix
-                visible: clockBox.pixel
+            // Every other design lives in LockClock.qml
+            LockClock {
+                id: fancyClock
+                visible: clockBox.fancy
                 anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                spacing: -Math.round(Config.lockClockSize * 0.36)
-                readonly property string family: Config.lockClockFont !== "" ? Config.lockClockFont : "Outfit"
-                readonly property int big: Math.round(Config.lockClockSize * 1.5)
-
-                Row {
-                    anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                    spacing: 10
-                    bottomPadding: Math.round(Config.lockClockSize * 0.22)
-                    BarText {
-                        text: Qt.formatDateTime(Time.now, "ddd, MMM d")
-                        font.pixelSize: 20
-                        font.family: pix.family
-                        font.weight: Font.Medium
-                        color: Qt.rgba(1, 1, 1, 0.95)
-                        style: Text.Outline
-                        styleColor: Theme.alpha("#000000", 0.2)
-                    }
-                    BarText {
-                        visible: Config.weatherEnabled && Weather.ready
-                        text: "·   " + Weather.glyph + " " + Weather.temp + "°"
-                        font.pixelSize: 20
-                        font.family: pix.family
-                        font.weight: Font.Medium
-                        color: Qt.rgba(1, 1, 1, 0.95)
-                        style: Text.Outline
-                        styleColor: Theme.alpha("#000000", 0.2)
-                    }
-                }
-                BarText {
-                    anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                    text: Config.clock24h ? Qt.formatDateTime(Time.now, "HH") : Qt.formatDateTime(Time.now, "h AP").replace(/\s*[AP]M$/i, "")
-                    font.pixelSize: pix.big
-                    font.family: pix.family
-                    font.weight: Config.lockClockWeight
-                    font.letterSpacing: Config.lockClockSpacing
-                    color: Qt.lighter(Theme.primary, 1.25)
-                    style: Text.Outline
-                    styleColor: Theme.alpha("#000000", 0.18)
-                }
-                BarText {
-                    anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                    text: Qt.formatDateTime(Time.now, "mm")
-                    font.pixelSize: pix.big
-                    font.family: pix.family
-                    font.weight: Config.lockClockWeight
-                    font.letterSpacing: Config.lockClockSpacing
-                    color: Qt.lighter(Theme.tertiary, 1.2)
-                    style: Text.Outline
-                    styleColor: Theme.alpha("#000000", 0.18)
-                }
+                onLeft: clockBox.onLeft
             }
         }
 

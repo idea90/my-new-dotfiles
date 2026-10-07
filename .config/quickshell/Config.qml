@@ -373,6 +373,24 @@ Singleton {
         { name: "Pixel", values: { lockClockStyle: "pixel", lockClockSize: 130, lockClockWeight: 600, lockClockSpacing: -2,
             lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill",
             lockBlur: 8, lockDim: 0.22 } },
+        // Round analog clock with hour, minute and second hands
+        { name: "Analog", values: { lockClockStyle: "analog", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 10, lockDim: 0.25 } },
+        // The time in words: "it's quarter past two"
+        { name: "Words", values: { lockClockStyle: "words", lockClockSize: 100, lockClockWeight: 500, lockAlign: "left",
+            lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "line", lockBlur: 14, lockDim: 0.3 } },
+        // Ring that fills with the minute, a thinner ring for the hour
+        { name: "Ring", values: { lockClockStyle: "ring", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 12, lockDim: 0.28 } },
+        // Flip-clock cards
+        { name: "Flip", values: { lockClockStyle: "flip", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false,
+            lockFieldBottom: true, lockFieldStyle: "box", lockBlur: 16, lockDim: 0.3 } },
+        // Glowing tube digits on a dark blurred wallpaper
+        { name: "Neon", values: { lockClockStyle: "neon", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 30, lockDim: 0.6 } },
+        // Hollow outlined digits
+        { name: "Outline", values: { lockClockStyle: "outline", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 6, lockDim: 0.2 } },
+        // Serif time, rule and small-caps weekday
+        { name: "Editorial", values: { lockClockStyle: "editorial", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockFieldStyle: "line", lockBlur: 10, lockDim: 0.32 } },
+        // Time with a bar for how much of today has passed
+        { name: "Day", values: { lockClockStyle: "progress", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 12, lockDim: 0.28 } },
         { name: "Minimal", values: { lockCard: false, lockAvatar: false, lockShowGreeting: false, lockShowStatus: false,
             lockShowMedia: false, lockFieldWidth: 300, lockClockSize: 110, lockClockWeight: 100, lockFieldStyle: "line" } },
         // Stacked heavy clock on the left, card on the right

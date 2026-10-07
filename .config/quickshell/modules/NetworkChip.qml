@@ -24,6 +24,6 @@ Grid {
         fg: adapter && adapter.enabled ? Theme.text : Theme.alpha(Theme.text, 0.45)
         hoverBg: Theme.surfaceHigh
         onLeftClicked: if (adapter) adapter.enabled = !adapter.enabled
-        onRightClicked: Quickshell.execDetached(["blueman-manager"])
+        onRightClicked: Panels.toggle("bluetooth")
     }
 }

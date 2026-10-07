@@ -74,4 +74,10 @@ Singleton {
             root.toggle("mixer");
         }
     }
+    IpcHandler {
+        target: "bluetooth"
+        function toggle(): void {
+            root.toggle("bluetooth");
+        }
+    }
 }

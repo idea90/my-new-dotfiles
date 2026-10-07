@@ -261,7 +261,7 @@ Card {
         ]}
     ]
 
-    readonly property var allToggles: ["wifi", "sound", "mic", "silent", "game", "awake", "capture", "theme", "settings"]
+    readonly property var allToggles: ["wifi", "sound", "bluetooth", "mic", "silent", "game", "awake", "capture", "theme", "settings"]
     readonly property var colorKeys: ["primary", "primaryContainer", "tertiary", "tertiaryContainer", "error", "surfaceLow", "surfaceHigh", "text", "textDim", "outline"]
 
     RowLayout {

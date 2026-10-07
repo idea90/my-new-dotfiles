@@ -209,7 +209,7 @@ Singleton {
     property bool ccNotifications: true
     // Quick toggles to show, in order. Available: wifi, sound, mic, silent,
     // game, awake, capture, theme, settings
-    property var ccToggles: ["wifi", "sound", "mic", "silent", "game", "awake", "capture", "theme"]
+    property var ccToggles: ["wifi", "sound", "bluetooth", "mic", "silent", "game", "awake", "capture", "theme"]
 
     // Launcher
     property int launcherWidth: 560

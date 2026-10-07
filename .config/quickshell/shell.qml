@@ -4,6 +4,7 @@
 // Edits hot-reload; restart with `qs` if something gets stuck.
 import QtQuick
 import Quickshell
+import qs.bluetooth
 import qs.calendar
 import qs.controlcenter
 import qs.dock
@@ -47,6 +48,7 @@ ShellRoot {
     SettingsWindow {}
     LockScreen {}
     Mixer {}
+    BluetoothMenu {}
     GoodbyeScreen {}
     ShotWindow {}
     SwitcherWindow {}

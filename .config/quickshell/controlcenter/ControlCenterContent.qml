@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Bluetooth
 import qs
 import qs.modules
 import qs.notifications
@@ -33,6 +34,21 @@ Card {
             on: Network.wifiEnabled,
             click: () => Network.setWifi(!Network.wifiEnabled),
             rightClick: () => Panels.toggle("wifi")
+        },
+        bluetooth: {
+            icon: Theme.icon(Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? 0xf00af : 0xf00b2),
+            label: "Bluetooth",
+            sub: !Bluetooth.defaultAdapter ? "Unavailable"
+                : !Bluetooth.defaultAdapter.enabled ? "Off"
+                : (Bluetooth.defaultAdapter.devices.values.filter(d => d.connected).map(d => d.name)[0] ?? "On"),
+            on: !!Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled,
+            click: () => {
+                if (Bluetooth.defaultAdapter)
+                    Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
+                else
+                    Panels.toggle("bluetooth");
+            },
+            rightClick: () => Panels.toggle("bluetooth")
         },
         sound: {
             icon: Audio.muted ? Theme.icon(0xf075f) : Theme.icon(0xf057e),

@@ -42,126 +42,92 @@ Card {
     }
 
     // type: bool | int | real | choice | string
+    // Sections in the sidebar, grouped. Each row: a heading, a special editor, or
+    // a setting (type: bool | int | real | choice | string).
     readonly property var sections: [
-        { name: "Looks", icon: 0xf03d8, rows: [
+        { group: "Appearance", name: "Looks", icon: 0xf03d8, rows: [
             { type: "looks" },
-            { type: "styles" }
+            { type: "header", label: "Text" },
+            { key: "font", label: "Font family", type: "string" },
+            { key: "fontSize", label: "Font size", type: "int", min: 9, max: 24, step: 1 },
+            { key: "iconSize", label: "Icon size", type: "int", min: 10, max: 30, step: 1 },
+            { type: "header", label: "Shapes" },
+            { key: "pillHeight", label: "Item height", type: "int", min: 20, max: 40, step: 1 },
+            { key: "pillRadius", label: "Group radius", type: "int", min: 0, max: 24, step: 1 },
+            { key: "innerRadius", label: "Item radius", type: "int", min: 0, max: 20, step: 1 },
+            { type: "header", label: "Colors" },
+            { type: "colors" }
         ]},
-        { name: "Layout", icon: 0xf0570, rows: [
+        { group: "Appearance", name: "Panels", icon: 0xf0493, rows: [
+            { type: "header", label: "Look" },
+            { key: "panelColor", label: "Color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
+            { key: "panelOpacity", label: "Opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
+            { key: "panelRadius", label: "Corner radius", type: "int", min: 0, max: 36, step: 1 },
+            { key: "itemRadius", label: "Inner corner radius", type: "int", min: 0, max: 28, step: 1 },
+            { key: "panelBorder", label: "Border", type: "int", min: 0, max: 4, step: 1 },
+            { key: "panelBorderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
+            { key: "shadows", label: "Shadows under panels", type: "bool" },
+            { type: "header", label: "Motion" },
+            { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 }
+        ]},
+        { group: "Bar", name: "Bar", icon: 0xf0e2c, rows: [
+            { type: "header", label: "Mode" },
+            { key: "barMode", label: "Show a bar, the dynamic island, or nothing", type: "choice", options: ["bar", "island", "none"] },
+            { type: "header", label: "Style" },
+            { type: "styles" },
+            { type: "header", label: "Position and size" },
+            { key: "barPosition", label: "Position", type: "choice", options: ["top", "bottom", "left", "right"] },
+            { key: "barHeight", label: "Height", type: "int", min: 24, max: 64, step: 1 },
+            { key: "barMarginTop", label: "Gap to the screen edge", type: "int", min: 0, max: 40, step: 1 },
+            { key: "barMarginSide", label: "Gap at the ends", type: "int", min: 0, max: 60, step: 1 },
+            { type: "header", label: "Background" },
+            { key: "barBackground", label: "Background", type: "choice", options: ["islands", "band", "solid", "none"] },
+            { key: "barColor", label: "Color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
+            { key: "bandColor", label: "Strip color (band)", type: "choice", options: ["surfaceLow", "primaryContainer", "tertiaryContainer", "surfaceMid", "surfaceHigh", "primary"] },
+            { key: "bandOpacity", label: "Strip opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
+            { key: "barRadius", label: "Solid bar radius", type: "int", min: 0, max: 32, step: 1 },
+            { key: "borderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
+            { type: "header", label: "Islands" },
+            { key: "islandOpacity", label: "Opacity", type: "real", min: 0, max: 1, step: 0.05 },
+            { key: "islandRadius", label: "Corner radius", type: "int", min: 0, max: 32, step: 1 },
+            { key: "islandBorder", label: "Border", type: "int", min: 0, max: 4, step: 1 },
+            { key: "islandSpacing", label: "Spacing", type: "int", min: 0, max: 30, step: 1 },
+            { key: "islandShadow", label: "Shadow", type: "bool" },
+            { type: "header", label: "Text" },
+            { key: "barFont", label: "Bar font", type: "choice", options: ["", "Outfit", "Poppins", "Space Grotesk", "Sora", "Bebas Neue", "Roboto"] }
+        ]},
+        { group: "Bar", name: "Bar contents", icon: 0xf0570, rows: [
             { type: "layout" },
-            { key: "wsStyle", label: "Workspace style", type: "choice", options: ["pills", "dots", "lines", "numbers"] }
-        ]},
-        { name: "Lock & capture", icon: 0xf033e, rows: [
-            { type: "actions" },
-            { type: "header", label: "Lock screen" },
-            { type: "lockStyles" },
-            { key: "lockLayout", label: "Layout", type: "choice", options: ["stack", "split"] },
-            { key: "lockClockStyle", label: "Clock style", type: "choice", options: ["big", "stacked", "small"] },
-            { key: "lockClockFont", label: "Clock font", type: "choice", options: ["", "Outfit", "Poppins", "Bebas Neue", "Unbounded", "Space Grotesk", "Sora", "Playfair Display", "Roboto", "Roboto Condensed", "Noto Serif Display"] },
-            { key: "lockClockWeight", label: "Clock weight", type: "int", min: 100, max: 900, step: 100 },
-            { key: "lockClockSpacing", label: "Clock letter spacing", type: "int", min: -8, max: 12, step: 1 },
-            { key: "lockClockAccent", label: "Clock in accent color", type: "bool" },
-            { key: "lockFieldStyle", label: "Password field", type: "choice", options: ["box", "pill", "line", "dots"] },
-            { key: "lockFieldBottom", label: "Password at the bottom", type: "bool" },
-            { key: "lockBackground", label: "Background", type: "choice", options: ["wallpaper", "gradient", "plain"] },
-            { key: "lockCard", label: "Card behind password", type: "bool" },
-            { key: "lockAvatar", label: "Avatar and name", type: "bool" },
-            { key: "lockCardOpacity", label: "Card opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
-            { key: "lockBlur", label: "Lock blur", type: "int", min: 0, max: 64, step: 4 },
-            { key: "lockDim", label: "Lock dim", type: "real", min: 0, max: 1, step: 0.05 },
-            { key: "lockClockSize", label: "Lock clock size", type: "int", min: 40, max: 200, step: 8 },
-            { key: "lockFieldWidth", label: "Password field width", type: "int", min: 200, max: 600, step: 20 },
-            { key: "lockAlign", label: "Position", type: "choice", options: ["center", "left", "corner"] },
-            { key: "lockWallpaper", label: "Wallpaper background", type: "bool" },
-            { key: "lockShowDate", label: "Show date", type: "bool" },
-            { key: "lockShowGreeting", label: "Show greeting", type: "bool" },
-            { key: "lockShowMedia", label: "Show now playing", type: "bool" },
-            { key: "lockShowBattery", label: "Show battery", type: "bool" },
-            { type: "header", label: "Screenshots" },
-            { key: "shotMode", label: "Screenshot mode", type: "choice", options: ["area", "window", "screen"] },
-            { key: "shotDelay", label: "Screenshot delay (s)", type: "int", min: 0, max: 30, step: 1 },
-            { key: "shotAction", label: "After capture", type: "choice", options: ["copy", "save", "both"] },
-            { key: "shotPreview", label: "Show preview", type: "bool" },
-            { key: "shotPreviewSeconds", label: "Preview time (s, 0 = stay)", type: "int", min: 0, max: 30, step: 1 },
-            { key: "shotPreviewPosition", label: "Preview corner", type: "choice", options: ["bottom-left", "bottom-right", "top-left", "top-right"] },
-            { key: "shotPreviewWidth", label: "Preview width", type: "int", min: 180, max: 480, step: 10 }
-        ]},
-        { name: "Power menu", icon: 0xf0425, rows: [
-            { type: "powerStyles" },
-            { key: "powerLayout", label: "Arrangement", type: "choice", options: ["row", "grid", "column"] },
-            { key: "powerShape", label: "Button shape", type: "choice", options: ["card", "circle", "pill"] },
-            { key: "powerPosition", label: "Position", type: "choice", options: ["center", "bottom", "left", "right", "corner"] },
-            { key: "powerHighlight", label: "Selection", type: "choice", options: ["fill", "outline"] },
-            { key: "powerHeader", label: "Header (goodbye line)", type: "bool" },
-            { key: "powerAvatar", label: "Avatar in header", type: "bool" },
-            { key: "powerClock", label: "Clock in header", type: "bool" },
-            { key: "powerBorder", label: "Button borders", type: "bool" },
-            { key: "powerLabels", label: "Button labels", type: "bool" },
-            { key: "powerKeys", label: "Key hints", type: "bool" },
-            { key: "powerIconSize", label: "Icon size", type: "int", min: 24, max: 80, step: 2 },
-            { key: "powerSpacing", label: "Spacing", type: "int", min: 0, max: 40, step: 2 },
-            { key: "powerOpacity", label: "Button opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
-            { key: "powerBlur", label: "Blur behind power menu", type: "bool" },
-            { key: "goodbyeEnabled", label: "Goodbye message", type: "bool" },
-            { key: "goodbyeSeconds", label: "Goodbye time (s)", type: "real", min: 0.5, max: 6, step: 0.25 },
-            { key: "powerButtonWidth", label: "Power button width", type: "int", min: 90, max: 260, step: 5 },
-            { key: "powerButtonHeight", label: "Power button height", type: "int", min: 90, max: 300, step: 5 }
-        ]},
-        { name: "Panels", icon: 0xf0493, rows: [
-            { type: "header", label: "Panels" },
-            { key: "panelRadius", label: "Panel radius", type: "int", min: 0, max: 36, step: 1 },
-            { key: "itemRadius", label: "Card / tile radius", type: "int", min: 0, max: 28, step: 1 },
-            { key: "panelOpacity", label: "Panel opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
-            { key: "panelBorder", label: "Panel border", type: "int", min: 0, max: 4, step: 1 },
-            { key: "panelColor", label: "Panel color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
-            { key: "panelBorderColor", label: "Panel border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
-            { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
-            { type: "header", label: "Night light" },
-            { key: "nightTemp", label: "Warmth (K, lower = warmer)", type: "int", min: 2500, max: 6000, step: 100 },
-            { key: "nightAuto", label: "Turn on by itself at night", type: "bool" },
-            { key: "nightFrom", label: "From", type: "string" },
-            { key: "nightTo", label: "Until", type: "string" },
-            { type: "header", label: "Desktop widgets" },
-            { key: "widgetsEnabled", label: "Widgets on the wallpaper", type: "bool" },
-            { key: "widgetsStyle", label: "Look", type: "choice", options: ["cards", "plain"] },
-            { key: "widgetsPosition", label: "Where", type: "choice", options: ["top-left", "top-right", "bottom-left", "bottom-right", "center"] },
-            { key: "widgetClock", label: "Clock", type: "bool" },
-            { key: "widgetWeather", label: "Weather", type: "bool" },
-            { key: "widgetMusic", label: "Music", type: "bool" },
-            { key: "widgetSystem", label: "CPU / memory / battery", type: "bool" },
-            { type: "header", label: "Wallpaper slideshow" },
-            { key: "slideshow", label: "Change the wallpaper by itself", type: "bool" },
-            { key: "slideMode", label: "Mode", type: "choice", options: ["minutes", "daytime"] },
-            { key: "slideMinutes", label: "Every (minutes)", type: "int", min: 1, max: 240, step: 1 },
-            { key: "slideMorning", label: "Morning wallpaper (6-11, empty = random)", type: "string" },
-            { key: "slideDay", label: "Day wallpaper (11-17)", type: "string" },
-            { key: "slideEvening", label: "Evening wallpaper (17-21)", type: "string" },
-            { key: "slideNight", label: "Night wallpaper (21-6)", type: "string" },
-            { type: "header", label: "Weather" },
-            { key: "weatherEnabled", label: "Weather (wttr.in)", type: "bool" },
-            { key: "weatherLocation", label: "City (empty = automatic)", type: "string" },
-            { key: "weatherUnit", label: "Unit", type: "choice", options: ["c", "f"] },
+            { type: "header", label: "Show in the bar" },
+            { key: "showLauncher", label: "Launcher button", type: "bool" },
+            { key: "showWorkspaces", label: "Workspaces", type: "bool" },
+            { key: "showWindowTitle", label: "Window title", type: "bool" },
+            { key: "showClock", label: "Clock", type: "bool" },
+            { key: "showNowPlaying", label: "Now playing", type: "bool" },
+            { key: "showTray", label: "Tray", type: "bool" },
+            { key: "showStatus", label: "Status (cpu, wifi, ...)", type: "bool" },
+            { key: "showWifi", label: "Wi-Fi", type: "bool" },
             { key: "showWeather", label: "Weather in the bar", type: "bool" },
-            { type: "header", label: "Window switcher (Alt+Tab)" },
-            { key: "switcherStyle", label: "Switcher look", type: "choice", options: ["cards", "list", "icons"] },
-            { type: "header", label: "Notifications" },
-            { key: "notifPosition", label: "Notifications at", type: "choice", options: ["top-right", "top-left", "bottom-right", "bottom-left"] },
-            { key: "notifGroup", label: "Group notifications by app", type: "bool" },
-            { key: "dndAuto", label: "Silent mode on a schedule", type: "bool" },
-            { key: "dndFrom", label: "Silent from", type: "string" },
-            { key: "dndTo", label: "Silent until", type: "string" },
-            { key: "notifOpacity", label: "Notification opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
-            { key: "notifWidth", label: "Notification width", type: "int", min: 260, max: 600, step: 10 },
-            { key: "notifMarginTop", label: "Notification edge gap", type: "int", min: 0, max: 120, step: 2 },
-            { key: "notifMarginSide", label: "Notification side gap", type: "int", min: 0, max: 80, step: 2 },
-            { type: "header", label: "Pop-ups" },
-            { key: "osdPosition", label: "Volume pop-up at", type: "choice", options: ["bottom", "top"] },
-            { key: "osdMargin", label: "Volume pop-up gap", type: "int", min: 0, max: 300, step: 5 },
-            { key: "osdWidth", label: "Volume pop-up width", type: "int", min: 200, max: 500, step: 10 },
+            { key: "showShortcuts", label: "Shortcut icons", type: "bool" },
+            { key: "showResources", label: "CPU / MEM bars", type: "bool" },
+            { key: "showControls", label: "Volume / brightness sliders", type: "bool" },
+            { key: "showActions", label: "Actions (bell, power)", type: "bool" },
+            { key: "showSettingsButton", label: "Settings gear in the bar", type: "bool" },
+            { type: "header", label: "Workspaces" },
+            { key: "wsStyle", label: "Workspace style", type: "choice", options: ["pills", "dots", "lines", "numbers"] },
+            { type: "header", label: "Status (cpu, volume, ...)" },
+            { key: "statusStyle", label: "Status (cpu, volume...)", type: "choice", options: ["rings", "bars", "sliders", "pills", "meter", "text", "labels", "icons"] },
+            { type: "header", label: "Clock" },
+            { key: "barClockFormat", label: "Clock shows", type: "choice", options: ["full", "time", "date"] },
+            { key: "clock24h", label: "24-hour clock", type: "bool" },
+            { key: "clockSeconds", label: "Clock seconds", type: "bool" },
+            { key: "clockCompact", label: "Compact clock", type: "bool" },
+            { type: "header", label: "Launcher button" },
+            { key: "launcherPlain", label: "Plain launcher button", type: "bool" }
         ]},
-        { name: "Dynamic island", icon: 0xf0e2c, rows: [
+        { group: "Bar", name: "Dynamic island", icon: 0xf0e2c, rows: [
             { type: "islandStyles" },
-            { key: "barMode", label: "Bar, dynamic island or none", type: "choice", options: ["bar", "island", "none"] },
+            { key: "barMode", label: "Show a bar, the dynamic island, or nothing", type: "choice", options: ["bar", "island", "none"] },
             { type: "header", label: "Look" },
             { key: "islandColor", label: "Color", type: "choice", options: ["black", "theme"] },
             { key: "islandPillOpacity", label: "Opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
@@ -182,116 +148,184 @@ Card {
             { key: "islandClick", label: "Click opens", type: "choice", options: ["controlcenter", "launcher", "calendar", "none"] },
             { key: "islandRightClick", label: "Right-click opens", type: "choice", options: ["launcher", "controlcenter", "calendar", "none"] }
         ]},
-        { name: "Bar", icon: 0xf0e2c, rows: [
-            { type: "header", label: "Background" },
-            { key: "barMode", label: "Bar, dynamic island or none", type: "choice", options: ["bar", "island", "none"] },
-            { key: "barBackground", label: "Background", type: "choice", options: ["islands", "band", "solid", "none"] },
-            { key: "bandColor", label: "Strip color (band)", type: "choice", options: ["surfaceLow", "primaryContainer", "tertiaryContainer", "surfaceMid", "surfaceHigh", "primary"] },
-            { key: "bandOpacity", label: "Strip opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
-            { key: "barColor", label: "Color", type: "choice", options: ["surfaceLow", "surfaceMid", "surfaceHigh", "primaryContainer", "tertiaryContainer"] },
-            { key: "borderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
-            { key: "barFont", label: "Bar font", type: "choice", options: ["", "Outfit", "Poppins", "Space Grotesk", "Sora", "Bebas Neue", "Roboto"] },
-            { key: "barClockFormat", label: "Clock shows", type: "choice", options: ["full", "time", "date"] },
-            { key: "statusStyle", label: "Status (cpu, volume...)", type: "choice", options: ["rings", "bars", "sliders", "pills", "meter", "text", "labels", "icons"] },
-            { key: "islandShadow", label: "Island shadow", type: "bool" },
-            { key: "barRadius", label: "Solid bar radius", type: "int", min: 0, max: 32, step: 1 },
-            { key: "barPosition", label: "Position", type: "choice", options: ["top", "bottom", "left", "right"] },
-            { type: "header", label: "Size and spacing" },
-            { key: "barHeight", label: "Height", type: "int", min: 24, max: 64, step: 1 },
-            { key: "barMarginTop", label: "Edge gap", type: "int", min: 0, max: 40, step: 1 },
-            { key: "barMarginSide", label: "Side gap", type: "int", min: 0, max: 60, step: 1 },
-            { key: "islandSpacing", label: "Island spacing", type: "int", min: 0, max: 30, step: 1 },
-            { key: "islandOpacity", label: "Island opacity", type: "real", min: 0, max: 1, step: 0.05 },
-            { key: "islandBorder", label: "Island border", type: "int", min: 0, max: 4, step: 1 },
-            { key: "islandRadius", label: "Island radius", type: "int", min: 0, max: 32, step: 1 }
-        ]},
-        { name: "Modules", icon: 0xf0570, rows: [
-            { type: "header", label: "Bar modules" },
-            { key: "showLauncher", label: "Launcher button", type: "bool" },
-            { key: "showWorkspaces", label: "Workspaces", type: "bool" },
-            { key: "showWindowTitle", label: "Window title", type: "bool" },
-            { type: "header", label: "Clock" },
-            { key: "showClock", label: "Clock", type: "bool" },
-            { key: "showNowPlaying", label: "Now playing", type: "bool" },
-            { key: "showTray", label: "Tray", type: "bool" },
-            { key: "showStatus", label: "Status (cpu, wifi, ...)", type: "bool" },
-            { key: "showWifi", label: "Wi-Fi", type: "bool" },
-            { key: "showActions", label: "Actions (bell, power)", type: "bool" },
-            { key: "showSettingsButton", label: "Settings gear in the bar", type: "bool" },
-            { key: "showShortcuts", label: "Shortcut icons", type: "bool" },
-            { key: "showResources", label: "CPU / MEM bars", type: "bool" },
-            { key: "showControls", label: "Volume / brightness sliders", type: "bool" },
-            { key: "launcherPlain", label: "Plain launcher button", type: "bool" },
-            { key: "clockCompact", label: "Compact clock", type: "bool" },
-            { key: "clock24h", label: "24-hour clock", type: "bool" },
-            { key: "clockSeconds", label: "Clock seconds", type: "bool" }
-        ]},
-        { name: "Control center", icon: 0xf0493, rows: [
-            { type: "ccStyles" },
-            { key: "ccToggleStyle", label: "Toggle style", type: "choice", options: ["mixed", "tiles", "icons"] },
-            { key: "ccHeader", label: "Header", type: "bool" },
-            { key: "ccHeaderStyle", label: "Header style", type: "choice", options: ["profile", "clock"] },
-            { key: "ccSliderStyle", label: "Sliders", type: "choice", options: ["card", "inline", "big"] },
-            { key: "ccFit", label: "Fit height to content", type: "bool" },
-            { type: "header", label: "Placement" },
-            { key: "ccSide", label: "Side", type: "choice", options: ["right", "left", "center"] },
-            { key: "ccWidth", label: "Width", type: "int", min: 300, max: 700, step: 10 },
-            { key: "ccColumns", label: "Tile columns (tiles style)", type: "int", min: 2, max: 6, step: 1 },
-            { key: "ccTopMargin", label: "Gap under the bar", type: "int", min: 0, max: 80, step: 1 },
-            { key: "ccSideMargin", label: "Side gap", type: "int", min: 0, max: 60, step: 1 },
-            { key: "ccBottomMargin", label: "Bottom gap", type: "int", min: 0, max: 60, step: 1 },
-            { key: "ccPadding", label: "Padding", type: "int", min: 4, max: 30, step: 1 },
-            { key: "ccSpacing", label: "Spacing", type: "int", min: 0, max: 30, step: 1 },
-            { type: "header", label: "Sections" },
-            { key: "ccSliders", label: "Sliders", type: "bool" },
-            { key: "ccMedia", label: "Now playing", type: "bool" },
-            { key: "ccNotifications", label: "Notifications", type: "bool" },
-            { type: "toggles" }
-        ]},
-        { name: "Launcher", icon: 0xf0349, rows: [
+        { group: "Panels", name: "Launcher", icon: 0xf0349, rows: [
             { type: "launcherStyles" },
-            { type: "header", label: "Full-screen" },
-            { key: "launcherFullscreen", label: "Full-screen (Launchpad)", type: "bool" },
-            { key: "launcherFsColumns", label: "Full-screen columns", type: "int", min: 3, max: 12, step: 1 },
-            { key: "launcherFsRows", label: "Full-screen rows", type: "int", min: 1, max: 7, step: 1 },
-            { key: "launcherFsIcon", label: "Full-screen icon size", type: "int", min: 32, max: 128, step: 4 },
-            { key: "launcherFsNames", label: "Full-screen app names", type: "bool" },
-            { key: "launcherFsBackground", label: "Full-screen background", type: "choice", options: ["blur", "wallpaper"] },
-            { key: "launcherFsDim", label: "Full-screen dim", type: "real", min: 0, max: 0.9, step: 0.05 },
+            { type: "header", label: "Layout" },
             { key: "launcherLayout", label: "Layout", type: "choice", options: ["list", "grid"] },
             { key: "launcherColumns", label: "Grid columns", type: "int", min: 3, max: 8, step: 1 },
             { key: "launcherCellHeight", label: "Grid cell height", type: "int", min: 70, max: 150, step: 4 },
             { type: "header", label: "Card" },
             { key: "launcherWidth", label: "Width", type: "int", min: 360, max: 900, step: 10 },
             { key: "launcherTop", label: "Vertical position", type: "real", min: 0, max: 0.6, step: 0.02 },
-            { key: "launcherDim", label: "Backdrop dim", type: "real", min: 0, max: 1, step: 0.05 },
             { key: "launcherRows", label: "Visible rows", type: "int", min: 3, max: 14, step: 1 },
             { key: "launcherRowHeight", label: "Row height", type: "int", min: 32, max: 80, step: 1 },
             { key: "launcherIconSize", label: "Icon size", type: "int", min: 16, max: 56, step: 1 },
-            { key: "launcherSearchHeight", label: "Search height", type: "int", min: 32, max: 70, step: 1 },
             { key: "launcherRadius", label: "Corner radius", type: "int", min: 0, max: 36, step: 1 },
             { key: "launcherOpacity", label: "Card opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
+            { key: "launcherDim", label: "Backdrop dim", type: "real", min: 0, max: 1, step: 0.05 },
             { key: "launcherBlurBackdrop", label: "Blur screen behind", type: "bool" },
+            { type: "header", label: "Wallpaper on the side" },
             { key: "launcherSideImage", label: "Wallpaper on the side", type: "bool" },
             { key: "launcherImageSide", label: "Image side", type: "choice", options: ["left", "right"] },
             { key: "launcherImageWidth", label: "Image width", type: "int", min: 120, max: 400, step: 10 },
-            { type: "header", label: "Search field" },
+            { type: "header", label: "Search" },
+            { key: "launcherSearchHeight", label: "Search height", type: "int", min: 32, max: 70, step: 1 },
             { key: "launcherPlaceholder", label: "Placeholder", type: "string" },
             { key: "launcherCounter", label: "Result counter", type: "bool" },
-            { key: "launcherDescriptions", label: "Descriptions", type: "bool" }
+            { key: "launcherDescriptions", label: "Descriptions", type: "bool" },
+            { type: "header", label: "Full-screen (Launchpad)" },
+            { key: "launcherFullscreen", label: "Full-screen (Launchpad)", type: "bool" },
+            { key: "launcherFsColumns", label: "Full-screen columns", type: "int", min: 3, max: 12, step: 1 },
+            { key: "launcherFsRows", label: "Full-screen rows", type: "int", min: 1, max: 7, step: 1 },
+            { key: "launcherFsIcon", label: "Full-screen icon size", type: "int", min: 32, max: 128, step: 4 },
+            { key: "launcherFsNames", label: "Full-screen app names", type: "bool" },
+            { key: "launcherFsBackground", label: "Full-screen background", type: "choice", options: ["blur", "wallpaper"] },
+            { key: "launcherFsDim", label: "Full-screen dim", type: "real", min: 0, max: 0.9, step: 0.05 }
         ]},
-        { name: "Backup", icon: 0xf0293, rows: [
+        { group: "Panels", name: "Control center", icon: 0xf009a, rows: [
+            { type: "ccStyles" },
+            { type: "header", label: "Layout" },
+            { key: "ccToggleStyle", label: "Toggle style", type: "choice", options: ["mixed", "tiles", "icons"] },
+            { key: "ccHeader", label: "Header", type: "bool" },
+            { key: "ccHeaderStyle", label: "Header style", type: "choice", options: ["profile", "clock"] },
+            { key: "ccSliderStyle", label: "Sliders", type: "choice", options: ["card", "inline", "big"] },
+            { key: "ccFit", label: "Fit height to content", type: "bool" },
+            { type: "header", label: "Sections" },
+            { key: "ccSliders", label: "Sliders", type: "bool" },
+            { key: "ccMedia", label: "Now playing", type: "bool" },
+            { key: "ccNotifications", label: "Notifications", type: "bool" },
+            { type: "header", label: "Quick toggles" },
+            { type: "toggles" },
+            { key: "ccColumns", label: "Tile columns (tiles style)", type: "int", min: 2, max: 6, step: 1 },
+            { type: "header", label: "Placement" },
+            { key: "ccSide", label: "Side", type: "choice", options: ["right", "left", "center"] },
+            { key: "ccWidth", label: "Width", type: "int", min: 300, max: 700, step: 10 },
+            { key: "ccTopMargin", label: "Gap under the bar", type: "int", min: 0, max: 80, step: 1 },
+            { key: "ccSideMargin", label: "Gap at the ends", type: "int", min: 0, max: 60, step: 1 },
+            { key: "ccBottomMargin", label: "Bottom gap", type: "int", min: 0, max: 60, step: 1 },
+            { key: "ccPadding", label: "Padding", type: "int", min: 4, max: 30, step: 1 },
+            { key: "ccSpacing", label: "Spacing", type: "int", min: 0, max: 30, step: 1 }
+        ]},
+        { group: "Panels", name: "Notifications", icon: 0xf009c, rows: [
+            { type: "header", label: "Pop-ups" },
+            { key: "notifPosition", label: "Corner", type: "choice", options: ["top-right", "top-left", "bottom-right", "bottom-left"] },
+            { key: "notifWidth", label: "Width", type: "int", min: 260, max: 600, step: 10 },
+            { key: "notifOpacity", label: "Opacity", type: "real", min: 0.3, max: 1, step: 0.05 },
+            { key: "notifMarginTop", label: "Gap to the edge", type: "int", min: 0, max: 120, step: 2 },
+            { key: "notifMarginSide", label: "Gap to the side", type: "int", min: 0, max: 80, step: 2 },
+            { type: "header", label: "List" },
+            { key: "notifGroup", label: "Group by app in the control center", type: "bool" },
+            { type: "header", label: "Silent mode" },
+            { key: "dndAuto", label: "Turn on by itself", type: "bool" },
+            { key: "dndFrom", label: "From", type: "string" },
+            { key: "dndTo", label: "Until", type: "string" },
+            { type: "header", label: "Volume / brightness pop-up" },
+            { key: "osdPosition", label: "Where", type: "choice", options: ["bottom", "top"] },
+            { key: "osdMargin", label: "Gap to the edge", type: "int", min: 0, max: 300, step: 5 },
+            { key: "osdWidth", label: "Width", type: "int", min: 200, max: 500, step: 10 }
+        ]},
+        { group: "Panels", name: "Lock screen", icon: 0xf033e, rows: [
+            { type: "actions" },
+            { type: "lockStyles" },
+            { type: "header", label: "Layout" },
+            { key: "lockLayout", label: "Layout", type: "choice", options: ["stack", "split"] },
+            { key: "lockAlign", label: "Position", type: "choice", options: ["center", "left", "corner"] },
+            { key: "lockFieldStyle", label: "Password field", type: "choice", options: ["box", "pill", "line", "dots"] },
+            { key: "lockFieldBottom", label: "Password at the bottom", type: "bool" },
+            { key: "lockCard", label: "Card behind password", type: "bool" },
+            { key: "lockAvatar", label: "Avatar and name", type: "bool" },
+            { key: "lockFieldWidth", label: "Password field width", type: "int", min: 200, max: 600, step: 20 },
+            { key: "lockCardOpacity", label: "Card opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
+            { type: "header", label: "Clock" },
+            { key: "lockClockStyle", label: "Style", type: "choice", options: ["big", "stacked", "small"] },
+            { key: "lockClockSize", label: "Size", type: "int", min: 40, max: 200, step: 8 },
+            { key: "lockClockWeight", label: "Weight", type: "int", min: 100, max: 900, step: 100 },
+            { key: "lockClockSpacing", label: "Letter spacing", type: "int", min: -8, max: 12, step: 1 },
+            { key: "lockClockAccent", label: "Accent color", type: "bool" },
+            { key: "lockClockFont", label: "Font", type: "choice", options: ["", "Outfit", "Poppins", "Bebas Neue", "Unbounded", "Space Grotesk", "Sora", "Playfair Display", "Roboto", "Roboto Condensed", "Noto Serif Display"] },
+            { type: "header", label: "Background" },
+            { key: "lockBackground", label: "Background", type: "choice", options: ["wallpaper", "gradient", "plain"] },
+            { key: "lockWallpaper", label: "Use the wallpaper", type: "bool" },
+            { key: "lockBlur", label: "Blur", type: "int", min: 0, max: 64, step: 4 },
+            { key: "lockDim", label: "Darken", type: "real", min: 0, max: 1, step: 0.05 },
+            { type: "header", label: "Show" },
+            { key: "lockShowDate", label: "Show date", type: "bool" },
+            { key: "lockShowGreeting", label: "Show greeting", type: "bool" },
+            { key: "lockShowMedia", label: "Show now playing", type: "bool" },
+            { key: "lockShowBattery", label: "Show battery", type: "bool" }
+        ]},
+        { group: "Panels", name: "Power menu", icon: 0xf0425, rows: [
+            { type: "powerStyles" },
+            { type: "header", label: "Layout" },
+            { key: "powerLayout", label: "Arrangement", type: "choice", options: ["row", "grid", "column"] },
+            { key: "powerShape", label: "Button shape", type: "choice", options: ["card", "circle", "pill"] },
+            { key: "powerPosition", label: "Position", type: "choice", options: ["center", "bottom", "left", "right", "corner"] },
+            { key: "powerHighlight", label: "Selection", type: "choice", options: ["fill", "outline"] },
+            { key: "powerSpacing", label: "Spacing", type: "int", min: 0, max: 40, step: 2 },
+            { key: "powerButtonWidth", label: "Button width", type: "int", min: 90, max: 260, step: 5 },
+            { key: "powerButtonHeight", label: "Button height", type: "int", min: 90, max: 300, step: 5 },
+            { key: "powerIconSize", label: "Icon size", type: "int", min: 24, max: 80, step: 2 },
+            { type: "header", label: "Show" },
+            { key: "powerHeader", label: "Header (goodbye line)", type: "bool" },
+            { key: "powerAvatar", label: "Avatar in header", type: "bool" },
+            { key: "powerClock", label: "Clock in header", type: "bool" },
+            { key: "powerLabels", label: "Button labels", type: "bool" },
+            { key: "powerKeys", label: "Key hints", type: "bool" },
+            { key: "powerBorder", label: "Button borders", type: "bool" },
+            { key: "powerOpacity", label: "Button opacity", type: "real", min: 0.2, max: 1, step: 0.05 },
+            { key: "powerBlur", label: "Blur behind power menu", type: "bool" },
+            { type: "header", label: "Goodbye screen" },
+            { key: "goodbyeEnabled", label: "Show a goodbye message", type: "bool" },
+            { key: "goodbyeSeconds", label: "How long (seconds)", type: "real", min: 0.5, max: 6, step: 0.25 }
+        ]},
+        { group: "Desktop", name: "Wallpaper and widgets", icon: 0xf0e09, rows: [
+            { type: "header", label: "Desktop widgets" },
+            { key: "widgetsEnabled", label: "Widgets on the wallpaper", type: "bool" },
+            { key: "widgetsStyle", label: "Look", type: "choice", options: ["cards", "plain"] },
+            { key: "widgetsPosition", label: "Where", type: "choice", options: ["top-left", "top-right", "bottom-left", "bottom-right", "center"] },
+            { key: "widgetClock", label: "Clock", type: "bool" },
+            { key: "widgetWeather", label: "Weather", type: "bool" },
+            { key: "widgetMusic", label: "Music", type: "bool" },
+            { key: "widgetSystem", label: "CPU / memory / battery", type: "bool" },
+            { type: "header", label: "Wallpaper slideshow" },
+            { key: "slideshow", label: "Change the wallpaper by itself", type: "bool" },
+            { key: "slideMode", label: "Mode", type: "choice", options: ["minutes", "daytime"] },
+            { key: "slideMinutes", label: "Every (minutes)", type: "int", min: 1, max: 240, step: 1 },
+            { key: "slideMorning", label: "Morning wallpaper (6-11, empty = random)", type: "string" },
+            { key: "slideDay", label: "Day wallpaper (11-17)", type: "string" },
+            { key: "slideEvening", label: "Evening wallpaper (17-21)", type: "string" },
+            { key: "slideNight", label: "Night wallpaper (21-6)", type: "string" }
+        ]},
+        { group: "Desktop", name: "Dock", icon: 0xf0d5b, rows: [
+            { key: "dockEnabled", label: "Show the dock", type: "bool" },
+            { key: "dockPosition", label: "Where", type: "choice", options: ["bottom", "left", "right"] },
+            { key: "dockSize", label: "Icon size", type: "int", min: 32, max: 72, step: 2 },
+            { key: "dockAutoHide", label: "Hide until you point at the edge", type: "bool" },
+            { key: "dockMagnify", label: "Grow icons on hover", type: "bool" }
+        ]},
+        { group: "Desktop", name: "Tools", icon: 0xf1064, rows: [
+            { type: "header", label: "Screenshots" },
+            { key: "shotMode", label: "Default mode", type: "choice", options: ["area", "window", "screen"] },
+            { key: "shotDelay", label: "Delay (seconds)", type: "int", min: 0, max: 30, step: 1 },
+            { key: "shotAction", label: "After capture", type: "choice", options: ["copy", "save", "both"] },
+            { key: "shotPreview", label: "Show preview", type: "bool" },
+            { key: "shotPreviewSeconds", label: "Preview stays (seconds, 0 = until closed)", type: "int", min: 0, max: 30, step: 1 },
+            { key: "shotPreviewPosition", label: "Preview corner", type: "choice", options: ["bottom-left", "bottom-right", "top-left", "top-right"] },
+            { key: "shotPreviewWidth", label: "Preview width", type: "int", min: 180, max: 480, step: 10 },
+            { type: "header", label: "Window switcher (Alt+Tab)" },
+            { key: "switcherStyle", label: "Look", type: "choice", options: ["cards", "list", "icons"] },
+            { type: "header", label: "Night light" },
+            { key: "nightTemp", label: "Warmth (K, lower = warmer)", type: "int", min: 2500, max: 6000, step: 100 },
+            { key: "nightAuto", label: "Turn on by itself at night", type: "bool" },
+            { key: "nightFrom", label: "From", type: "string" },
+            { key: "nightTo", label: "Until", type: "string" },
+            { type: "header", label: "Weather" },
+            { key: "weatherEnabled", label: "Get weather (wttr.in)", type: "bool" },
+            { key: "weatherLocation", label: "City (empty = automatic)", type: "string" },
+            { key: "weatherUnit", label: "Unit", type: "choice", options: ["c", "f"] }
+        ]},
+        { group: "System", name: "Backup", icon: 0xf0293, rows: [
             { type: "backup" }
-        ]},
-        { name: "Style", icon: 0xf03d8, rows: [
-            { type: "header", label: "Text" },
-            { key: "font", label: "Font family", type: "string" },
-            { key: "fontSize", label: "Font size", type: "int", min: 9, max: 24, step: 1 },
-            { key: "iconSize", label: "Icon size", type: "int", min: 10, max: 30, step: 1 },
-            { key: "pillHeight", label: "Item height", type: "int", min: 20, max: 40, step: 1 },
-            { key: "pillRadius", label: "Group radius", type: "int", min: 0, max: 24, step: 1 },
-            { key: "innerRadius", label: "Item radius", type: "int", min: 0, max: 20, step: 1 },
-            { type: "colors" }
         ]}
     ]
 
@@ -376,69 +410,95 @@ Card {
                     }
                 }
 
-                // Sections
-                Repeater {
+                // Sections, under group headings; scrolls if the window is short
+                ListView {
+                    id: nav
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    spacing: 2
                     model: panel.sections
-                    delegate: Rectangle {
-                        id: navItem
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    delegate: Column {
+                        id: navEntry
                         required property var modelData
                         required property int index
-                        readonly property bool active: panel.query === "" && panel.tab === index
+                        readonly property bool firstOfGroup: index === 0 || panel.sections[index - 1].group !== modelData.group
+                        width: nav.width
 
-                        Layout.fillWidth: true
-                        height: 38
-                        radius: Math.max(6, Config.itemRadius)
-                        color: active ? Theme.primaryContainer : navMouse.containsMouse ? Theme.alpha(Theme.text, 0.07) : "transparent"
-
-                        Behavior on color {
-                            ColorAnimation { duration: Theme.dur(120) }
+                        BarText {
+                            visible: navEntry.firstOfGroup
+                            leftPadding: 10
+                            topPadding: navEntry.index === 0 ? 2 : 12
+                            bottomPadding: 4
+                            text: navEntry.modelData.group.toUpperCase()
+                            color: Theme.alpha(Theme.textDim, 0.8)
+                            font.pixelSize: 10
+                            font.bold: true
+                            font.letterSpacing: 1.2
                         }
 
                         Rectangle {
-                            visible: navItem.active
-                            width: 3
-                            height: 18
-                            radius: 2
-                            color: Theme.primary
-                            anchors {
-                                left: parent.left
-                                leftMargin: 6
-                                verticalCenter: parent.verticalCenter
+                            id: navItem
+                            readonly property var modelData: navEntry.modelData
+                            readonly property int index: navEntry.index
+                            readonly property bool active: panel.query === "" && panel.tab === index
+
+                            width: parent.width
+                            height: 34
+                            radius: Math.max(6, Config.itemRadius)
+                            color: active ? Theme.primaryContainer : navMouse.containsMouse ? Theme.alpha(Theme.text, 0.07) : "transparent"
+
+                            Behavior on color {
+                                ColorAnimation { duration: Theme.dur(120) }
                             }
-                        }
-                        Row {
-                            anchors {
-                                left: parent.left
-                                leftMargin: 18
-                                verticalCenter: parent.verticalCenter
+
+                            Rectangle {
+                                visible: navItem.active
+                                width: 3
+                                height: 16
+                                radius: 2
+                                color: Theme.primary
+                                anchors {
+                                    left: parent.left
+                                    leftMargin: 6
+                                    verticalCenter: parent.verticalCenter
+                                }
                             }
-                            spacing: 12
-                            BarText {
-                                width: 20
-                                text: Theme.icon(navItem.modelData.icon)
-                                font.pixelSize: 16
-                                color: navItem.active ? Theme.primaryContainerFg : Theme.textDim
+                            Row {
+                                anchors {
+                                    left: parent.left
+                                    leftMargin: 18
+                                    verticalCenter: parent.verticalCenter
+                                }
+                                spacing: 12
+                                BarText {
+                                    width: 20
+                                    text: Theme.icon(navItem.modelData.icon)
+                                    font.pixelSize: 15
+                                    color: navItem.active ? Theme.primaryContainerFg : Theme.textDim
+                                }
+                                BarText {
+                                    text: navItem.modelData.name
+                                    font.bold: navItem.active
+                                    color: navItem.active ? Theme.primaryContainerFg : Theme.text
+                                }
                             }
-                            BarText {
-                                text: navItem.modelData.name
-                                font.bold: navItem.active
-                                color: navItem.active ? Theme.primaryContainerFg : Theme.text
-                            }
-                        }
-                        MouseArea {
-                            id: navMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                searchField.text = "";
-                                panel.tab = navItem.index;
+                            MouseArea {
+                                id: navMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    searchField.text = "";
+                                    panel.tab = navItem.index;
+                                }
                             }
                         }
                     }
                 }
 
-                Item { Layout.fillHeight: true }
 
                 Chip {
                     Layout.fillWidth: true

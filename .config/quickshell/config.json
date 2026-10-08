@@ -121,7 +121,7 @@
   "showActions": true,
   "showStatus": true,
   "showWeather": false,
-  "dockEnabled": true,
+  "dockEnabled": false,
   "slideMorning": "",
   "slideshow": true,
   "slideSource": "wallhaven",
@@ -133,7 +133,7 @@
   "lockLayout": "stack",
   "lockClockStyle": "big",
   "lockCard": true,
-  "lockAvatar": true,
+  "lockAvatar": false,
   "lockClockFont": "",
   "lockClockWeight": 500,
   "lockClockSpacing": 0,
@@ -238,5 +238,6 @@
   "osdWidth": 300,
   "colorOverrides": {},
   "islandClockStyle": "text",
-  "lockGlow": false
+  "lockGlow": false,
+  "lowEnd": true
 }

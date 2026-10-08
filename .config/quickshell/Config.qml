@@ -81,7 +81,11 @@ Singleton {
     property int panelBorder: 1
     property string panelColor: "surfaceLow"
     property string panelBorderColor: "outlineVariant"
-    property bool lowEnd: false             // low-end mode: no animations, shadows or heavy blur
+    // Performance: "normal" | "light" (shorter animations, smaller blur, no shadows)
+    //            | "lowest" (no animations, no shadows, no blur anywhere, windows included)
+    property string performance: "normal"
+    readonly property bool lowEnd: performance === "lowest"
+    readonly property bool lightMode: performance !== "normal"
     property real animSpeed: 1.0            // 0 = no animations
 
     property bool shadows: true             // drop shadows under panels
@@ -343,6 +347,11 @@ Singleton {
     function assign(key, value) {
         if (!(key in root) || typeof root[key] === "function")
             return;
+        if (key === "lowEnd") {   // old name of performance: "lowest"
+            if (value === true)
+                root.performance = "lowest";
+            return;
+        }
         if (!(key in defaults))
             defaults[key] = root[key];
         root[key] = value;

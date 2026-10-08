@@ -61,7 +61,7 @@ Item {
         visible: root.hasWall
         blurEnabled: Config.lockBlur > 0 && !Config.lowEnd
         blurMax: 64
-        blur: Config.lockBlur / 64
+        blur: (Config.performance === "light" ? Math.min(Config.lockBlur, 12) : Config.lockBlur) / 64
         autoPaddingEnabled: false
     }
     Rectangle {

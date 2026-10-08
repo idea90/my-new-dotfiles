@@ -14,7 +14,7 @@ Singleton {
 
     property bool applied: false
     readonly property string key: [Config.hyprRounding, Config.hyprGapsIn, Config.hyprGapsOut, Config.hyprBorder,
-        Config.hyprOpacity].join("|")
+        Config.hyprOpacity, Config.performance].join("|")
 
     function apply() {
         const parts = [];
@@ -29,6 +29,13 @@ Singleton {
             deco.push("rounding = " + Config.hyprRounding);
         if (Config.hyprOpacity >= 0)
             deco.push("active_opacity = " + Config.hyprOpacity, "inactive_opacity = " + Math.max(0.5, Config.hyprOpacity - 0.04));
+        // performance: lighter blur, or no blur and no window animations
+        if (Config.performance === "light")
+            deco.push("blur = { size = 3, passes = 1 }");
+        else if (Config.performance === "lowest")
+            deco.push("blur = { enabled = false }", "shadow = { enabled = false }");
+        if (Config.performance === "lowest")
+            parts.push("animations = { enabled = false }");
         if (general.length)
             parts.push("general = { " + general.join(", ") + " }");
         if (deco.length)

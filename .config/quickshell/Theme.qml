@@ -65,7 +65,9 @@ Singleton {
 
     // Animation duration scaled by Config.animSpeed (0 = instant)
     function dur(ms) {
-        return Config.lowEnd || Config.animSpeed <= 0 ? 0 : Math.round(ms / Config.animSpeed);
+        if (Config.lowEnd || Config.animSpeed <= 0)
+            return 0;
+        return Math.round((Config.performance === "light" ? ms * 0.5 : ms) / Config.animSpeed);
     }
 
     // Palette color by name (Theme[name] doesn't work from other files)

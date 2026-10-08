@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
@@ -7,8 +7,8 @@ import qs
 import qs.modules
 import qs.services
 
-// Widgets drawn on the wallpaper, under every window.
-// Config.widgetsStyle: "cards" (glass cards) | "plain" (text straight on the wallpaper)
+// A clock drawn on the wallpaper, under every window.
+// Config.widgetClockStyle: aurora | stacked | analog | glass | line
 // Config.widgetsPosition: top-left | top-right | bottom-left | bottom-right | center
 PanelWindow {
     id: win
@@ -22,7 +22,6 @@ PanelWindow {
     readonly property var _nightLight: NightLight
     readonly property var _hyprTweaks: HyprTweaks
 
-    readonly property bool plain: Config.widgetsStyle === "plain"
     readonly property string pos: Config.widgetsPosition
 
     visible: Config.widgetsEnabled
@@ -38,192 +37,269 @@ PanelWindow {
     WlrLayershell.namespace: "qs-desktop"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-    // Only the widgets take clicks; the rest is click-through
+    // Only the clock takes clicks; the rest is click-through
     mask: Region { item: stack }
 
-    component Box: Rectangle {
-        default property alias content: inner.data
-        Layout.fillWidth: true
-        implicitHeight: inner.implicitHeight + (win.plain ? 20 : 28)
-        radius: Config.panelRadius + 4
-        color: win.plain ? Qt.rgba(0, 0, 0, 0.28) : Theme.alpha(Theme.surfaceLow, 0.55)
-        border.width: win.plain ? 0 : 1
-        border.color: Theme.alpha(Theme.outlineVariant, 0.6)
-        ColumnLayout {
-            id: inner
-            anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: parent.verticalCenter
-                margins: win.plain ? 12 : 16
-            }
-            spacing: 6
+    readonly property string fam: Config.lockClockFont !== "" ? Config.lockClockFont : "Outfit"
+    readonly property color c1: Qt.lighter(Theme.primary, 1.3)
+    readonly property color c2: Qt.lighter(Theme.tertiary, 1.25)
+    readonly property int size: Config.widgetClockSize
+    readonly property bool onLeft: win.pos.endsWith("left")
+    readonly property bool centered: win.pos === "center" || (!win.pos.endsWith("left") && !win.pos.endsWith("right"))
+
+    SystemClock {
+        id: clk
+        precision: Config.widgetClockStyle === "analog" && !Config.lowEnd ? SystemClock.Seconds : SystemClock.Minutes
+    }
+    readonly property date now: clk.date
+    readonly property string hh: Config.clock24h ? Qt.formatDateTime(now, "HH") : String(now.getHours() % 12 === 0 ? 12 : now.getHours() % 12)
+    readonly property string mm: Qt.formatDateTime(now, "mm")
+    readonly property string ap: Config.clock24h ? "" : Qt.formatDateTime(now, "AP")
+    readonly property string dateLong: Qt.formatDateTime(now, "dddd, d MMMM")
+
+    component T: BarText {
+        font.family: win.fam
+        style: Text.Outline
+        styleColor: Qt.rgba(0, 0, 0, 0.18)
+    }
+    // A line cropped to the height of its digits, so stacked lines sit close together
+    component Digits: Item {
+        property alias text: tx.text
+        property alias color: tx.color
+        property real px: win.size
+        width: tx.implicitWidth
+        height: Math.round(px * 0.8)
+        T {
+            id: tx
+            anchors.verticalCenter: parent.verticalCenter
+            font.pixelSize: parent.px
+            font.weight: Config.widgetClockWeight
+            font.letterSpacing: -Math.round(parent.px * 0.015)
         }
     }
 
-    ColumnLayout {
+    Item {
         id: stack
-        width: 320
-        spacing: 14
-        x: win.pos.endsWith("left") ? Theme.barSpaceLeft + 40
-         : win.pos.endsWith("right") ? parent.width - width - Theme.barSpaceRight - 40
+        implicitWidth: loader.item ? loader.item.implicitWidth : 0
+        implicitHeight: loader.item ? loader.item.implicitHeight : 0
+        width: implicitWidth
+        height: implicitHeight
+        x: win.pos.endsWith("left") ? Theme.barSpaceLeft + 56
+         : win.pos.endsWith("right") ? parent.width - width - Theme.barSpaceRight - 56
          : (parent.width - width) / 2
-        y: win.pos.startsWith("top") ? Theme.barSpaceTop + 40
-         : win.pos.startsWith("bottom") ? parent.height - height - Theme.barSpaceBottom - 80
+        y: win.pos.startsWith("top") ? Theme.barSpaceTop + 56
+         : win.pos.startsWith("bottom") ? parent.height - height - Theme.barSpaceBottom - 90
          : (parent.height - height) / 2
 
-        // Clock
-        Box {
+        opacity: 0
+        Component.onCompleted: fade.start()
+        NumberAnimation on opacity { id: fade; running: false; to: 1; duration: Theme.dur(700); easing.type: Easing.OutCubic }
+
+        Loader {
+            id: loader
             visible: Config.widgetClock
-            BarText {
-                Layout.alignment: win.pos === "center" ? Qt.AlignHCenter : Qt.AlignLeft
-                text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
-                font.pixelSize: win.plain ? 84 : 56
-                font.bold: true
-                color: "#ffffff"
-                style: win.plain ? Text.Outline : Text.Normal
-                styleColor: Qt.rgba(0, 0, 0, 0.25)
+            sourceComponent: ({ aurora: aurora, stacked: stacked, analog: analog, glass: glass, line: line })[Config.widgetClockStyle] ?? aurora
+        }
+    }
+
+    // ---- aurora: thin two-color time with a soft glow, date underneath ----------
+    Component {
+        id: aurora
+        Column {
+            spacing: 8
+            Row {
+                spacing: 0
+                anchors.horizontalCenter: win.centered ? parent.horizontalCenter : undefined
+                layer.enabled: !Config.lightMode
+                layer.effect: MultiEffect {
+                    shadowEnabled: true
+                    shadowColor: Theme.alpha(Theme.primary, 0.7)
+                    shadowBlur: 1.0
+                    shadowVerticalOffset: 5
+                }
+                Digits { text: win.hh; color: win.c1 }
+                Digits { text: ":"; color: Qt.rgba(1, 1, 1, 0.5); anchors.verticalCenter: undefined }
+                Digits { text: win.mm; color: win.c2 }
+                T {
+                    visible: win.ap !== ""
+                    anchors.baseline: undefined
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Math.round(win.size * 0.1)
+                    leftPadding: 10
+                    text: win.ap
+                    font.pixelSize: Math.round(win.size * 0.2)
+                    color: Qt.rgba(1, 1, 1, 0.6)
+                }
             }
-            BarText {
-                Layout.alignment: win.pos === "center" ? Qt.AlignHCenter : Qt.AlignLeft
-                text: Qt.formatDateTime(Time.now, "dddd, d MMMM")
-                font.pixelSize: 16
-                color: Theme.primary
+            T {
+                anchors.horizontalCenter: win.centered ? parent.horizontalCenter : undefined
+                topPadding: 10
+                text: win.dateLong.toUpperCase()
+                font.pixelSize: Math.max(13, Math.round(win.size * 0.13))
+                font.weight: Font.DemiBold
+                font.letterSpacing: 4
+                color: Qt.rgba(1, 1, 1, 0.88)
             }
         }
+    }
 
-        // Weather
-        Box {
-            visible: Config.widgetWeather && Weather.ready
-            RowLayout {
-                spacing: 14
-                BarText {
-                    text: Weather.glyph
-                    font.pixelSize: 40
-                    color: Theme.primary
-                }
-                Column {
-                    BarText {
-                        text: Weather.temp + Weather.unit + "  ·  " + Weather.desc
-                        font.pixelSize: 16
-                        font.bold: true
-                        color: "#ffffff"
-                    }
-                    BarText {
-                        text: Weather.place + "  ·  feels like " + Weather.feels + Weather.unit
-                        font.pixelSize: 12
-                        color: Qt.rgba(1, 1, 1, 0.7)
-                    }
+    // ---- stacked: hours over minutes, big and tight --------------------------------
+    Component {
+        id: stacked
+        Column {
+            spacing: 0
+            Digits { text: win.hh; color: "#ffffff"; px: win.size * 1.15 }
+            Row {
+                spacing: 10
+                Digits { text: win.mm; color: win.c1; px: win.size * 1.15 }
+                T {
+                    visible: win.ap !== ""
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Math.round(win.size * 0.08)
+                    text: win.ap
+                    font.pixelSize: Math.round(win.size * 0.22)
+                    color: Qt.rgba(1, 1, 1, 0.55)
                 }
             }
-            RowLayout {
-                visible: Weather.forecast.length > 0
-                spacing: 18
+            T {
+                topPadding: 14
+                text: win.dateLong
+                font.pixelSize: Math.max(14, Math.round(win.size * 0.16))
+                font.weight: Font.Medium
+                color: Qt.rgba(1, 1, 1, 0.85)
+            }
+        }
+    }
+
+    // ---- analog: round face with ticks, hands and a sweeping second hand --------------
+    Component {
+        id: analog
+        Item {
+            implicitWidth: win.size * 2
+            implicitHeight: win.size * 2 + 40
+            Rectangle {
+                id: face
+                width: win.size * 2
+                height: width
+                radius: width / 2
+                color: Theme.alpha(Theme.surfaceLow, 0.5)
+                border.width: 1
+                border.color: Qt.rgba(1, 1, 1, 0.2)
+                layer.enabled: !Config.lightMode
+                layer.effect: MultiEffect {
+                    shadowEnabled: true
+                    shadowColor: Qt.rgba(0, 0, 0, 0.5)
+                    shadowBlur: 1.0
+                    shadowVerticalOffset: 10
+                }
                 Repeater {
-                    model: Weather.forecast
-                    delegate: Column {
+                    model: 60
+                    delegate: Rectangle {
+                        required property int index
+                        readonly property bool big: index % 5 === 0
+                        width: big ? 3 : 1.5
+                        height: big ? 12 : 6
+                        radius: 1
+                        color: big ? "#ffffff" : Qt.rgba(1, 1, 1, 0.4)
+                        x: face.width / 2 - width / 2
+                        y: 8
+                        transform: Rotation { origin.x: width / 2; origin.y: face.height / 2 - 8; angle: index * 6 }
+                    }
+                }
+                Repeater {
+                    model: [
+                        { len: 0.5, w: 7, col: "#ffffff", ang: (win.now.getHours() % 12 + win.now.getMinutes() / 60) * 30 },
+                        { len: 0.72, w: 5, col: win.c1, ang: (win.now.getMinutes() + win.now.getSeconds() / 60) * 6 },
+                        { len: 0.8, w: 2, col: win.c2, ang: win.now.getSeconds() * 6, thin: true }
+                    ]
+                    delegate: Rectangle {
                         required property var modelData
-                        BarText {
-                            text: modelData.day
-                            font.pixelSize: 11
-                            color: Qt.rgba(1, 1, 1, 0.7)
-                        }
-                        BarText {
-                            text: Weather.icon(modelData.code, true) + " " + modelData.max + "° / " + modelData.min + "°"
-                            font.pixelSize: 12
-                            color: "#ffffff"
-                        }
+                        visible: !modelData.thin || !Config.lowEnd
+                        width: modelData.w
+                        height: face.height / 2 * modelData.len
+                        radius: width / 2
+                        color: modelData.col
+                        x: face.width / 2 - width / 2
+                        y: face.height / 2 - height
+                        transform: Rotation { origin.x: width / 2; origin.y: height; angle: modelData.ang
+                            Behavior on angle { enabled: !Config.lowEnd && modelData.thin; NumberAnimation { duration: 250 } } }
                     }
+                }
+                Rectangle { anchors.centerIn: parent; width: 14; height: 14; radius: 7; color: win.c1 }
+                Rectangle { anchors.centerIn: parent; width: 5; height: 5; radius: 3; color: Theme.surfaceLow }
+            }
+            T {
+                anchors { horizontalCenter: face.horizontalCenter; top: face.bottom; topMargin: 16 }
+                text: win.dateLong
+                font.pixelSize: 15
+                font.weight: Font.Medium
+                color: Qt.rgba(1, 1, 1, 0.85)
+            }
+        }
+    }
+
+    // ---- glass: time and date in one frosted card ------------------------------------
+    Component {
+        id: glass
+        Rectangle {
+            implicitWidth: gcol.implicitWidth + 64
+            implicitHeight: gcol.implicitHeight + 48
+            radius: 34
+            color: Theme.alpha(Theme.surfaceLow, 0.5)
+            border.width: 1.5
+            border.color: Qt.rgba(1, 1, 1, 0.22)
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(1, 1, 1, 0.16) }
+                GradientStop { position: 1.0; color: Qt.rgba(1, 1, 1, 0.04) }
+            }
+            layer.enabled: !Config.lightMode
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Qt.rgba(0, 0, 0, 0.5)
+                shadowBlur: 1.0
+                shadowVerticalOffset: 12
+            }
+            Column {
+                id: gcol
+                anchors.centerIn: parent
+                spacing: 4
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 0
+                    Digits { text: win.hh + ":" + win.mm; color: "#ffffff"; px: win.size * 0.85 }
+                    T {
+                        visible: win.ap !== ""
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: Math.round(win.size * 0.06)
+                        leftPadding: 8
+                        text: win.ap
+                        font.pixelSize: Math.round(win.size * 0.2)
+                        color: win.c1
+                    }
+                }
+                T {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    topPadding: 8
+                    text: win.dateLong
+                    font.pixelSize: 15
+                    font.weight: Font.Medium
+                    color: win.c1
                 }
             }
         }
+    }
 
-        // Music
-        Box {
-            visible: Config.widgetMusic && Media.available
-            RowLayout {
-                spacing: 12
-                ClippingRectangle {
-                    implicitWidth: 56
-                    implicitHeight: 56
-                    radius: 10
-                    color: Theme.tertiaryContainer
-                    Image {
-                        anchors.fill: parent
-                        source: Media.art
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                    }
-                }
-                Column {
-                    Layout.fillWidth: true
-                    BarText {
-                        width: parent.width
-                        text: Media.title
-                        elide: Text.ElideRight
-                        font.bold: true
-                        color: "#ffffff"
-                    }
-                    BarText {
-                        width: parent.width
-                        text: Media.artist
-                        elide: Text.ElideRight
-                        font.pixelSize: 12
-                        color: Qt.rgba(1, 1, 1, 0.7)
-                    }
-                    Row {
-                        Chip {
-                            icon: Theme.icon(0xf04ae)
-                            fg: "#ffffff"
-                            onLeftClicked: Media.previous()
-                        }
-                        Chip {
-                            icon: Media.playing ? Theme.icon(0xf03e4) : Theme.icon(0xf040a)
-                            fg: "#ffffff"
-                            onLeftClicked: Media.toggle()
-                        }
-                        Chip {
-                            icon: Theme.icon(0xf04ad)
-                            fg: "#ffffff"
-                            onLeftClicked: Media.next()
-                        }
-                    }
-                }
-            }
-        }
-
-        // System
-        Box {
-            visible: Config.widgetSystem
-            Repeater {
-                model: [
-                    { name: "CPU", value: Sys.cpu / 100, text: Sys.cpu + "%" },
-                    { name: "Memory", value: Sys.memory / 100, text: Sys.memory + "%" },
-                    { name: "Battery", value: Battery.percent / 100, text: Battery.available ? Battery.percent + "%" : "—" }
-                ]
-                delegate: RowLayout {
-                    required property var modelData
-                    Layout.fillWidth: true
-                    spacing: 10
-                    BarText {
-                        Layout.preferredWidth: 64
-                        text: modelData.name
-                        font.pixelSize: 12
-                        color: Qt.rgba(1, 1, 1, 0.75)
-                    }
-                    MiniBar {
-                        Layout.fillWidth: true
-                        implicitHeight: 6
-                        value: modelData.value
-                    }
-                    BarText {
-                        Layout.preferredWidth: 38
-                        horizontalAlignment: Text.AlignRight
-                        text: modelData.text
-                        font.pixelSize: 12
-                        color: "#ffffff"
-                    }
-                }
+    // ---- line: one row, time then date -----------------------------------------------
+    Component {
+        id: line
+        Row {
+            spacing: 18
+            Digits { text: win.hh + ":" + win.mm; color: "#ffffff"; px: win.size * 0.7; anchors.verticalCenter: parent.verticalCenter }
+            Rectangle { width: 2; height: win.size * 0.5; radius: 1; color: win.c1; anchors.verticalCenter: parent.verticalCenter }
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                T { text: Qt.formatDateTime(win.now, "dddd"); font.pixelSize: Math.round(win.size * 0.2); font.weight: Font.DemiBold; color: "#ffffff" }
+                T { text: Qt.formatDateTime(win.now, "d MMMM") + (win.ap !== "" ? "  ·  " + win.ap : ""); font.pixelSize: Math.round(win.size * 0.14); color: win.c1 }
             }
         }
     }

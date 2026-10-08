@@ -147,12 +147,11 @@ Singleton {
 
     // Desktop widgets (on the wallpaper, under windows)
     property bool widgetsEnabled: false
-    property string widgetsStyle: "cards"   // "cards" | "plain"
+    property string widgetClockStyle: "aurora"  // aurora | stacked | analog | glass | line
+    property int widgetClockSize: 120
+    property int widgetClockWeight: 300
     property string widgetsPosition: "top-left"  // top-left | top-right | bottom-left | bottom-right | center
     property bool widgetClock: true
-    property bool widgetWeather: true
-    property bool widgetMusic: true
-    property bool widgetSystem: true
 
     // Wallpaper slideshow
     property bool slideshow: false

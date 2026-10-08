@@ -7,19 +7,17 @@ import qs
 import qs.modules
 import qs.services
 
-// Lock screen: lightly blurred wallpaper, big clock, and a floating card with
-// avatar, name and the password field. Pills along the bottom show status and music.
+// Lock screen "Aurora": blurred wallpaper with slow color glows, a big thin clock with a
+// glow, and one frosted pill at the bottom holding your picture and the password field.
 Item {
     id: root
 
     property bool demo: false
-    readonly property bool leftAlign: Config.lockAlign === "left"
-    readonly property bool corner: Config.lockAlign === "corner"
-    readonly property bool split: Config.lockLayout === "split"
-    readonly property bool plainCard: !Config.lockCard
-    readonly property string fs: Config.lockFieldStyle   // box | pill | line | dots
     readonly property string home: Quickshell.env("HOME")
     readonly property string user: Quickshell.env("USER")
+    readonly property bool hasWall: wall.status === Image.Ready
+    readonly property color c1: Qt.lighter(Theme.primary, 1.3)
+    readonly property color c2: Qt.lighter(Theme.tertiary, 1.25)
 
     function greeting() {
         const h = Time.now.getHours();
@@ -31,7 +29,6 @@ Item {
         anchors.fill: parent
         color: Theme.surfaceLow
     }
-    // "gradient" background: wallpaper colors instead of the picture
     Rectangle {
         anchors.fill: parent
         visible: Config.lockBackground === "gradient"
@@ -52,100 +49,88 @@ Item {
         asynchronous: true
     }
     MultiEffect {
+        id: bg
         anchors.fill: parent
         source: wall
-        visible: wall.status === Image.Ready
+        visible: root.hasWall
         blurEnabled: Config.lockBlur > 0
         blurMax: 64
         blur: Config.lockBlur / 64
+        saturation: 0.15
         autoPaddingEnabled: false
     }
     Rectangle {
         anchors.fill: parent
         color: Theme.alpha("#000000", Config.lockDim)
     }
-    // Aurora glow: two soft blobs in the wallpaper colors that drift slowly
+
+    // Two big color glows in the wallpaper colors, drifting slowly
     Item {
+        id: glows
         anchors.fill: parent
         visible: Config.lockGlow
         property real drift: 0
         SequentialAnimation on drift {
             running: Config.lockGlow
             loops: Animation.Infinite
-            NumberAnimation { to: 1; duration: 14000; easing.type: Easing.InOutSine }
-            NumberAnimation { to: 0; duration: 14000; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 1; duration: 16000; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 0; duration: 16000; easing.type: Easing.InOutSine }
         }
-        Shape {
-            width: root.width * 0.9
-            height: width
-            x: -width * 0.2 + parent.drift * root.width * 0.12
-            y: -height * 0.5
-            ShapePath {
-                strokeWidth: -1
-                fillGradient: RadialGradient {
-                    centerX: root.width * 0.45; centerY: root.width * 0.45
-                    centerRadius: root.width * 0.45; focalX: centerX; focalY: centerY
-                    GradientStop { position: 0.0; color: Theme.alpha(Theme.primary, 0.6) }
-                    GradientStop { position: 1.0; color: "transparent" }
-                }
-                startX: 0; startY: 0
-                PathLine { x: root.width * 0.9; y: 0 }
-                PathLine { x: root.width * 0.9; y: root.width * 0.9 }
-                PathLine { x: 0; y: root.width * 0.9 }
-            }
+        Glow {
+            size: root.width * 1.0
+            tint: Theme.primary
+            strength: 0.55
+            x: -size * 0.25 + glows.drift * root.width * 0.14
+            y: -size * 0.45
         }
-        Shape {
-            width: root.width * 0.8
-            height: width
-            x: root.width * 0.45 - parent.drift * root.width * 0.1
-            y: root.height - height * 0.55
-            ShapePath {
-                strokeWidth: -1
-                fillGradient: RadialGradient {
-                    centerX: root.width * 0.4; centerY: root.width * 0.4
-                    centerRadius: root.width * 0.4; focalX: centerX; focalY: centerY
-                    GradientStop { position: 0.0; color: Theme.alpha(Theme.tertiary, 0.55) }
-                    GradientStop { position: 1.0; color: "transparent" }
-                }
-                startX: 0; startY: 0
-                PathLine { x: root.width * 0.8; y: 0 }
-                PathLine { x: root.width * 0.8; y: root.width * 0.8 }
-                PathLine { x: 0; y: root.width * 0.8 }
-            }
+        Glow {
+            size: root.width * 0.9
+            tint: Theme.tertiary
+            strength: 0.5
+            x: root.width - size * 0.7 - glows.drift * root.width * 0.12
+            y: root.height - size * 0.6
         }
     }
-    // Darker edges so the card and pills read against any wallpaper
+    component Glow: Shape {
+        property real size: 800
+        property color tint: "white"
+        property real strength: 0.5
+        width: size
+        height: size
+        ShapePath {
+            strokeWidth: -1
+            fillGradient: RadialGradient {
+                centerX: size / 2; centerY: size / 2; centerRadius: size / 2
+                focalX: centerX; focalY: centerY
+                GradientStop { position: 0.0; color: Theme.alpha(tint, strength) }
+                GradientStop { position: 0.55; color: Theme.alpha(tint, strength * 0.35) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+            startX: 0; startY: 0
+            PathLine { x: size; y: 0 }
+            PathLine { x: size; y: size }
+            PathLine { x: 0; y: size }
+        }
+    }
+    // Vignette: darker top and bottom so text always reads
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.alpha("#000000", 0.35) }
-            GradientStop { position: 0.35; color: "transparent" }
-            GradientStop { position: 0.7; color: "transparent" }
-            GradientStop { position: 1.0; color: Theme.alpha("#000000", 0.45) }
+            GradientStop { position: 0.0; color: Theme.alpha("#000000", 0.4) }
+            GradientStop { position: 0.3; color: "transparent" }
+            GradientStop { position: 0.65; color: "transparent" }
+            GradientStop { position: 1.0; color: Theme.alpha("#000000", 0.55) }
         }
     }
 
-    // ---- top row: date and status ----------------------------------------
-    BarText {
-        anchors {
-            left: parent.left
-            top: parent.top
-            leftMargin: 40
-            topMargin: 30
-        }
-        visible: Config.lockShowDate && Config.lockClockStyle !== "pixel"
-        text: Qt.formatDateTime(Time.now, "dddd, d MMMM")
-        font.pixelSize: 16
-        color: Qt.rgba(1, 1, 1, 0.92)
-    }
-
+    // ---- status pills, top right -----------------------------------------
     Row {
         visible: Config.lockShowStatus
         anchors {
             right: parent.right
             top: parent.top
             rightMargin: 40
-            topMargin: 24
+            topMargin: 28
         }
         spacing: 8
 
@@ -153,10 +138,6 @@ Item {
             visible: Network.kind !== "none"
             glyph: Network.kind === "ethernet" ? 0xf0200 : 0xf05a9
             label: Network.kind === "wifi" ? Network.name : "wired"
-        }
-        Pill {
-            visible: Config.weatherEnabled && Weather.ready && Config.lockClockStyle !== "pixel"
-            label: Weather.glyph + "  " + Weather.temp + Weather.unit
         }
         Pill {
             visible: Battery.available
@@ -193,319 +174,306 @@ Item {
         }
     }
 
-    // ---- clock + card -----------------------------------------------------
-    // stack: clock above the card; split: clock and card side by side
-    Grid {
-        id: col
+    // ---- clock ------------------------------------------------------------
+    Column {
+        id: clockCol
         anchors {
-            verticalCenter: root.corner ? undefined : parent.verticalCenter
-            verticalCenterOffset: -20
-            bottom: root.corner ? parent.bottom : undefined
-            bottomMargin: 110
-            horizontalCenter: root.leftAlign || root.corner ? undefined : parent.horizontalCenter
-            left: root.leftAlign || root.corner ? parent.left : undefined
-            leftMargin: root.corner ? 70 : 140
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+            topMargin: Math.round(root.height * 0.15)
         }
-        columns: root.split ? 2 : 1
-        // lockFieldBottom: the clock stays up top and the password drops to the bottom
-        rowSpacing: Config.lockFieldBottom && !root.split
-            ? Math.max(26, root.height - 150 - clockBox.height - card.height)
-            : 26
-        columnSpacing: 90
-        horizontalItemAlignment: root.leftAlign || root.corner ? Grid.AlignLeft : Grid.AlignHCenter
-        verticalItemAlignment: Grid.AlignVCenter
-
-        // Entrance: fade and rise
+        spacing: 0
         opacity: 0
-        property real rise: 24
-        transform: Translate { y: col.rise }
-        Component.onCompleted: enter.start()
-        ParallelAnimation {
-            id: enter
-            NumberAnimation { target: col; property: "opacity"; to: 1; duration: Theme.dur(450); easing.type: Easing.OutCubic }
-            NumberAnimation { target: col; property: "rise"; to: 0; duration: Theme.dur(450); easing.type: Easing.OutCubic }
+        property real rise: 28
+        transform: Translate { y: clockCol.rise }
+
+        BarText {
+            visible: Config.lockShowDate
+            anchors.horizontalCenter: parent.horizontalCenter
+            readonly property string wx: Config.weatherEnabled && Weather.ready ? "  ·  " + Weather.glyph + " " + Weather.temp + "°" : ""
+            text: Qt.formatDateTime(Time.now, "dddd · d MMMM").toUpperCase() + wx
+            font.pixelSize: 15
+            font.weight: Font.DemiBold
+            font.letterSpacing: 4
+            color: Qt.rgba(1, 1, 1, 0.88)
+            bottomPadding: 6
         }
 
-        // The clock: plain text styles here, designed ones in LockClock.qml
-        Item {
-            id: clockBox
-            readonly property bool fancy: ["pixel", "analog", "words", "ring", "flip", "neon", "outline", "editorial", "progress"].includes(Config.lockClockStyle)
-            readonly property bool onLeft: root.leftAlign || root.corner
-            implicitWidth: fancy ? fancyClock.implicitWidth : clockText.implicitWidth
-            implicitHeight: fancy ? fancyClock.implicitHeight : clockText.implicitHeight
+        // The time: thin digits, hours and minutes in the two wallpaper colors, with a soft glow
+        Row {
+            id: timeRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            readonly property string hm: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
+            readonly property int colon: hm.indexOf(":")
+            readonly property string fam: Config.lockClockFont !== "" ? Config.lockClockFont : "Outfit"
+            spacing: 0
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Theme.alpha(Theme.primary, 0.75)
+                shadowBlur: 1.0
+                shadowOpacity: 0.9
+                shadowVerticalOffset: 6
+            }
+            Repeater {
+                model: [
+                    { t: timeRow.hm.substring(0, timeRow.colon), c: root.c1 },
+                    { t: ":", c: Qt.rgba(1, 1, 1, 0.55) },
+                    { t: timeRow.hm.substring(timeRow.colon + 1), c: root.c2 }
+                ]
+                delegate: BarText {
+                    required property var modelData
+                    text: modelData.t
+                    color: modelData.c
+                    font.family: timeRow.fam
+                    font.pixelSize: Config.lockClockSize
+                    font.weight: Config.lockClockWeight
+                    font.letterSpacing: Config.lockClockSpacing
+                    bottomPadding: modelData.t === ":" ? Math.round(Config.lockClockSize * 0.08) : 0
+                }
+            }
+        }
+    }
+
+    // ---- frosted pill: picture, password, submit ---------------------------
+    Item {
+        id: dock
+        width: Math.max(440, Config.lockFieldWidth + 100)
+        height: 76
+        x: Math.round((root.width - width) / 2)
+        y: root.height - height - Math.round(root.height * (Config.lockShowMedia && Media.available ? 0.23 : 0.17))
+        opacity: 0
+        property real rise: 36
+        transform: Translate { y: dock.rise }
+
+        // Frosted glass: the blurred wallpaper under the pill, blurred and brightened again
+        ShaderEffectSource {
+            id: frostSrc
+            anchors.fill: parent
+            visible: false
+            sourceItem: bg
+            sourceRect: Qt.rect(dock.x, dock.y, dock.width, dock.height)
+            live: false
+            Component.onCompleted: scheduleUpdate()
+            onVisibleChanged: scheduleUpdate()
+        }
+        MultiEffect {
+            anchors.fill: parent
+            source: frostSrc
+            visible: root.hasWall
+            blurEnabled: true
+            blurMax: 48
+            blur: 1.0
+            brightness: -0.12
+            saturation: 0.1
+            contrast: -0.25
+            maskEnabled: true
+            maskSource: dockMask
+        }
+        Rectangle {
+            id: dockMask
+            anchors.fill: parent
+            radius: height / 2
+            visible: false
+            layer.enabled: true
+        }
+        // Tint, so it also works over plain and gradient backgrounds
+        Rectangle {
+            anchors.fill: parent
+            radius: height / 2
+            color: Theme.alpha(root.hasWall ? "#ffffff" : Theme.surfaceMid, root.hasWall ? 0.1 : 0.55)
+            border.width: 1.5
+            border.color: Lock.error !== "" ? Theme.error : input.activeFocus ? Theme.alpha(root.c1, 0.9) : Qt.rgba(1, 1, 1, 0.22)
+            Behavior on border.color {
+                ColorAnimation { duration: Theme.dur(180) }
+            }
+        }
+        // Thin highlight along the top edge
+        Rectangle {
+            anchors {
+                top: parent.top
+                topMargin: 1
+                horizontalCenter: parent.horizontalCenter
+            }
+            width: parent.width - parent.height
+            height: 1
+            color: Qt.rgba(1, 1, 1, 0.35)
+        }
+
+        SequentialAnimation {
+            id: shake
+            NumberAnimation { target: dock; property: "x"; to: Math.round((root.width - dock.width) / 2) - 14; duration: Theme.dur(50) }
+            NumberAnimation { target: dock; property: "x"; to: Math.round((root.width - dock.width) / 2) + 14; duration: Theme.dur(80) }
+            NumberAnimation { target: dock; property: "x"; to: Math.round((root.width - dock.width) / 2); duration: Theme.dur(50) }
+        }
+
+        // Avatar: ~/.face if present, else the initial
+        Rectangle {
+            id: avatar
+            visible: Config.lockAvatar
+            anchors {
+                left: parent.left
+                leftMargin: 12
+                verticalCenter: parent.verticalCenter
+            }
+            width: 52
+            height: 52
+            radius: 26
+            color: Theme.primaryContainer
+            border.width: 2
+            border.color: root.c1
 
             BarText {
-                id: clockText
-                visible: !clockBox.fancy
-                anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                readonly property string hm: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP").replace(/\s*[AP]M$/i, "")
-                // "stacked" puts the hours above the minutes
-                text: Config.lockClockStyle === "stacked" ? hm.replace(":", "\n") : hm
-                lineHeight: Config.lockClockStyle === "stacked" ? 0.82 : 1
-                horizontalAlignment: clockBox.onLeft ? Text.AlignLeft : Text.AlignHCenter
-                font.pixelSize: Config.lockClockStyle === "small" ? Math.round(Config.lockClockSize * 0.55) : Config.lockClockSize
-                font.family: Config.lockClockFont !== "" ? Config.lockClockFont : Theme.font
-                font.weight: Config.lockClockWeight
-                font.letterSpacing: Config.lockClockSpacing
-                color: Config.lockClockAccent ? Theme.primary : "#ffffff"
-                style: Text.Outline
-                styleColor: Theme.alpha("#000000", 0.25)
+                anchors.centerIn: parent
+                visible: face.status !== Image.Ready
+                text: root.user.charAt(0).toUpperCase()
+                font.pixelSize: 24
+                font.bold: true
+                color: Theme.primaryContainerFg
+            }
+            Image {
+                id: face
+                anchors.fill: parent
+                anchors.margins: 2
+                source: "file://" + root.home + "/.face"
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                visible: false
+            }
+            MultiEffect {
+                anchors.fill: face
+                source: face
+                visible: face.status === Image.Ready
+                maskEnabled: true
+                maskSource: faceMask
+            }
+            Rectangle {
+                id: faceMask
+                anchors.fill: face
+                radius: width / 2
+                visible: false
+                layer.enabled: true
+            }
+        }
+
+        TextField {
+            id: input
+            anchors {
+                left: Config.lockAvatar ? avatar.right : parent.left
+                right: submit.left
+                leftMargin: Config.lockAvatar ? 14 : 28
+                rightMargin: 8
+                verticalCenter: parent.verticalCenter
+            }
+            background: null
+            echoMode: TextInput.Password
+            passwordCharacter: "●"
+            enabled: !Lock.checking
+            focus: true
+            color: "#ffffff"
+            placeholderText: Lock.checking ? "Checking…" : "Enter password"
+            placeholderTextColor: Qt.rgba(1, 1, 1, 0.55)
+            font.family: Theme.font
+            font.pixelSize: 17
+            selectionColor: Theme.primary
+            selectedTextColor: Theme.primaryFg
+            onAccepted: {
+                Lock.submit(text);
+                if (Lock.preview)
+                    text = "";
+            }
+            onTextChanged: if (Lock.error !== "") Lock.error = ""
+
+            Keys.onEscapePressed: {
+                if (text !== "")
+                    text = "";
+                else if (root.demo)
+                    Lock.unlock();
             }
 
-            // Every other design lives in LockClock.qml
-            LockClock {
-                id: fancyClock
-                visible: clockBox.fancy
-                anchors.horizontalCenter: clockBox.onLeft ? undefined : parent.horizontalCenter
-                onLeft: clockBox.onLeft
+            Connections {
+                target: Lock
+                function onFailed() {
+                    input.text = "";
+                    shake.restart();
+                    input.forceActiveFocus();
+                }
             }
+            Component.onCompleted: forceActiveFocus()
         }
 
         Rectangle {
-            id: card
-            width: Config.lockFieldWidth + 56
-            height: cardCol.implicitHeight + 48
-            radius: Config.panelRadius + 8
-            color: root.plainCard ? "transparent" : Theme.alpha(Theme.surfaceLow, Config.lockCardOpacity)
-            border.width: root.plainCard ? 0 : Math.max(1, Config.panelBorder)
-            border.color: Config.lockGlow ? Theme.alpha("#ffffff", 0.18) : Theme.alpha(Theme.panelBorderFill, 0.9)
-            layer.enabled: Config.lockGlow && !root.plainCard
-            layer.effect: MultiEffect {
-                shadowEnabled: true
-                shadowColor: Theme.alpha("#000000", 0.5)
-                shadowBlur: 1.0
-                shadowVerticalOffset: 10
+            id: submit
+            anchors {
+                right: parent.right
+                rightMargin: 12
+                verticalCenter: parent.verticalCenter
+            }
+            width: 52
+            height: 52
+            radius: 26
+            color: input.text !== "" ? root.c1 : Qt.rgba(1, 1, 1, 0.14)
+            scale: submitMouse.pressed ? 0.92 : 1
+
+            Behavior on color {
+                ColorAnimation { duration: Theme.dur(150) }
+            }
+            Behavior on scale {
+                NumberAnimation { duration: Theme.dur(90) }
             }
 
-            Column {
-                id: cardCol
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    margins: 28
-                    topMargin: 24
-                }
-                spacing: 14
-
-                // Avatar: ~/.face if present, else the initial on an accent circle
-                Rectangle {
-                    id: avatar
-                    visible: Config.lockAvatar
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 84
-                    height: 84
-                    radius: 42
-                    color: Theme.primaryContainer
-                    border.width: 3
-                    border.color: Theme.primary
-
-                    BarText {
-                        anchors.centerIn: parent
-                        visible: face.status !== Image.Ready
-                        text: root.user.charAt(0).toUpperCase()
-                        font.pixelSize: 38
-                        font.bold: true
-                        color: Theme.primaryContainerFg
-                    }
-                    Image {
-                        id: face
-                        anchors.fill: parent
-                        anchors.margins: 3
-                        source: "file://" + root.home + "/.face"
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        visible: false
-                    }
-                    MultiEffect {
-                        anchors.fill: face
-                        source: face
-                        visible: face.status === Image.Ready
-                        maskEnabled: true
-                        maskSource: faceMask
-                    }
-                    Rectangle {
-                        id: faceMask
-                        anchors.fill: face
-                        radius: width / 2
-                        visible: false
-                        layer.enabled: true
-                    }
-                }
-
-                Column {
-                    visible: Config.lockAvatar || Config.lockShowGreeting
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 2
-                    BarText {
-                        visible: Config.lockAvatar
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.user
-                        font.pixelSize: 20
-                        font.bold: true
-                    }
-                    BarText {
-                        visible: Config.lockShowGreeting
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.greeting() + " · enter your password"
-                        font.pixelSize: 13
-                        color: Theme.textDim
-                    }
-                }
-
-                // Password field
-                Rectangle {
-                    id: field
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: Config.lockFieldWidth
-                    height: root.fs === "dots" ? 40 : 52
-                    radius: root.fs === "pill" ? height / 2 : root.fs === "box" ? Config.panelRadius : 0
-                    color: root.fs === "box" || root.fs === "pill" ? Theme.surfaceHigh : "transparent"
-                    border.width: root.fs === "box" || root.fs === "pill" ? 2 : 0
-
-                    // "line": an underline that lights up while typing
-                    Rectangle {
-                        visible: root.fs === "line"
-                        anchors {
-                            left: parent.left
-                            right: parent.right
-                            bottom: parent.bottom
-                        }
-                        height: 2
-                        color: Lock.error !== "" ? Theme.error : input.text !== "" ? Theme.primary : Theme.alpha("#ffffff", 0.5)
-                    }
-
-                    // "dots": no box, one dot per typed character
-                    Row {
-                        visible: root.fs === "dots"
-                        anchors.centerIn: parent
-                        spacing: 10
-                        Repeater {
-                            model: Math.min(24, input.text.length)
-                            delegate: Rectangle {
-                                width: 12
-                                height: 12
-                                radius: 6
-                                color: Lock.error !== "" ? Theme.error : Theme.primary
-                            }
-                        }
-                    }
-                    BarText {
-                        visible: root.fs === "dots" && input.text === ""
-                        anchors.centerIn: parent
-                        text: Lock.checking ? "Checking…" : "Type your password"
-                        color: Qt.rgba(1, 1, 1, 0.65)
-                        font.pixelSize: 15
-                    }
-                    border.color: Lock.error !== "" ? Theme.error : input.activeFocus ? Theme.primary : Theme.alpha(Theme.outlineVariant, 0.9)
-
-                    SequentialAnimation {
-                        id: shake
-                        NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: -14; duration: Theme.dur(50) }
-                        NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: 14; duration: Theme.dur(80) }
-                        NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: 0; duration: Theme.dur(50) }
-                    }
-
-                    BarText {
-                        id: lockIcon
-                        anchors {
-                            left: parent.left
-                            leftMargin: 16
-                            verticalCenter: parent.verticalCenter
-                        }
-                        visible: root.fs !== "dots"
-                        text: Lock.checking ? Theme.icon(0xf0450) : Theme.icon(0xf033e)
-                        color: Theme.primary
-                        font.pixelSize: 18
-                    }
-
-                    TextField {
-                        id: input
-                        anchors {
-                            left: lockIcon.right
-                            right: submit.left
-                            leftMargin: 10
-                            rightMargin: 6
-                            verticalCenter: parent.verticalCenter
-                        }
-                        background: null
-                        opacity: root.fs === "dots" ? 0 : 1
-                        echoMode: TextInput.Password
-                        passwordCharacter: "●"
-                        enabled: !Lock.checking
-                        focus: true
-                        color: Theme.text
-                        placeholderText: Lock.checking ? "Checking…" : "Password"
-                        placeholderTextColor: Theme.alpha(Theme.text, 0.45)
-                        font.family: Theme.font
-                        font.pixelSize: 16
-                        selectionColor: Theme.primary
-                        selectedTextColor: Theme.primaryFg
-                        onAccepted: {
-                            Lock.submit(text);
-                            if (Lock.preview)
-                                text = "";
-                        }
-                        onTextChanged: if (Lock.error !== "") Lock.error = ""
-
-                        Keys.onEscapePressed: {
-                            if (text !== "")
-                                text = "";
-                            else if (root.demo)
-                                Lock.unlock();
-                        }
-
-                        Connections {
-                            target: Lock
-                            function onFailed() {
-                                input.text = "";
-                                shake.restart();
-                                input.forceActiveFocus();
-                            }
-                        }
-                        Component.onCompleted: forceActiveFocus()
-                    }
-
-                    // Submit arrow
-                    Rectangle {
-                        id: submit
-                        visible: root.fs !== "dots"
-                        anchors {
-                            right: parent.right
-                            rightMargin: 8
-                            verticalCenter: parent.verticalCenter
-                        }
-                        width: 36
-                        height: 36
-                        radius: root.fs === "pill" ? height / 2 : Math.max(0, Config.panelRadius - 4)
-                        color: input.text !== "" ? Theme.primary : root.fs === "line" ? "transparent" : Theme.surfaceHighest
-
-                        Behavior on color {
-                            ColorAnimation { duration: Theme.dur(150) }
-                        }
-
-                        BarText {
-                            anchors.centerIn: parent
-                            text: Theme.icon(0xf0054)
-                            font.pixelSize: 18
-                            color: input.text !== "" ? Theme.primaryFg : Theme.textDim
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: input.accepted()
-                        }
-                    }
-                }
-
-                BarText {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 18
-                    text: Lock.error !== "" ? Lock.error : root.demo ? "Preview: Enter or Esc closes it" : "Esc clears the field"
-                    color: Lock.error !== "" ? Theme.error : Theme.alpha(Theme.textDim, 0.8)
-                    font.pixelSize: 12
-                }
+            BarText {
+                anchors.centerIn: parent
+                text: Lock.checking ? Theme.icon(0xf0450) : Theme.icon(0xf0054)
+                font.pixelSize: 22
+                color: input.text !== "" ? Theme.primaryFg : "#ffffff"
             }
+            MouseArea {
+                id: submitMouse
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: input.accepted()
+            }
+        }
+    }
+
+    // Greeting above and hint below the pill
+    BarText {
+        visible: Config.lockShowGreeting
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            bottom: dock.top
+            bottomMargin: 16
+        }
+        opacity: dock.opacity
+        text: root.greeting() + ", " + root.user
+        font.pixelSize: 18
+        font.weight: Font.Medium
+        color: Qt.rgba(1, 1, 1, 0.92)
+    }
+    BarText {
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: dock.bottom
+            topMargin: 14
+        }
+        opacity: dock.opacity
+        text: Lock.error !== "" ? Lock.error : root.demo ? "Preview: Enter or Esc closes it" : "Esc clears the field"
+        color: Lock.error !== "" ? Theme.error : Qt.rgba(1, 1, 1, 0.6)
+        font.pixelSize: 12
+    }
+
+    // Entrance: the clock fades down into place, then the pill rises
+    Component.onCompleted: enter.start()
+    SequentialAnimation {
+        id: enter
+        ParallelAnimation {
+            NumberAnimation { target: clockCol; property: "opacity"; to: 1; duration: Theme.dur(550); easing.type: Easing.OutCubic }
+            NumberAnimation { target: clockCol; property: "rise"; to: 0; duration: Theme.dur(550); easing.type: Easing.OutCubic }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: dock; property: "opacity"; to: 1; duration: Theme.dur(400); easing.type: Easing.OutCubic }
+            NumberAnimation { target: dock; property: "rise"; to: 0; duration: Theme.dur(400); easing.type: Easing.OutCubic }
         }
     }
 

@@ -195,7 +195,7 @@ Singleton {
     property bool lockShowStatus: true      // Wi-Fi / battery pills
     property int lockClockSize: 96
     property int lockFieldWidth: 340
-    property string lockStyle: "Card"       // last lock screen preset applied
+    property string lockStyle: "Aurora"       // last lock screen preset applied
     property string lockAlign: "center"     // "center" | "left" | "corner"
     property string lockLayout: "stack"     // "stack" (clock above card) | "split" (side by side)
     property string lockClockStyle: "big"   // "big" | "stacked" | "small"
@@ -381,67 +381,9 @@ Singleton {
         lockWallpaper: true, lockShowDate: true, lockShowGreeting: true, lockShowMedia: true, lockShowStatus: true
     })
     readonly property var lockStyles: [
-        // The flagship: wallpaper-tinted stacked clock with date and weather, a frosted card with
-        // your picture, name and a pill password field at the bottom, a soft color glow behind it all
-        { name: "Aurora", values: { lockClockStyle: "pixel", lockClockSize: 80, lockClockWeight: 600, lockClockSpacing: -2,
-            lockCard: true, lockCardOpacity: 0.34, lockAvatar: true, lockShowGreeting: true, lockFieldBottom: true,
-            lockFieldStyle: "pill", lockFieldWidth: 320, lockBlur: 36, lockDim: 0.2, lockGlow: true } },
-        // Clock above a glass card with avatar and password
-        { name: "Card", values: {} },
-        // Thin clock and an underline to type on, nothing else
-        // Android Pixel look: date and weather over a big stacked clock tinted with the wallpaper,
-        // password pill at the bottom
-        { name: "Pixel", values: { lockClockStyle: "pixel", lockClockSize: 130, lockClockWeight: 600, lockClockSpacing: -2,
-            lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill",
-            lockBlur: 8, lockDim: 0.22 } },
-        // Round analog clock with hour, minute and second hands
-        { name: "Analog", values: { lockClockStyle: "analog", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 10, lockDim: 0.25 } },
-        // The time in words: "it's quarter past two"
-        { name: "Words", values: { lockClockStyle: "words", lockClockSize: 100, lockClockWeight: 500, lockAlign: "left",
-            lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "line", lockBlur: 14, lockDim: 0.3 } },
-        // Ring that fills with the minute, a thinner ring for the hour
-        { name: "Ring", values: { lockClockStyle: "ring", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 12, lockDim: 0.28 } },
-        // Flip-clock cards
-        { name: "Flip", values: { lockClockStyle: "flip", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false,
-            lockFieldBottom: true, lockFieldStyle: "box", lockBlur: 16, lockDim: 0.3 } },
-        // Glowing tube digits on a dark blurred wallpaper
-        { name: "Neon", values: { lockClockStyle: "neon", lockClockSize: 120, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 30, lockDim: 0.6 } },
-        // Hollow outlined digits
-        { name: "Outline", values: { lockClockStyle: "outline", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 6, lockDim: 0.2 } },
-        // Serif time, rule and small-caps weekday
-        { name: "Editorial", values: { lockClockStyle: "editorial", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockFieldStyle: "line", lockBlur: 10, lockDim: 0.32 } },
-        // Time with a bar for how much of today has passed
-        { name: "Day", values: { lockClockStyle: "progress", lockClockSize: 130, lockCard: false, lockAvatar: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "pill", lockBlur: 12, lockDim: 0.28 } },
-        { name: "Minimal", values: { lockCard: false, lockAvatar: false, lockShowGreeting: false, lockShowStatus: false,
-            lockShowMedia: false, lockFieldWidth: 300, lockClockSize: 110, lockClockWeight: 100, lockFieldStyle: "line" } },
-        // Stacked heavy clock on the left, card on the right
-        { name: "Split", values: { lockLayout: "split", lockClockStyle: "stacked", lockClockSize: 130, lockClockWeight: 900 } },
-        // Phone style: big stacked clock up top, pill password at the bottom
-        { name: "Phone", values: { lockClockStyle: "stacked", lockClockSize: 150, lockClockWeight: 300, lockCard: false,
-            lockAvatar: false, lockFieldBottom: true, lockFieldStyle: "pill", lockShowGreeting: false } },
-        // Everything on the left, accent clock
-        { name: "Left", values: { lockAlign: "left", lockClockSize: 110, lockClockAccent: true, lockFieldStyle: "pill" } },
-        // Small clock and password in the bottom-left corner
-        { name: "Corner", values: { lockAlign: "corner", lockClockStyle: "small", lockAvatar: false, lockFieldWidth: 300,
-            lockCard: false, lockFieldStyle: "line", lockClockWeight: 300 } },
-        // See-through card over a heavy blur
-        { name: "Glass", values: { lockCardOpacity: 0.3, lockBlur: 48, lockDim: 0.1, lockClockWeight: 200, lockClockSpacing: 4,
-            lockFieldStyle: "pill" } },
-        // No visible field: just type, dots appear
-        { name: "Dots", values: { lockCard: false, lockAvatar: true, lockFieldStyle: "dots", lockDim: 0.5, lockBlur: 30,
-            lockClockWeight: 300, lockShowGreeting: false } },
-        // Huge clock, password at the bottom, nothing else
-        { name: "Poster", values: { lockClockWeight: 900, lockClockSize: 220, lockClockSpacing: -6, lockAvatar: false,
-            lockCard: false, lockShowGreeting: false, lockFieldBottom: true, lockFieldStyle: "line", lockShowStatus: false } },
-        // Wallpaper colors as a gradient instead of the picture
-        { name: "Gradient", values: { lockBackground: "gradient", lockCard: false, lockClockWeight: 200, lockClockSize: 120,
-            lockFieldStyle: "pill", lockDim: 0 } },
-        // Sharp wallpaper, no blur, dark card at the bottom
-        { name: "Photo", values: { lockBlur: 0, lockDim: 0.15, lockCardOpacity: 0.88, lockFieldBottom: true, lockAlign: "left",
-            lockClockWeight: 800 } },
-        // Solid background, accent clock, plain and calm
-        { name: "Plain", values: { lockBackground: "plain", lockCard: false, lockClockAccent: true, lockClockWeight: 400,
-            lockFieldStyle: "box" } }
+        // Wallpaper-tinted thin clock with a glow, one frosted pill with your picture and the password
+        { name: "Aurora", values: { lockClockSize: 190, lockClockWeight: 300, lockClockSpacing: -4, lockAvatar: true,
+            lockShowGreeting: true, lockFieldWidth: 380, lockBlur: 30, lockDim: 0.22, lockGlow: true } }
     ]
 
     function applyIslandStyle(name) {
@@ -525,7 +467,7 @@ Singleton {
 
     readonly property var packs: [
         { name: "Kaleido", desc: "The default: follows the wallpaper", bar: "Islands", launcher: "Classic", cc: "Classic",
-          power: "Classic", lock: "Card", colors: ({}), values: ({}) }
+          power: "Classic", lock: "Aurora", colors: ({}), values: ({}) }
     ]
 
     function applyPowerStyle(name) {

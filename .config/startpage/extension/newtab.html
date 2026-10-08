@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab</title>
+<link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="dim"></div>
+
+  <header>
+    <div id="offline" hidden>Start page server not running</div>
+    <button id="gear" title="Settings">&#9881;</button>
+  </header>
+
+  <main>
+    <div id="date"></div>
+    <div id="time"><span id="hh"></span><span id="colon">:</span><span id="mm"></span><small id="ap"></small></div>
+    <div id="greet"></div>
+
+    <form id="search" autocomplete="off">
+      <button type="button" id="engine" title="Change search engine"></button>
+      <input id="q" type="text" placeholder="Search the web" autofocus spellcheck="false">
+      <button type="submit" id="go" aria-label="Search">&#10140;</button>
+    </form>
+
+    <nav id="links"></nav>
+  </main>
+
+  <aside id="panel" hidden>
+    <h3>Settings</h3>
+    <label>Blur <input type="range" id="s-blur" min="0" max="40"></label>
+    <label>Darken <input type="range" id="s-dim" min="0" max="80"></label>
+    <label><input type="checkbox" id="s-24h"> 24-hour clock</label>
+    <label><input type="checkbox" id="s-wall"> Use the wallpaper</label>
+    <label>Your name <input type="text" id="s-name" placeholder="optional"></label>
+    <button id="s-reset">Reset links</button>
+  </aside>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

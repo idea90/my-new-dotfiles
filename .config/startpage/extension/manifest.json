@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Kaleido Start Page",
+  "version": "1.0",
+  "description": "A new tab page that follows your matugen colors and wallpaper.",
+  "chrome_url_overrides": { "newtab": "newtab.html" },
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:7391/*"],
+  "browser_specific_settings": { "gecko": { "id": "startpage@kaleido.local" } }
+}

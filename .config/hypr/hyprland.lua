@@ -48,6 +48,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hyprsunset -i")  -- night light, controlled from the control center
     hl.exec_cmd("wl-paste --type text --watch cliphist store")  -- clipboard history (Super+V)
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
+    hl.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/startpage/server.py") -- feeds the browser start page extension
     hl.exec_cmd("qs") -- Quickshell: bar, launcher, notifications, OSD, menus (~/.config/quickshell)
     hl.exec_cmd("nm-applet")
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Ice 24")

@@ -201,6 +201,7 @@ Singleton {
     property string lockClockStyle: "big"   // "big" | "stacked" | "small"
     property bool lockCard: true            // glass card behind the password field
     property string lockFieldStyle: "box"   // "box" | "pill" | "line" (underline) | "dots" (no field, dots appear)
+    property bool lockGlow: false           // soft drifting color glow, card shadow
     property bool lockFieldBottom: false    // clock at the top, password at the bottom
     property string lockBackground: "wallpaper" // "wallpaper" | "gradient" | "plain"
     property string lockClockFont: ""       // empty = the shell font
@@ -375,11 +376,16 @@ Singleton {
     readonly property var lockBase: ({
         lockAlign: "center", lockLayout: "stack", lockClockStyle: "big", lockCard: true, lockAvatar: true,
         lockClockFont: "", lockClockWeight: 700, lockClockSpacing: 0, lockClockAccent: false,
-        lockFieldStyle: "box", lockFieldBottom: false, lockBackground: "wallpaper",
+        lockFieldStyle: "box", lockFieldBottom: false, lockGlow: false, lockBackground: "wallpaper",
         lockBlur: 14, lockDim: 0.3, lockClockSize: 96, lockFieldWidth: 340, lockCardOpacity: 0.8,
         lockWallpaper: true, lockShowDate: true, lockShowGreeting: true, lockShowMedia: true, lockShowStatus: true
     })
     readonly property var lockStyles: [
+        // The flagship: wallpaper-tinted stacked clock with date and weather, a frosted card with
+        // your picture, name and a pill password field at the bottom, a soft color glow behind it all
+        { name: "Aurora", values: { lockClockStyle: "pixel", lockClockSize: 80, lockClockWeight: 600, lockClockSpacing: -2,
+            lockCard: true, lockCardOpacity: 0.34, lockAvatar: true, lockShowGreeting: true, lockFieldBottom: true,
+            lockFieldStyle: "pill", lockFieldWidth: 320, lockBlur: 36, lockDim: 0.2, lockGlow: true } },
         // Clock above a glass card with avatar and password
         { name: "Card", values: {} },
         // Thin clock and an underline to type on, nothing else

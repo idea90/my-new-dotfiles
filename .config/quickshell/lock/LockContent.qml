@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
+import QtQuick.Shapes
 import Quickshell
 import qs
 import qs.modules
@@ -62,6 +63,56 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: Theme.alpha("#000000", Config.lockDim)
+    }
+    // Aurora glow: two soft blobs in the wallpaper colors that drift slowly
+    Item {
+        anchors.fill: parent
+        visible: Config.lockGlow
+        property real drift: 0
+        SequentialAnimation on drift {
+            running: Config.lockGlow
+            loops: Animation.Infinite
+            NumberAnimation { to: 1; duration: 14000; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 0; duration: 14000; easing.type: Easing.InOutSine }
+        }
+        Shape {
+            width: root.width * 0.9
+            height: width
+            x: -width * 0.2 + parent.drift * root.width * 0.12
+            y: -height * 0.5
+            ShapePath {
+                strokeWidth: -1
+                fillGradient: RadialGradient {
+                    centerX: root.width * 0.45; centerY: root.width * 0.45
+                    centerRadius: root.width * 0.45; focalX: centerX; focalY: centerY
+                    GradientStop { position: 0.0; color: Theme.alpha(Theme.primary, 0.6) }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+                startX: 0; startY: 0
+                PathLine { x: root.width * 0.9; y: 0 }
+                PathLine { x: root.width * 0.9; y: root.width * 0.9 }
+                PathLine { x: 0; y: root.width * 0.9 }
+            }
+        }
+        Shape {
+            width: root.width * 0.8
+            height: width
+            x: root.width * 0.45 - parent.drift * root.width * 0.1
+            y: root.height - height * 0.55
+            ShapePath {
+                strokeWidth: -1
+                fillGradient: RadialGradient {
+                    centerX: root.width * 0.4; centerY: root.width * 0.4
+                    centerRadius: root.width * 0.4; focalX: centerX; focalY: centerY
+                    GradientStop { position: 0.0; color: Theme.alpha(Theme.tertiary, 0.55) }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+                startX: 0; startY: 0
+                PathLine { x: root.width * 0.8; y: 0 }
+                PathLine { x: root.width * 0.8; y: root.width * 0.8 }
+                PathLine { x: 0; y: root.width * 0.8 }
+            }
+        }
     }
     // Darker edges so the card and pills read against any wallpaper
     Rectangle {
@@ -217,7 +268,14 @@ Item {
             radius: Config.panelRadius + 8
             color: root.plainCard ? "transparent" : Theme.alpha(Theme.surfaceLow, Config.lockCardOpacity)
             border.width: root.plainCard ? 0 : Math.max(1, Config.panelBorder)
-            border.color: Theme.alpha(Theme.panelBorderFill, 0.9)
+            border.color: Config.lockGlow ? Theme.alpha("#ffffff", 0.18) : Theme.alpha(Theme.panelBorderFill, 0.9)
+            layer.enabled: Config.lockGlow && !root.plainCard
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Theme.alpha("#000000", 0.5)
+                shadowBlur: 1.0
+                shadowVerticalOffset: 10
+            }
 
             Column {
                 id: cardCol

@@ -240,5 +240,6 @@
   "islandClockStyle": "text",
   "lockGlow": false,
   "lowEnd": true,
-  "performance": "light"
+  "performance": "light",
+  "clockDepth": true
 }

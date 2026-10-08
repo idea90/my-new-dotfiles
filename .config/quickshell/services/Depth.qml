@@ -20,6 +20,7 @@ Singleton {
     property int rev: 0
     property bool busy: false
     property bool failed: false
+    property bool stale: false       // the wallpaper changed and the cut-out has not been redone yet
     readonly property bool wanted: Config.clockDepth
 
     function refresh() {
@@ -37,6 +38,7 @@ Singleton {
         id: run
         onExited: code => {
             root.busy = false;
+            root.stale = false;
             root.failed = code !== 0;
             if (code === 0)
                 root.rev += 1;
@@ -47,8 +49,10 @@ Singleton {
     Connections {
         target: Wallpapers
         function onImageRevChanged() {
-            if (root.wanted)
+            if (root.wanted) {
+                root.stale = true;
                 settle.restart();
+            }
         }
     }
     // the lock image is written a moment after the wallpaper changes

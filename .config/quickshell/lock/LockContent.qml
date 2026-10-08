@@ -19,7 +19,9 @@ Item {
     readonly property bool hasWall: wall.status === Image.Ready
     readonly property color c1: Qt.lighter(Theme.primary, 1.3)
     // "Clock behind the subject": big centered clock, the wallpaper subject drawn over it
-    readonly property bool depth: Config.clockDepth && cutout.status === Image.Ready
+    // The layout is used for every wallpaper; the cut-out is only drawn when one could be made
+    readonly property bool depth: Config.clockDepth
+    readonly property bool cutReady: Config.clockDepth && !Depth.stale && cutout.status === Image.Ready
     readonly property color cardColor: Theme.alpha(Theme.surfaceLow, 0.9)
     readonly property int edge: 48
     readonly property real s: Math.max(0.7, Math.min(1.3, root.height / 900))
@@ -61,7 +63,7 @@ Item {
         anchors.fill: parent
         source: wall
         visible: root.hasWall
-        blurEnabled: Config.lockBlur > 0 && !Config.lowEnd && !root.depth
+        blurEnabled: Config.lockBlur > 0 && !Config.lowEnd && !root.cutReady
         blurMax: 64
         blur: (Config.performance === "light" ? Math.min(Config.lockBlur, 12) : Config.lockBlur) / 64
         autoPaddingEnabled: false
@@ -284,6 +286,7 @@ Item {
     Image {
         id: cutout
         anchors.fill: parent
+        visible: !Depth.stale
         source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev + "-" + Wallpapers.imageRev : ""
         cache: false
         fillMode: Image.PreserveAspectCrop

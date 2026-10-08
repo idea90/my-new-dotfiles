@@ -288,7 +288,7 @@ Card {
             { type: "wallhaven" },
             { type: "header", label: "Desktop widgets" },
             { key: "widgetsEnabled", label: "Widgets on the wallpaper", type: "bool" },
-            { key: "widgetClockStyle", label: "Clock design", type: "choice", options: ["ios", "aurora", "stacked", "analog", "glass", "line"] },
+            { key: "widgetClockStyle", label: "Clock design", type: "choice", options: ["aurora", "stacked", "analog", "glass", "line"] },
             { key: "widgetsPosition", label: "Where", type: "choice", options: ["top-left", "top-right", "bottom-left", "bottom-right", "center"] },
             { key: "widgetClockSize", label: "Size", type: "int", min: 60, max: 260, step: 10 },
             { key: "widgetClockWeight", label: "Weight", type: "int", min: 100, max: 900, step: 100 },

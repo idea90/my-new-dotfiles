@@ -186,7 +186,12 @@ Item {
         spacing: 0
         opacity: 0
         property real rise: 28
-        transform: Translate { y: clockCol.rise }
+        readonly property bool typing: input.text !== ""
+        transform: [
+            Translate { y: clockCol.rise },
+            Scale { origin.x: clockCol.width / 2; origin.y: 0; xScale: clockCol.typing ? 0.94 : 1; yScale: xScale
+                Behavior on xScale { NumberAnimation { duration: Theme.dur(300); easing.type: Easing.OutCubic } } }
+        ]
 
         // The time: thin digits, hours and minutes in the two wallpaper colors, with a soft glow
         Row {
@@ -222,6 +227,25 @@ Item {
                 }
             }
         }
+        // A thin line that fills with the seconds
+        Item {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.round(timeRow.width * 0.42)
+            height: 2
+            SystemClock {
+                id: secClock
+                precision: SystemClock.Seconds
+            }
+            Rectangle { anchors.fill: parent; radius: 1; color: Qt.rgba(1, 1, 1, 0.14) }
+            Rectangle {
+                height: parent.height
+                radius: 1
+                width: parent.width * (secClock.date.getSeconds() + 1) / 60
+                color: root.c1
+                Behavior on width { NumberAnimation { duration: Theme.dur(300) } }
+            }
+        }
+
         // Date and weather as two glass chips under the time
         Row {
             visible: Config.lockShowDate
@@ -492,6 +516,64 @@ Item {
         ParallelAnimation {
             NumberAnimation { target: dock; property: "opacity"; to: 1; duration: Theme.dur(400); easing.type: Easing.OutCubic }
             NumberAnimation { target: dock; property: "rise"; to: 0; duration: Theme.dur(400); easing.type: Easing.OutCubic }
+        }
+    }
+
+    // ---- bottom right: sleep, restart, shut down (tap twice) ----------------
+    Row {
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+            rightMargin: 40
+            bottomMargin: 30
+        }
+        spacing: 10
+        Repeater {
+            model: [
+                { g: 0xf0904, cmd: ["systemctl", "suspend"], tip: "Sleep" },
+                { g: 0xf0709, cmd: ["systemctl", "reboot"], tip: "Restart" },
+                { g: 0xf0425, cmd: ["systemctl", "poweroff"], tip: "Shut down" }
+            ]
+            delegate: Rectangle {
+                id: pb
+                required property var modelData
+                property bool armed: false
+                width: 44
+                height: 44
+                radius: 22
+                color: armed ? Theme.alpha(Theme.error, 0.85) : pbMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.24) : Qt.rgba(1, 1, 1, 0.12)
+                border.width: 1
+                border.color: Qt.rgba(1, 1, 1, 0.2)
+                Behavior on color {
+                    ColorAnimation { duration: Theme.dur(120) }
+                }
+                Timer {
+                    id: disarm
+                    interval: 2500
+                    onTriggered: pb.armed = false
+                }
+                BarText {
+                    anchors.centerIn: parent
+                    text: Theme.icon(pb.modelData.g)
+                    font.pixelSize: 19
+                    color: pb.armed ? Theme.errorFg : "#ffffff"
+                }
+                MouseArea {
+                    id: pbMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (pb.armed) {
+                            pb.armed = false;
+                            Quickshell.execDetached(pb.modelData.cmd);
+                        } else {
+                            pb.armed = true;
+                            disarm.restart();
+                        }
+                    }
+                }
+            }
         }
     }
 

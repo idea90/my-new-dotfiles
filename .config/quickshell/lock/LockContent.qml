@@ -84,6 +84,7 @@ Item {
     // ---- top left: weather -------------------------------------------------
     Row {
         id: wx
+        z: 2
         visible: Config.lockShowDate && Config.weatherEnabled && Weather.ready
         anchors {
             left: parent.left
@@ -125,6 +126,7 @@ Item {
 
     // ---- top right: status pills ----------------------------------------
     Row {
+        z: 2
         visible: Config.lockShowStatus
         anchors {
             right: parent.right

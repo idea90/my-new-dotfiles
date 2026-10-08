@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# One-time setup for the "clock behind the subject" effect: a small Python environment with
-# onnxruntime and a 5 MB salient-object model. Needs `uv`.
+# One-time setup for the "clock behind the foreground" effect: a small Python environment with
+# onnxruntime and the Depth Anything V2 small model (27 MB). Needs `uv`.
 set -euo pipefail
 DIR="$HOME/.local/share/kaleido/depth"
 mkdir -p "$DIR"
 cd "$DIR"
 [[ -d venv ]] || uv venv -q venv
 uv pip install -q --python venv/bin/python onnxruntime numpy pillow
-[[ "$(stat -c%s u2netp.onnx 2>/dev/null || echo 0)" -gt 4000000 ]] || curl -sL -C - -o u2netp.onnx https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx
+[[ "$(stat -c%s depth_q.onnx 2>/dev/null || echo 0)" -gt 20000000 ]] ||
+    curl -sL -C - -o depth_q.onnx https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model_quantized.onnx
+rm -f u2netp.onnx
 echo "depth effect ready"

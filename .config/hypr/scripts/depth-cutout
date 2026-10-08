@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Cut the main subject out of the wallpaper so the clock can sit behind it.
+"""Cut the foreground out of the wallpaper so the clock can sit behind it.
 
-  depth-cutout IMAGE      writes ~/.cache/wallpaper-cutout.png (transparent except the subject)
+  depth-cutout IMAGE      writes ~/.cache/wallpaper-cutout.png (transparent except what is
+                          nearer than the sky / far background)
 
-Uses a small salient-object model (u2netp) through onnxruntime. Set up by
-setup-depth.sh, which creates
-~/.local/share/kaleido/depth/{venv,u2netp.onnx}.
+Uses Depth Anything V2 (small, quantized) through onnxruntime. setup-depth.sh creates
+~/.local/share/kaleido/depth/{venv,depth_q.onnx}. No cutout is written when there is nothing
+to separate, and the shell then shows the normal lock screen.
 """
 import os
 import sys
@@ -18,24 +19,27 @@ DIR = os.path.expanduser("~/.local/share/kaleido/depth")
 OUT = os.path.expanduser("~/.cache/wallpaper-cutout.png")
 
 
+def smoothstep(x, a, b):
+    t = np.clip((x - a) / max(1e-6, b - a), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
 def main(path):
     img = Image.open(path).convert("RGB")
     w, h = img.size
-    small = img.resize((320, 320), Image.BILINEAR)
-    x = np.asarray(small, dtype=np.float32) / 255.0
-    x = (x - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
-    x = x.transpose(2, 0, 1)[None].astype(np.float32)
-    sess = ort.InferenceSession(os.path.join(DIR, "u2netp.onnx"), providers=["CPUExecutionProvider"])
-    y = sess.run(None, {sess.get_inputs()[0].name: x})[0][0, 0]
-    y = (y - y.min()) / max(1e-6, y.max() - y.min())
-    # sharpen the edge a little: soft threshold around 0.5
-    y = np.clip((y - 0.35) / 0.3, 0, 1)
-    mask = Image.fromarray((y * 255).astype(np.uint8)).resize((w, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(1.2))
-    # nothing worth cutting out (almost all or almost none of the picture): write an empty cutout
+    x = np.asarray(img.resize((518, 518), Image.BICUBIC), dtype=np.float32) / 255.0
+    x = ((x - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]).transpose(2, 0, 1)[None].astype(np.float32)
+    sess = ort.InferenceSession(os.path.join(DIR, "depth_q.onnx"), providers=["CPUExecutionProvider"])
+    d = sess.run(None, {sess.get_inputs()[0].name: x})[0][0]      # larger = nearer
+    d = (d - d.min()) / max(1e-6, d.max() - d.min())
+    far = float(np.percentile(d, 2))                                 # the sky / far background
+    near = float(np.percentile(d, 98))
+    t0 = far + 0.08 * (near - far) + 0.02
+    m = smoothstep(d, t0, t0 + 0.06 * (near - far) + 0.02)
+    mask = Image.fromarray((m * 255).astype(np.uint8)).resize((w, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(1.0))
     cover = float(np.asarray(mask).mean()) / 255.0
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    if cover < 0.02 or cover > 0.85:
-        # no clear subject: leave no cutout, the shell then shows the normal lock screen
+    if cover < 0.03 or cover > 0.97:
         if os.path.exists(OUT):
             os.remove(OUT)
         return

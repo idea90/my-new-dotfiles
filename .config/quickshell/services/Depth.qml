@@ -28,7 +28,7 @@ Singleton {
         busy = true;
         failed = false;
         run.command = ["sh", "-c",
-            '[ -x "$1" ] && [ "$(stat -c%s "$HOME/.local/share/kaleido/depth/u2netp.onnx" 2>/dev/null || echo 0)" -gt 4000000 ] || "$2/setup-depth.sh" || exit 1; "$1" "$2/depth-cutout" "$3"',
+            '[ -x "$1" ] && [ "$(stat -c%s "$HOME/.local/share/kaleido/depth/depth_q.onnx" 2>/dev/null || echo 0)" -gt 20000000 ] || "$2/setup-depth.sh" || exit 1; "$1" "$2/depth-cutout" "$3"',
             "sh", py, scripts, source];
         run.running = true;
     }

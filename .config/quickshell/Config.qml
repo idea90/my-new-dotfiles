@@ -435,11 +435,7 @@ Singleton {
             lockClockWeight: 800 } },
         // Solid background, accent clock, plain and calm
         { name: "Plain", values: { lockBackground: "plain", lockCard: false, lockClockAccent: true, lockClockWeight: 400,
-            lockFieldStyle: "box" } },
-        // Windows 11 sign-in: big light clock, round picture, name and password box
-        { name: "Windows 11", values: { lockClockStyle: "big", lockClockSize: 120, lockClockWeight: 300, lockClockSpacing: 0,
-            lockCard: false, lockAvatar: true, lockShowGreeting: false, lockFieldStyle: "box", lockFieldWidth: 300,
-            lockBlur: 22, lockDim: 0.12, lockShowMedia: false } }
+            lockFieldStyle: "box" } }
     ]
 
     function applyIslandStyle(name) {
@@ -521,37 +517,9 @@ Singleton {
                 Quickshell.env("HOME") + "/.config/quickshell/assets/" + pk.wallpaper]);
     }
 
-    readonly property var winDark: ({
-        background: "#202020", surfaceLow: "#202020", surfaceMid: "#2b2b2b", surfaceHigh: "#323232", surfaceHighest: "#3d3d3d",
-        text: "#ffffff", textDim: "#c8c8c8", outline: "#8a8a8a", outlineVariant: "#3b3b3b",
-        primary: "#4cc2ff", primaryFg: "#00131f", primaryContainer: "#3a3a3a", primaryContainerFg: "#ffffff",
-        tertiary: "#9fd9ff", tertiaryContainer: "#2b2b2b", tertiaryContainerFg: "#ffffff",
-        error: "#ff99a4", errorFg: "#3a0008", errorContainer: "#5a1a22", errorContainerFg: "#ffd9dd"
-    })
-    readonly property var winLight: ({
-        background: "#f3f3f3", surfaceLow: "#f3f3f3", surfaceMid: "#fbfbfb", surfaceHigh: "#eeeeee", surfaceHighest: "#e3e3e3",
-        text: "#1a1a1a", textDim: "#5f5f5f", outline: "#8a8a8a", outlineVariant: "#d6d6d6",
-        primary: "#0067c0", primaryFg: "#ffffff", primaryContainer: "#e0e0e0", primaryContainerFg: "#1a1a1a",
-        tertiary: "#005a9e", tertiaryContainer: "#eeeeee", tertiaryContainerFg: "#1a1a1a",
-        error: "#c42b1c", errorFg: "#ffffff", errorContainer: "#fde7e9", errorContainerFg: "#5a0f08"
-    })
-    readonly property var winValues: ({
-        font: "Open Sans", fontSize: 13, iconSize: 16, pillHeight: 28, pillRadius: 4, innerRadius: 4,
-        panelColor: "surfaceMid", panelOpacity: 0.94, panelRadius: 8, itemRadius: 4, panelBorder: 1,
-        panelBorderColor: "outlineVariant", launcherRadius: 8, shadows: true, animSpeed: 1.0,
-        dockEnabled: false, barMode: "bar",
-        hyprRounding: 8, hyprGapsIn: 3, hyprGapsOut: 4, hyprBorder: 0, hyprOpacity: 1,
-        notifPosition: "bottom-right", notifWidth: 360, notifMarginTop: 12, notifMarginSide: 12, notifOpacity: 0.96,
-        osdPosition: "bottom", osdMargin: 72, osdWidth: 290, widgetsEnabled: false, switcherStyle: "cards"
-    })
-
     readonly property var packs: [
         { name: "Kaleido", desc: "The default: follows the wallpaper", bar: "Islands", launcher: "Classic", cc: "Classic",
-          power: "Classic", lock: "Card", colors: ({}), values: ({}) },
-        { name: "Windows 11", desc: "Taskbar, Start menu and Quick Settings, dark", bar: "Windows 11", launcher: "Windows 11",
-          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winDark, values: winValues, wallpaper: "win11-bloom-dark.jpg" },
-        { name: "Windows 11 Light", desc: "The same, in light mode", bar: "Windows 11", launcher: "Windows 11",
-          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winLight, values: winValues, wallpaper: "win11-bloom-light.jpg" }
+          power: "Classic", lock: "Card", colors: ({}), values: ({}) }
     ]
 
     function applyPowerStyle(name) {
@@ -593,11 +561,7 @@ Singleton {
             powerLabels: false, powerKeys: false, powerPosition: "left", powerHeader: false } },
         // Huge cards with avatar, clock and goodbye line
         { name: "Big", values: { powerButtonWidth: 190, powerButtonHeight: 220, powerIconSize: 64, powerHeader: true,
-            powerAvatar: true } },
-        // Windows 11 power flyout: a small list above the taskbar
-        { name: "Windows 11", values: { powerShape: "pill", powerLayout: "column", powerPosition: "corner", powerButtonWidth: 120,
-            powerSpacing: 2, powerKeys: false, powerBorder: false, powerBlur: false, powerPillHeight: 42, powerPillRadius: 6,
-            powerOpacity: 0.0, goodbyeEnabled: false } }
+            powerAvatar: true } }
     ]
 
     function applyCcStyle(name) {
@@ -639,11 +603,7 @@ Singleton {
             ccNotifications: false, ccSliders: false, ccPadding: 14 } },
         // Notification centre first: clock header, small icons, long notification list
         { name: "Inbox", values: { ccToggleStyle: "icons", ccHeaderStyle: "clock", ccWidth: 420, ccSliderStyle: "inline",
-            ccMedia: true } },
-        // Windows 11 Quick Settings: three-across tiles, sliders and media, above the taskbar
-        { name: "Windows 11", values: { ccToggleStyle: "tiles", ccColumns: 3, ccHeader: false, ccSliderStyle: "inline",
-            ccNotifications: false, ccMedia: true, ccFit: true, ccWidth: 380, ccPadding: 20, ccSpacing: 16, ccSideMargin: 12,
-            ccBottomMargin: 8, tileAccent: true, ccToggles: ["wifi", "bluetooth", "silent", "night", "power", "capture"] } }
+            ccMedia: true } }
     ]
 
     function applyLauncherStyle(name) {
@@ -736,10 +696,7 @@ Singleton {
         // No card at all: search and names float over a dark screen
         { name: "Minimal", values: { launcherSideImage: false, launcherWidth: 520, launcherDescriptions: false,
             launcherCounter: false, launcherRows: 6, launcherOpacity: 0, launcherBorder: false, launcherDim: 0.6,
-            launcherSearchStyle: "big", launcherHighlight: "bar", launcherTop: 0.25 } },
-        // Windows 11 Start menu: pinned apps, recommended, your name and a power button
-        { name: "Windows 11", values: { launcherLayout: "start", launcherSideImage: false, launcherBlurBackdrop: false,
-            launcherDim: 0, launcherOpacity: 0.95 } }
+            launcherSearchStyle: "big", launcherHighlight: "bar", launcherTop: 0.25 } }
     ]
 
     // A bar on the left / right edge stays there when you switch styles; the
@@ -867,19 +824,7 @@ Singleton {
         // Poster: tall condensed clock, everything else small
         { name: "Poster", values: { statusStyle: "bars", barBackground: "band", barHeight: 46, barMarginTop: 6, barMarginSide: 8,
             barRadius: 4, islandRadius: 2, islandBorder: 0, islandOpacity: 0.9, islandSpacing: 6,
-            bandColor: "surfaceLow", bandOpacity: 0.5, wsStyle: "lines", fontSize: 16 } },
-        // Windows 11 taskbar: full-width bar at the bottom, Start button and app icons in the
-        // middle, weather on the left, tray / quick settings / clock / notifications on the right
-        { name: "Windows 11", values: { barPosition: "bottom", barBackground: "solid", barMarginTop: 0, barMarginSide: 0,
-            barRadius: 0, barHeight: 48, islandBorder: 1, borderColor: "outlineVariant", islandRadius: 4, islandOpacity: 0.94,
-            islandSpacing: 4, barColor: "surfaceLow", wsStyle: "numbers", statusStyle: "icons", launcherPlain: true,
-            barLauncherIcon: 0xf05b3, barClockFormat: "win", barWeatherWide: true, barPowerButton: false, showSettingsButton: false,
-            barShortcuts: [
-                { icon: 0xf0349, cmd: "qs ipc call launcher open" },
-                { icon: 0xf0570, cmd: "qs ipc call overview toggle" }
-            ],
-            barLayout: { left: ["weather"], center: ["launcher", "shortcuts", "taskbar"],
-                         right: ["tray", "quicktray", "clock", "actions"] } } }
+            bandColor: "surfaceLow", bandOpacity: 0.5, wsStyle: "lines", fontSize: 16 } }
     ]
 
     // Backups: whole setup as one JSON file in ~/Kaleido-backups

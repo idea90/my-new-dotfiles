@@ -54,6 +54,11 @@ Singleton {
     readonly property int barSpaceTop: noBar || vertical ? 0 : islandMode ? Config.islandTop + Config.islandCompactHeight
         : Config.barPosition !== "bottom" ? Config.barMarginTop + Config.barHeight : 0
     readonly property int barSpaceBottom: noBar || islandMode || vertical || Config.barPosition !== "bottom" ? 0 : Config.barMarginTop + Config.barHeight
+    // Bar at the bottom: flyouts (control center, calendar, mixer ...) open just above it
+    readonly property bool panelsBottom: Config.barMode === "bar" && Config.barPosition === "bottom"
+    function panelY(h, parentH) {
+        return panelsBottom ? parentH - h - barSpaceBottom - 10 : barSpaceTop + 8;
+    }
     readonly property string barFont: Config.barFont !== "" ? Config.barFont : font
     readonly property int chipRadius: Math.max(4, Math.min(15, Config.islandRadius - 2))
 

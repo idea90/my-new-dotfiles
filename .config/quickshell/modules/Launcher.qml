@@ -5,7 +5,7 @@ import qs.services
 
 // Left click: apps. Right click: wallpapers.
 Chip {
-    icon: Theme.icon(0xf303)   // Arch logo
+    icon: Theme.icon(Config.barLauncherIcon)   // 0xf303 = Arch logo, 0xf05b3 = Windows logo
     implicitHeight: Theme.barItem
     padding: 10
     radius: Theme.chipRadius

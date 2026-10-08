@@ -20,6 +20,7 @@ PanelWindow {
     // window always exists, so it keeps them alive
     readonly property var _slideshow: Slideshow
     readonly property var _nightLight: NightLight
+    readonly property var _hyprTweaks: HyprTweaks
 
     readonly property bool plain: Config.widgetsStyle === "plain"
     readonly property string pos: Config.widgetsPosition

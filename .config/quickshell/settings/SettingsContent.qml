@@ -45,6 +45,10 @@ Card {
     // Sections in the sidebar, grouped. Each row: a heading, a special editor, or
     // a setting (type: bool | int | real | choice | string).
     readonly property var sections: [
+        { group: "Appearance", name: "Theme packs", icon: 0xf03d8, rows: [
+            { type: "actions" },
+            { type: "packs" }
+        ]},
         { group: "Appearance", name: "Looks", icon: 0xf03d8, rows: [
             { type: "looks" },
             { type: "header", label: "Text" },
@@ -68,7 +72,12 @@ Card {
             { key: "panelBorderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "shadows", label: "Shadows under panels", type: "bool" },
             { type: "header", label: "Motion" },
-            { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 }
+            { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
+            { type: "header", label: "Windows (-1 = leave as hyprland.lua has it)" },
+            { key: "hyprRounding", label: "Window corner radius", type: "int", min: -1, max: 30, step: 1 },
+            { key: "hyprGapsIn", label: "Gap between windows", type: "int", min: -1, max: 20, step: 1 },
+            { key: "hyprGapsOut", label: "Gap to the screen edge", type: "int", min: -1, max: 40, step: 1 },
+            { key: "hyprBorder", label: "Window border", type: "int", min: -1, max: 6, step: 1 }
         ]},
         { group: "Bar", name: "Bar", icon: 0xf0e2c, rows: [
             { type: "header", label: "Mode" },
@@ -118,7 +127,7 @@ Card {
             { type: "header", label: "Status (cpu, volume, ...)" },
             { key: "statusStyle", label: "Status (cpu, volume...)", type: "choice", options: ["rings", "bars", "sliders", "pills", "meter", "text", "labels", "icons"] },
             { type: "header", label: "Clock" },
-            { key: "barClockFormat", label: "Clock shows", type: "choice", options: ["full", "time", "date"] },
+            { key: "barClockFormat", label: "Clock shows", type: "choice", options: ["full", "time", "date", "win"] },
             { key: "clock24h", label: "24-hour clock", type: "bool" },
             { key: "clockSeconds", label: "Clock seconds", type: "bool" },
             { key: "clockCompact", label: "Compact clock", type: "bool" },
@@ -587,6 +596,7 @@ Card {
                     : modelData.type === "islandStyles" ? islandStylesEditor
                     : modelData.type === "ccStyles" ? ccStylesEditor
                     : modelData.type === "powerStyles" ? powerStylesEditor
+                    : modelData.type === "packs" ? packsEditor
                     : modelData.type === "lockStyles" ? lockStylesEditor
                         : modelData.type === "launcherStyles" ? launcherStylesEditor
                         : modelData.type === "actions" ? actionsEditor
@@ -1383,6 +1393,49 @@ Card {
                             selected: Config.powerStyle === modelData.name
                             vals: Object.assign({}, Config.powerBase, modelData.values)
                             onPicked: Config.applyPowerStyle(modelData.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Theme packs
+    Component {
+        id: packsEditor
+
+        Rectangle {
+            implicitHeight: pkcol.implicitHeight + 22
+            radius: Math.max(6, Config.itemRadius)
+            color: Theme.alpha(Theme.surfaceMid, 0.9)
+
+            Column {
+                id: pkcol
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    margins: 12
+                }
+                spacing: 10
+
+                BarText {
+                    text: "Theme packs restyle the whole shell at once (a backup is saved first)"
+                    font.bold: true
+                }
+                Flow {
+                    width: parent.width
+                    spacing: 10
+                    Repeater {
+                        model: Config.packs
+                        delegate: PresetCard {
+                            required property var modelData
+                            kind: "pack"
+                            name: modelData.name
+                            selected: Config.pack === modelData.name
+                            vals: Object.assign({}, { colors: modelData.colors },
+                                (Config.barStyles.find(x => x.name === modelData.bar) ?? { values: {} }).values)
+                            onPicked: Config.applyPack(modelData.name)
                         }
                     }
                 }

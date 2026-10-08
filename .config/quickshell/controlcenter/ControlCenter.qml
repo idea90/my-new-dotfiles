@@ -25,6 +25,7 @@ OverlayWindow {
         x: Config.ccSide === "left" ? Theme.barSpaceLeft + Config.ccSideMargin
          : Config.ccSide === "center" ? (parent.width - width) / 2
          : parent.width - width - Theme.barSpaceRight - Config.ccSideMargin
-        y: Config.ccSide === "center" && Config.ccFit ? Math.max(topMargin, (parent.height - height) / 3) : topMargin
+        y: Theme.panelsBottom && Config.ccFit ? parent.height - height - bottomGap
+         : Config.ccSide === "center" && Config.ccFit ? Math.max(topMargin, (parent.height - height) / 3) : topMargin
     }
 }

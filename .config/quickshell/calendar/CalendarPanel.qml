@@ -1,4 +1,5 @@
 import QtQuick
+import qs
 import qs.modules
 import qs.services
 
@@ -9,10 +10,8 @@ OverlayWindow {
     onDismissed: Panels.close()
 
     CalendarContent {
-        anchors {
-            top: parent.top
-            horizontalCenter: parent.horizontalCenter
-            topMargin: 54
-        }
+        // Under the clock normally; above the taskbar, at the right, like Windows
+        x: Theme.panelsBottom ? parent.width - width - 10 - Theme.barSpaceRight : (parent.width - width) / 2
+        y: Theme.panelY(height, parent.height)
     }
 }

@@ -1,4 +1,5 @@
 import QtQuick
+import qs
 import qs.modules
 import qs.services
 
@@ -10,11 +11,7 @@ OverlayWindow {
     onDismissed: Panels.close()
 
     WifiContent {
-        anchors {
-            top: parent.top
-            right: parent.right
-            topMargin: 54
-            rightMargin: 12
-        }
+        x: parent.width - width - 12 - Theme.barSpaceRight
+        y: Theme.panelY(height, parent.height)
     }
 }

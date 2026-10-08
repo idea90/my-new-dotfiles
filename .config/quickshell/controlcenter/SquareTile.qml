@@ -14,7 +14,7 @@ Rectangle {
 
     implicitHeight: 76
     radius: Config.itemRadius + 4
-    color: on ? Theme.primaryContainer : mouse.containsMouse ? Theme.surfaceHighest : Theme.surfaceHigh
+    color: on ? (Config.tileAccent ? Theme.primary : Theme.primaryContainer) : mouse.containsMouse ? Theme.surfaceHighest : Theme.surfaceHigh
 
     Behavior on color {
         ColorAnimation { duration: Theme.dur(150) }
@@ -27,14 +27,14 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             text: tile.icon
             font.pixelSize: 22
-            color: tile.on ? Theme.primary : Theme.text
+            color: tile.on ? (Config.tileAccent ? Theme.primaryFg : Theme.primary) : Theme.text
         }
         BarText {
             anchors.horizontalCenter: parent.horizontalCenter
             text: tile.label
             font.pixelSize: 11
             font.bold: tile.on
-            color: tile.on ? Theme.primaryContainerFg : Theme.textDim
+            color: tile.on ? (Config.tileAccent ? Theme.primaryFg : Theme.primaryContainerFg) : Theme.textDim
         }
     }
 

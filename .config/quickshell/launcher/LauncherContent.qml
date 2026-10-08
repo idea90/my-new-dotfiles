@@ -13,6 +13,7 @@ Item {
     id: root
 
     property var entries: []
+    readonly property bool startMode: Config.launcherLayout === "start"
     readonly property bool gridMode: Config.launcherLayout === "grid"
     readonly property var view: gridMode ? grid : list
     property string query: ""
@@ -118,7 +119,10 @@ Item {
                 root.fsIndex = 0;
                 list.currentIndex = 0;
                 grid.currentIndex = 0;
-                (root.fs ? fsSearch : search).forceActiveFocus();
+                if (root.startMode)
+                    startMenu.reset();
+                else
+                    (root.fs ? fsSearch : search).forceActiveFocus();
             }
         }
     }
@@ -136,7 +140,7 @@ Item {
     Rectangle {
         id: card
 
-        visible: !root.fs
+        visible: !root.fs && !root.startMode
         // How the wallpaper is used: side strip | bleed (poster, edge to edge) |
         // banner (across the top) | background (behind everything) | avatar (round, in the header)
         readonly property string imgMode: Config.launcherSideImage ? Config.launcherImageMode : "none"
@@ -634,6 +638,13 @@ Item {
                 color: Theme.textDim
             }
         }
+    }
+
+    // Windows 11 style Start menu
+    StartMenu {
+        id: startMenu
+        visible: root.startMode && !root.fs
+        entries: root.entries
     }
 
     // ======================= full-screen mode ================================

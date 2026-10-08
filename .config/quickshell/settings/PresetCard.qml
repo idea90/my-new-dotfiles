@@ -47,6 +47,7 @@ Item {
                 : card.kind === "power" ? powerPreview
                 : card.kind === "lock" ? lockPreview
                 : card.kind === "island" ? islandPreview
+                : card.kind === "pack" ? packPreview
                 : card.kind === "look" ? lookPreview : barPreview
         }
 
@@ -170,6 +171,42 @@ Item {
     }
 
     // ---- a look: bar on top plus a panel -----------------------------------
+    // Theme pack: window with the pack's colors and a taskbar in its bar position
+    Component {
+        id: packPreview
+        Item {
+            readonly property var col: card.vals.colors ?? ({})
+            readonly property color bg: col.surfaceLow ?? Theme.surfaceLow
+            readonly property color mid: col.surfaceMid ?? Theme.surfaceMid
+            readonly property color acc: col.primary ?? Theme.primary
+            readonly property color fg: col.text ?? Theme.text
+            readonly property bool atBottom: card.vals.barPosition === "bottom"
+            Rectangle {
+                x: 10; y: 8; width: 70; height: 40; radius: 4; color: parent.mid
+                Rectangle { x: 6; y: 6; width: 30; height: 4; radius: 2; color: parent.parent.fg; opacity: 0.8 }
+                Rectangle { x: 6; y: 16; width: 44; height: 3; radius: 1; color: parent.parent.fg; opacity: 0.35 }
+                Rectangle { x: 6; y: 26; width: 18; height: 8; radius: 3; color: parent.parent.acc }
+            }
+            Rectangle {
+                x: 84; y: 22; width: 44; height: 36; radius: 4; color: parent.mid
+                Rectangle { x: 5; y: 5; width: 14; height: 10; radius: 3; color: parent.parent.acc }
+                Rectangle { x: 23; y: 5; width: 14; height: 10; radius: 3; color: parent.parent.fg; opacity: 0.2 }
+            }
+            Rectangle {
+                width: parent.width; height: 10; color: parent.bg
+                y: parent.atBottom ? parent.height - height : 0
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 3
+                    Repeater {
+                        model: 4
+                        Rectangle { width: 5; height: 5; radius: 2; color: index === 0 ? parent.parent.parent.acc : parent.parent.parent.fg; opacity: index === 0 ? 1 : 0.5 }
+                    }
+                }
+            }
+        }
+    }
+
     Component {
         id: lookPreview
         Item {

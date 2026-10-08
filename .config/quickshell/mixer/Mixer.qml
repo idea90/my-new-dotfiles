@@ -11,6 +11,6 @@ OverlayWindow {
 
     MixerContent {
         x: parent.width - width - 12 - Theme.barSpaceRight
-        y: Theme.barSpaceTop + 8
+        y: Theme.panelY(height, parent.height)
     }
 }

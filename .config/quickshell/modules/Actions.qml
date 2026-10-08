@@ -64,6 +64,7 @@ Grid {
     }
 
     Chip {
+        visible: Config.barPowerButton
         implicitHeight: Theme.barItem
         radius: Theme.chipRadius
         padding: 9

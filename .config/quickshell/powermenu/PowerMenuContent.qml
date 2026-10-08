@@ -53,7 +53,7 @@ Item {
         // Plain x/y/width/height (no left/right anchors) so switching sides never
         // leaves both anchors set and collapses the width
         x: root.pos === "left" ? 0 : parent.width - width - (root.pos === "corner" ? 12 : 0)
-        y: root.side ? 0 : Theme.barSpaceTop + 8
+        y: root.side ? 0 : Theme.panelsBottom ? parent.height - height - Theme.barSpaceBottom - 10 : Theme.barSpaceTop + 8
         width: menu.width + 64
         height: root.side ? parent.height : menu.height + 48
         radius: root.side ? 0 : Config.panelRadius
@@ -85,7 +85,7 @@ Item {
          : root.side || root.pos === "corner" ? parent.width - width - 32 - (root.pos === "corner" ? 12 : 0)
          : (parent.width - width) / 2
         y: root.pos === "bottom" ? parent.height - height - 70
-         : root.pos === "corner" ? Theme.barSpaceTop + 32
+         : root.pos === "corner" ? (Theme.panelsBottom ? parent.height - Theme.barSpaceBottom - 10 - menu.height - 24 : Theme.barSpaceTop + 32)
          : (parent.height - height) / 2
         spacing: 28
 
@@ -177,7 +177,7 @@ Item {
 
                     width: root.shape === "pill" ? Config.powerButtonWidth * 1.6
                          : root.shape === "circle" ? Config.powerButtonWidth * 0.62 + 20 : Config.powerButtonWidth
-                    height: root.shape === "pill" ? 58
+                    height: root.shape === "pill" ? Config.powerPillHeight
                           : root.shape === "circle" ? Config.powerButtonWidth * 0.62 + (Config.powerLabels ? 34 : 0)
                           : Config.powerButtonHeight
 
@@ -186,7 +186,8 @@ Item {
                         width: root.shape === "circle" ? Config.powerButtonWidth * 0.62 : parent.width
                         height: root.shape === "circle" ? width : parent.height
                         anchors.horizontalCenter: parent.horizontalCenter
-                        radius: root.shape === "circle" || root.shape === "pill" ? height / 2 : Theme.radius
+                        radius: root.shape === "circle" || root.shape === "pill"
+                            ? (root.shape === "pill" && Config.powerPillRadius >= 0 ? Config.powerPillRadius : height / 2) : Theme.radius
                         color: button.selected && !root.outline ? (button.danger ? Theme.errorContainer : Theme.primaryContainer)
                              : Theme.alpha(Theme.surfaceMid, Config.powerOpacity)
                         border.width: button.selected && root.outline ? 2 : Config.powerBorder ? 1 : 0

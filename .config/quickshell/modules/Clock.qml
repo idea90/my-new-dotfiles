@@ -4,7 +4,8 @@ import qs.services
 
 // Time and date; click for the calendar
 Rectangle {
-    implicitWidth: Theme.vertical ? Theme.barItem : row.implicitWidth + 28
+    readonly property bool win: Config.barClockFormat === "win"
+    implicitWidth: Theme.vertical ? Theme.barItem : win ? winCol.implicitWidth + 20 : row.implicitWidth + 28
     implicitHeight: Theme.vertical ? stack.implicitHeight + 14 : Theme.barItem
     radius: Theme.chipRadius
     color: mouse.containsMouse || Panels.open === "calendar" ? Theme.primaryContainer : "transparent"
@@ -34,9 +35,29 @@ Rectangle {
         }
     }
 
+    // "win": time over date, right aligned, like the Windows taskbar
+    Column {
+        id: winCol
+        visible: win && !Theme.vertical
+        anchors.centerIn: parent
+        spacing: 0
+        BarText {
+            anchors.right: parent.right
+            text: Qt.formatDateTime(Time.now, Config.clock24h ? "HH:mm" : "h:mm AP")
+            font.pixelSize: Math.round(12 * Theme.barScale)
+            font.family: Theme.barFont
+        }
+        BarText {
+            anchors.right: parent.right
+            text: Qt.formatDateTime(Time.now, "M/d/yyyy")
+            font.pixelSize: Math.round(12 * Theme.barScale)
+            font.family: Theme.barFont
+        }
+    }
+
     Row {
         id: row
-        visible: !Theme.vertical
+        visible: !Theme.vertical && !win
         anchors.centerIn: parent
         spacing: 10
 

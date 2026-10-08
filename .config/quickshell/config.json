@@ -155,5 +155,7 @@
   "launcherBannerHeight": 120,
   "launcherImageBlur": 0,
   "launcherImageDim": 0.45,
-  "powerHeader": true
+  "powerHeader": true,
+  "hyprRounding": -1,
+  "hyprGapsIn": -1
 }

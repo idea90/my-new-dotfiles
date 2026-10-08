@@ -12,7 +12,7 @@ import qs.services
 Singleton {
     id: root
 
-    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "wifi", "shortcuts", "resources", "controls", "network", "weather", "actions"]
+    readonly property var ids: ["launcher", "workspaces", "title", "clock", "media", "tray", "status", "wifi", "shortcuts", "resources", "controls", "network", "weather", "taskbar", "quicktray", "actions"]
 
     readonly property var modules: ({
         launcher: launcher,
@@ -27,6 +27,8 @@ Singleton {
         controls: controls,
         network: network,
         weather: weather,
+        taskbar: taskbar,
+        quicktray: quicktray,
         actions: actions
     })
 
@@ -47,6 +49,8 @@ Singleton {
         case "status": return Config.showStatus;
         case "wifi": return Config.showWifi;
         case "network": return Config.showWifi;
+        case "taskbar": return true;
+        case "quicktray": return true;
         case "weather": return Config.showWeather && Config.weatherEnabled && Weather.ready;
         case "shortcuts": return Config.showShortcuts;
         case "resources": return !Theme.vertical && Config.showResources;
@@ -68,5 +72,7 @@ Singleton {
     Component { id: controls; Controls {} }
     Component { id: network; NetworkChip {} }
     Component { id: weather; WeatherChip {} }
+    Component { id: taskbar; TaskbarApps {} }
+    Component { id: quicktray; QuickTray {} }
     Component { id: actions; Actions {} }
 }

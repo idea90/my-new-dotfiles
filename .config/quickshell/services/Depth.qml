@@ -15,22 +15,25 @@ Singleton {
     readonly property string home: Quickshell.env("HOME")
     readonly property string py: home + "/.local/share/kaleido/depth/venv/bin/python"
     readonly property string scripts: home + "/.config/hypr/scripts"
-    readonly property string source: home + "/.cache/lockscreen.png"
-    readonly property string file: home + "/.cache/wallpaper-cutout.png"
+    // the wallpaper in use, and its own cut-out (made once per wallpaper)
+    property string current: ""
+    readonly property string stem: current.split("/").pop().replace(/\.[^.]*$/, "")
+    readonly property string file: home + "/.cache/wallpaper-cutouts/" + stem + ".png"
     property int rev: 0
     property bool busy: false
     property bool failed: false
-    property bool stale: false       // the wallpaper changed and the cut-out has not been redone yet
+    property string started: ""
     readonly property bool wanted: Config.clockDepth
 
     function refresh() {
-        if (!wanted || busy)
+        if (!wanted || busy || current === "")
             return;
         busy = true;
         failed = false;
+        started = current;
         run.command = ["sh", "-c",
             '[ -x "$1" ] && [ "$(stat -c%s "$HOME/.local/share/kaleido/depth/depth_q.onnx" 2>/dev/null || echo 0)" -gt 20000000 ] || "$2/setup-depth.sh" || exit 1; "$1" "$2/depth-cutout" "$3"',
-            "sh", py, scripts, source];
+            "sh", py, scripts, current];
         run.running = true;
     }
 
@@ -38,33 +41,27 @@ Singleton {
         id: run
         onExited: code => {
             root.busy = false;
-            root.stale = false;
             root.failed = code !== 0;
             if (code === 0)
                 root.rev += 1;
+            if (root.started !== root.current)
+                root.refresh();   // the wallpaper changed while this one ran
         }
     }
 
     onWantedChanged: if (wanted) refresh()
-    Connections {
-        target: Wallpapers
-        function onImageRevChanged() {
-            if (root.wanted) {
-                root.stale = true;
-                settle.restart();
-            }
+    FileView {
+        path: root.home + "/.cache/current_wallpaper"
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            root.current = text().trim();
+            settle.restart();
         }
     }
-    // the lock image is written a moment after the wallpaper changes
     Timer {
         id: settle
-        interval: 2500
-        onTriggered: root.refresh()
-    }
-    Component.onCompleted: if (wanted) startup.start()
-    Timer {
-        id: startup
-        interval: 4000
+        interval: 1500
         onTriggered: root.refresh()
     }
 }

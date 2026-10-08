@@ -108,8 +108,8 @@ PanelWindow {
     Image {
         anchors.fill: parent
         z: 5
-        visible: Config.clockDepth && Config.widgetClock && !Depth.stale && status === Image.Ready
-        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev + "-" + Wallpapers.imageRev : ""
+        visible: Config.clockDepth && Config.widgetClock && status === Image.Ready
+        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev : ""
         cache: false
         fillMode: Image.PreserveAspectCrop
         asynchronous: true

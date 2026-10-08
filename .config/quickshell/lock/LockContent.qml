@@ -21,7 +21,7 @@ Item {
     // "Clock behind the subject": big centered clock, the wallpaper subject drawn over it
     // The layout is used for every wallpaper; the cut-out is only drawn when one could be made
     readonly property bool depth: Config.clockDepth
-    readonly property bool cutReady: Config.clockDepth && !Depth.stale && cutout.status === Image.Ready
+    readonly property bool cutReady: Config.clockDepth && cutout.status === Image.Ready
     readonly property color cardColor: Theme.alpha(Theme.surfaceLow, 0.9)
     readonly property int edge: 48
     readonly property real s: Math.max(0.7, Math.min(1.3, root.height / 900))
@@ -286,8 +286,7 @@ Item {
     Image {
         id: cutout
         anchors.fill: parent
-        visible: !Depth.stale
-        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev + "-" + Wallpapers.imageRev : ""
+        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev : ""
         cache: false
         fillMode: Image.PreserveAspectCrop
         asynchronous: true

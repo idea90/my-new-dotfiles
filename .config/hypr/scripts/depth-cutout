@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Cut the foreground out of the wallpaper so the clock can sit behind it.
 
-  depth-cutout IMAGE      writes ~/.cache/wallpaper-cutout.png (transparent except what is
-                          nearer than the sky / far background)
+  depth-cutout IMAGE      writes ~/.cache/wallpaper-cutouts/<name>.png for that wallpaper (transparent
+                          except what is nearer than the sky / far background), or <name>.none
+                          when there is nothing to separate. Cutouts are kept per wallpaper.
 
 Uses Depth Anything V2 (small, quantized) through onnxruntime. setup-depth.sh creates
 ~/.local/share/kaleido/depth/{venv,depth_q.onnx}. No cutout is written when there is nothing
@@ -16,7 +17,7 @@ import onnxruntime as ort
 from PIL import Image, ImageFilter
 
 DIR = os.path.expanduser("~/.local/share/kaleido/depth")
-OUT = os.path.expanduser("~/.cache/wallpaper-cutout.png")
+OUT_DIR = os.path.expanduser("~/.cache/wallpaper-cutouts")
 
 
 def smoothstep(x, a, b):
@@ -25,7 +26,14 @@ def smoothstep(x, a, b):
 
 
 def main(path):
+    stem = os.path.splitext(os.path.basename(path))[0]
+    out = os.path.join(OUT_DIR, stem + ".png")
+    none = os.path.join(OUT_DIR, stem + ".none")
+    os.makedirs(OUT_DIR, exist_ok=True)
+    if os.path.exists(out) or os.path.exists(none):
+        return
     img = Image.open(path).convert("RGB")
+    img.thumbnail((2560, 2560))
     w, h = img.size
     x = np.asarray(img.resize((518, 518), Image.BICUBIC), dtype=np.float32) / 255.0
     x = ((x - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]).transpose(2, 0, 1)[None].astype(np.float32)
@@ -38,15 +46,13 @@ def main(path):
     m = smoothstep(d, t0, t0 + 0.06 * (near - far) + 0.02)
     mask = Image.fromarray((m * 255).astype(np.uint8)).resize((w, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(1.0))
     cover = float(np.asarray(mask).mean()) / 255.0
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
     if cover < 0.03 or cover > 0.97:
-        if os.path.exists(OUT):
-            os.remove(OUT)
+        open(none, "w").close()
         return
     img.putalpha(mask)
-    tmp = OUT + ".tmp.png"
+    tmp = out + ".tmp.png"
     img.save(tmp)
-    os.replace(tmp, OUT)
+    os.replace(tmp, out)
 
 
 if __name__ == "__main__":

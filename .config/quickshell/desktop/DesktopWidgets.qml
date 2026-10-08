@@ -8,7 +8,7 @@ import qs.modules
 import qs.services
 
 // A clock drawn on the wallpaper, under every window.
-// Config.widgetClockStyle: aurora | stacked | analog | glass | line
+// Config.widgetClockStyle: ios | aurora | stacked | analog | glass | line
 // Config.widgetsPosition: top-left | top-right | bottom-left | bottom-right | center
 PanelWindow {
     id: win
@@ -98,7 +98,84 @@ PanelWindow {
         Loader {
             id: loader
             visible: Config.widgetClock
-            sourceComponent: ({ aurora: aurora, stacked: stacked, analog: analog, glass: glass, line: line })[Config.widgetClockStyle] ?? aurora
+            sourceComponent: ({ ios: ios, aurora: aurora, stacked: stacked, analog: analog, glass: glass, line: line })[Config.widgetClockStyle] ?? aurora
+        }
+    }
+
+    // A word drawn like iOS glass: tall heavy digits, white at the top fading to a tinted
+    // see-through bottom, with a thin bright edge
+    component GlassText: Item {
+        id: gt
+        property string text: ""
+        property real px: 200
+        property real stretch: 1.5
+        readonly property real narrow: 0.8
+        implicitWidth: Math.round(ghost.implicitWidth * narrow)
+        implicitHeight: Math.round(px * 0.8 * stretch)
+        width: implicitWidth
+        height: implicitHeight
+
+        Item {
+            width: ghost.implicitWidth
+            height: Math.round(gt.px * 0.8)
+            anchors.verticalCenter: parent.verticalCenter
+            transform: Scale { origin.x: 0; origin.y: height / 2; xScale: gt.narrow; yScale: gt.stretch }
+            T {
+                id: ghost
+                anchors.verticalCenter: parent.verticalCenter
+                text: gt.text
+                font.pixelSize: gt.px
+                font.weight: Font.Black
+                font.letterSpacing: -Math.round(gt.px * 0.02)
+                style: Text.Normal
+                color: "white"
+                visible: false
+                layer.enabled: true
+            }
+            Rectangle {
+                id: fill
+                anchors.fill: parent
+                visible: false
+                layer.enabled: true
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.rgba(1, 1, 1, 0.92) }
+                    GradientStop { position: 0.55; color: Qt.rgba(1, 1, 1, 0.55) }
+                    GradientStop { position: 1.0; color: Theme.alpha(win.c1, 0.4) }
+                }
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: fill
+                maskEnabled: true
+                maskSource: ghost
+                shadowEnabled: !Config.lightMode
+                shadowColor: Qt.rgba(0, 0, 0, 0.3)
+                shadowBlur: 0.8
+                shadowVerticalOffset: 6
+            }
+        }
+    }
+
+    // ---- ios: small date over huge glassy digits ------------------------------------
+    Component {
+        id: ios
+        Column {
+            spacing: Math.round(win.size * 0.05)
+            T {
+                anchors.horizontalCenter: win.centered ? parent.horizontalCenter : undefined
+                text: Qt.formatDateTime(win.now, "ddd MMM d")
+                font.pixelSize: Math.max(16, Math.round(win.size * 0.2))
+                font.weight: Font.DemiBold
+                style: Text.Normal
+                color: Qt.rgba(1, 1, 1, 0.9)
+            }
+            Row {
+                anchors.horizontalCenter: win.centered ? parent.horizontalCenter : undefined
+                spacing: 0
+                GlassText { text: win.hh; px: win.size * 1.6 }
+                GlassText { text: ":"; px: win.size * 1.6; opacity: 0.8 }
+                GlassText { text: win.mm; px: win.size * 1.6 }
+            }
         }
     }
 

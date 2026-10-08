@@ -147,8 +147,8 @@ Singleton {
 
     // Desktop widgets (on the wallpaper, under windows)
     property bool widgetsEnabled: false
-    property string widgetClockStyle: "aurora"  // aurora | stacked | analog | glass | line
-    property int widgetClockSize: 120
+    property string widgetClockStyle: "ios"  // ios | aurora | stacked | analog | glass | line
+    property int widgetClockSize: 150
     property int widgetClockWeight: 300
     property string widgetsPosition: "top-left"  // top-left | top-right | bottom-left | bottom-right | center
     property bool widgetClock: true

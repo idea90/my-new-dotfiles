@@ -152,9 +152,9 @@ Item {
         height: 34
         width: pillRow.implicitWidth + 24
         radius: height / 2
-        color: Theme.alpha(Theme.surfaceLow, 0.7)
+        color: Qt.rgba(1, 1, 1, 0.12)
         border.width: 1
-        border.color: Theme.alpha(Theme.outlineVariant, 0.8)
+        border.color: Qt.rgba(1, 1, 1, 0.2)
 
         Row {
             id: pillRow
@@ -170,6 +170,7 @@ Item {
                 visible: label !== ""
                 text: label
                 font.pixelSize: 13
+                color: Qt.rgba(1, 1, 1, 0.95)
             }
         }
     }
@@ -186,18 +187,6 @@ Item {
         opacity: 0
         property real rise: 28
         transform: Translate { y: clockCol.rise }
-
-        BarText {
-            visible: Config.lockShowDate
-            anchors.horizontalCenter: parent.horizontalCenter
-            readonly property string wx: Config.weatherEnabled && Weather.ready ? "  ·  " + Weather.glyph + " " + Weather.temp + "°" : ""
-            text: Qt.formatDateTime(Time.now, "dddd · d MMMM").toUpperCase() + wx
-            font.pixelSize: 15
-            font.weight: Font.DemiBold
-            font.letterSpacing: 4
-            color: Qt.rgba(1, 1, 1, 0.88)
-            bottomPadding: 6
-        }
 
         // The time: thin digits, hours and minutes in the two wallpaper colors, with a soft glow
         Row {
@@ -233,6 +222,46 @@ Item {
                 }
             }
         }
+        // Date and weather as two glass chips under the time
+        Row {
+            visible: Config.lockShowDate
+            anchors.horizontalCenter: parent.horizontalCenter
+            topPadding: 14
+            spacing: 10
+            Repeater {
+                model: [
+                    { t: Qt.formatDateTime(Time.now, "dddd, d MMMM"), g: 0xf00ed, show: true },
+                    { t: Weather.glyph + "  " + Weather.temp + "°  " + Weather.desc, g: 0, show: Config.weatherEnabled && Weather.ready }
+                ]
+                delegate: Rectangle {
+                    required property var modelData
+                    visible: modelData.show
+                    height: 36
+                    width: chipRow.implicitWidth + 28
+                    radius: 18
+                    color: Qt.rgba(1, 1, 1, 0.12)
+                    border.width: 1
+                    border.color: Qt.rgba(1, 1, 1, 0.2)
+                    Row {
+                        id: chipRow
+                        anchors.centerIn: parent
+                        spacing: 8
+                        BarText {
+                            visible: modelData.g > 0
+                            text: Theme.icon(modelData.g)
+                            color: root.c1
+                            font.pixelSize: 15
+                        }
+                        BarText {
+                            text: modelData.t
+                            font.pixelSize: 14
+                            font.weight: Font.Medium
+                            color: Qt.rgba(1, 1, 1, 0.95)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ---- frosted pill: picture, password, submit ---------------------------
@@ -244,49 +273,38 @@ Item {
         y: root.height - height - Math.round(root.height * (Config.lockShowMedia && Media.available ? 0.23 : 0.17))
         opacity: 0
         property real rise: 36
+        property real pulse: 0
         transform: Translate { y: dock.rise }
+        SequentialAnimation on pulse {
+            running: input.activeFocus
+            loops: Animation.Infinite
+            NumberAnimation { to: 1; duration: 1800; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 0; duration: 1800; easing.type: Easing.InOutSine }
+        }
 
-        // Frosted glass: the blurred wallpaper under the pill, blurred and brightened again
-        ShaderEffectSource {
-            id: frostSrc
-            anchors.fill: parent
-            visible: false
-            sourceItem: bg
-            sourceRect: Qt.rect(dock.x, dock.y, dock.width, dock.height)
-            live: false
-            Component.onCompleted: scheduleUpdate()
-            onVisibleChanged: scheduleUpdate()
-        }
-        MultiEffect {
-            anchors.fill: parent
-            source: frostSrc
-            visible: root.hasWall
-            blurEnabled: true
-            blurMax: 48
-            blur: 1.0
-            brightness: -0.12
-            saturation: 0.1
-            contrast: -0.25
-            maskEnabled: true
-            maskSource: dockMask
-        }
+        // Glass: soft shadow, a darkened base and a light-to-clear gradient with a lit rim
         Rectangle {
-            id: dockMask
+            id: glass
             anchors.fill: parent
             radius: height / 2
-            visible: false
+            color: Theme.alpha("#000000", root.hasWall ? 0.28 : 0.0)
             layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Theme.alpha("#000000", 0.55)
+                shadowBlur: 1.0
+                shadowVerticalOffset: 14
+            }
         }
-        // Tint, so it also works over plain and gradient backgrounds
         Rectangle {
             anchors.fill: parent
             radius: height / 2
-            color: Theme.alpha(root.hasWall ? "#ffffff" : Theme.surfaceMid, root.hasWall ? 0.1 : 0.55)
-            border.width: 1.5
-            border.color: Lock.error !== "" ? Theme.error : input.activeFocus ? Theme.alpha(root.c1, 0.9) : Qt.rgba(1, 1, 1, 0.22)
-            Behavior on border.color {
-                ColorAnimation { duration: Theme.dur(180) }
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.rgba(1, 1, 1, root.hasWall ? 0.2 : 0.12) }
+                GradientStop { position: 1.0; color: Qt.rgba(1, 1, 1, root.hasWall ? 0.05 : 0.03) }
             }
+            border.width: 1.5
+            border.color: Lock.error !== "" ? Theme.error : input.activeFocus ? Theme.alpha(root.c1, 0.55 + 0.4 * dock.pulse) : Qt.rgba(1, 1, 1, 0.24)
         }
         // Thin highlight along the top edge
         Rectangle {
@@ -489,9 +507,9 @@ Item {
         height: 56
         width: Math.min(420, musicRow.implicitWidth + 28)
         radius: height / 2
-        color: Theme.alpha(Theme.surfaceLow, 0.78)
+        color: Qt.rgba(1, 1, 1, 0.12)
         border.width: 1
-        border.color: Theme.alpha(Theme.outlineVariant, 0.8)
+        border.color: Qt.rgba(1, 1, 1, 0.2)
 
         Row {
             id: musicRow

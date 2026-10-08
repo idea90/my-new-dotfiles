@@ -382,8 +382,8 @@ Singleton {
     })
     readonly property var lockStyles: [
         // Wallpaper-tinted thin clock with a glow, one frosted pill with your picture and the password
-        { name: "Aurora", values: { lockClockSize: 190, lockClockWeight: 300, lockClockSpacing: -4, lockAvatar: true,
-            lockShowGreeting: true, lockFieldWidth: 380, lockBlur: 30, lockDim: 0.22, lockGlow: true } }
+        { name: "Aurora", values: { lockClockSize: 150, lockClockWeight: 500, lockClockSpacing: 0, lockAvatar: true,
+            lockShowGreeting: true, lockBlur: 16, lockDim: 0.18, lockGlow: false } }
     ]
 
     function applyIslandStyle(name) {

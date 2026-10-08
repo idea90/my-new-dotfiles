@@ -239,5 +239,6 @@
   "colorOverrides": {},
   "islandClockStyle": "text",
   "lockGlow": false,
-  "lowEnd": true
+  "lowEnd": true,
+  "performance": "light"
 }

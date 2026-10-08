@@ -169,13 +169,30 @@ Item {
         Image {
             id: wallImg
             visible: false
-            width: 640
-            height: 480
+            width: 960
+            height: 720
             source: "file://" + Quickshell.env("HOME") + "/.cache/lockscreen.png?" + Wallpapers.imageRev
             cache: false
             sourceSize.height: 900
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
+        }
+
+        // The wallpaper cropped to the shape it is shown in (a plain stretch squeezed it)
+        component WallFx: MultiEffect {
+            id: fx
+            source: crop
+            ShaderEffectSource {
+                id: crop
+                visible: false
+                width: fx.width
+                height: fx.height
+                sourceItem: wallImg
+                sourceRect: {
+                    const a = width / Math.max(1, height), w = wallImg.width, h = wallImg.height;
+                    return a > w / h ? Qt.rect(0, (h - w / a) / 2, w, w / a) : Qt.rect((w - h * a) / 2, 0, h * a, h);
+                }
+            }
         }
 
         // background: the picture fills the whole card, dimmed and optionally blurred
@@ -189,9 +206,8 @@ Item {
                 visible: false
                 layer.enabled: true
             }
-            MultiEffect {
+            WallFx {
                 anchors.fill: parent
-                source: wallImg
                 maskEnabled: true
                 maskSource: bgMask
                 blurEnabled: Config.launcherImageBlur > 0
@@ -221,9 +237,8 @@ Item {
                 visible: false
                 layer.enabled: true
             }
-            MultiEffect {
+            WallFx {
                 anchors.fill: parent
-                source: wallImg
                 maskEnabled: true
                 maskSource: bannerMask
             }
@@ -272,9 +287,8 @@ Item {
                 visible: false
                 layer.enabled: true
             }
-            MultiEffect {
+            WallFx {
                 anchors.fill: parent
-                source: wallImg
                 visible: wallImg.status === Image.Ready
                 maskEnabled: true
                 maskSource: sideMask
@@ -339,9 +353,8 @@ Item {
                         visible: false
                         layer.enabled: true
                     }
-                    MultiEffect {
+                    WallFx {
                         anchors.fill: parent
-                        source: wallImg
                         maskEnabled: true
                         maskSource: avMask
                     }

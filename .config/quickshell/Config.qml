@@ -516,6 +516,9 @@ Singleton {
             power ? power.values : {}, lock ? lock.values : {},
             { colorOverrides: pk.colors ?? {} }, pk.values ?? {});
         setMany(vals);
+        if (pk.wallpaper)
+            Quickshell.execDetached([Quickshell.env("HOME") + "/.config/hypr/scripts/apply-wal", "--apply",
+                Quickshell.env("HOME") + "/.config/quickshell/assets/" + pk.wallpaper]);
     }
 
     readonly property var winDark: ({
@@ -546,9 +549,9 @@ Singleton {
         { name: "Kaleido", desc: "The default: follows the wallpaper", bar: "Islands", launcher: "Classic", cc: "Classic",
           power: "Classic", lock: "Card", colors: ({}), values: ({}) },
         { name: "Windows 11", desc: "Taskbar, Start menu and Quick Settings, dark", bar: "Windows 11", launcher: "Windows 11",
-          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winDark, values: winValues },
+          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winDark, values: winValues, wallpaper: "win11-bloom-dark.jpg" },
         { name: "Windows 11 Light", desc: "The same, in light mode", bar: "Windows 11", launcher: "Windows 11",
-          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winLight, values: winValues }
+          cc: "Windows 11", power: "Windows 11", lock: "Windows 11", colors: winLight, values: winValues, wallpaper: "win11-bloom-light.jpg" }
     ]
 
     function applyPowerStyle(name) {

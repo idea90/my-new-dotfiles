@@ -55,6 +55,7 @@ Singleton {
         : Config.barPosition !== "bottom" ? Config.barMarginTop + Config.barHeight : 0
     readonly property int barSpaceBottom: noBar || islandMode || vertical || Config.barPosition !== "bottom" ? 0 : Config.barMarginTop + Config.barHeight
     // Bar at the bottom: flyouts (control center, calendar, mixer ...) open just above it
+    readonly property bool isLight: (text.r * 0.299 + text.g * 0.587 + text.b * 0.114) < 0.5
     readonly property bool panelsBottom: Config.barMode === "bar" && Config.barPosition === "bottom"
     function panelY(h, parentH) {
         return panelsBottom ? parentH - h - barSpaceBottom - 10 : barSpaceTop + 8;

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -28,6 +29,12 @@ Grid {
                 implicitSize: 16
                 source: entry.modelData.icon
                 mipmap: true
+                // light themes: white symbolic icons would vanish, so draw them in the text color
+                layer.enabled: Theme.isLight
+                layer.effect: MultiEffect {
+                    colorization: 1.0
+                    colorizationColor: Theme.text
+                }
             }
 
             MouseArea {

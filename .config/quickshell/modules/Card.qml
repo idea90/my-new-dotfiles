@@ -9,7 +9,7 @@ Rectangle {
     border.width: Config.panelBorder
     border.color: Theme.panelBorderFill
 
-    layer.enabled: Config.shadows
+    layer.enabled: Config.shadows && !Config.lowEnd
     layer.effect: MultiEffect {
         shadowEnabled: true
         shadowColor: Qt.rgba(0, 0, 0, 0.55)

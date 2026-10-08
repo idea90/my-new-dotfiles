@@ -99,7 +99,7 @@ PanelWindow {
             SpringAnimation { spring: 4; damping: 0.38; epsilon: 0.5 }
         }
 
-        layer.enabled: Config.shadows
+        layer.enabled: Config.shadows && !Config.lowEnd
         layer.effect: MultiEffect {
             shadowEnabled: true
             shadowColor: Qt.rgba(0, 0, 0, 0.5)

@@ -60,7 +60,7 @@ Grid {
         iconColor: low ? Theme.error : Theme.text
 
         SequentialAnimation on opacity {
-            running: battery.critical
+            running: battery.critical && !Config.lowEnd
             loops: Animation.Infinite
             onRunningChanged: if (!running) battery.opacity = 1
             NumberAnimation { to: 0.5; duration: Theme.dur(750) }

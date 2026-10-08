@@ -18,7 +18,7 @@ Row {
             color: Theme.primary
             height: 5
             SequentialAnimation on height {
-                running: parent.running
+                running: parent.running && !Config.lowEnd
                 loops: Animation.Infinite
                 NumberAnimation { to: 16 * modelData; duration: 260 + index * 70; easing.type: Easing.InOutSine }
                 NumberAnimation { to: 4; duration: 300 + index * 50; easing.type: Easing.InOutSine }

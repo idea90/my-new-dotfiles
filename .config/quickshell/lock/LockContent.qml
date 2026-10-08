@@ -59,7 +59,7 @@ Item {
         anchors.fill: parent
         source: wall
         visible: root.hasWall
-        blurEnabled: Config.lockBlur > 0
+        blurEnabled: Config.lockBlur > 0 && !Config.lowEnd
         blurMax: 64
         blur: Config.lockBlur / 64
         autoPaddingEnabled: false

@@ -72,6 +72,7 @@ Card {
             { key: "panelBorderColor", label: "Border color", type: "choice", options: ["outlineVariant", "outline", "primary", "tertiary"] },
             { key: "shadows", label: "Shadows under panels", type: "bool" },
             { type: "header", label: "Motion" },
+            { key: "lowEnd", label: "Low-end mode (no animations, shadows or lock blur)", type: "bool" },
             { key: "animSpeed", label: "Animation speed (0 = off)", type: "real", min: 0, max: 3, step: 0.25 },
             { type: "header", label: "Windows (-1 = leave as hyprland.lua has it)" },
             { key: "hyprRounding", label: "Window corner radius", type: "int", min: -1, max: 30, step: 1 },

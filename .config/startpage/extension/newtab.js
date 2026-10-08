@@ -27,7 +27,7 @@ function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value
 
 const state = {
   engine: load("engine", 0), links: load("links", DEFAULT_LINKS), blur: load("blur", 16), dim: load("dim", 25),
-  h24: load("h24", false), wall: load("wall", true), name: load("name", ""),
+  h24: load("h24", false), lite: load("lite", false), wall: load("wall", true), name: load("name", ""),
 };
 
 // ---- colors -------------------------------------------------------------
@@ -137,15 +137,17 @@ renderLinks();
 
 // ---- settings --------------------------------------------------------------------
 function paintLook() {
+  document.body.classList.toggle("lite", state.lite);
   root.style.setProperty("--blur", state.blur + "px");
   root.style.setProperty("--dim", state.dim / 100);
 }
 paintLook();
 $("gear").onclick = () => { $("panel").hidden = !$("panel").hidden; };
 $("s-blur").value = state.blur; $("s-dim").value = state.dim; $("s-24h").checked = state.h24;
-$("s-wall").checked = state.wall; $("s-name").value = state.name;
+$("s-wall").checked = state.wall; $("s-lite").checked = state.lite; $("s-name").value = state.name;
 $("s-blur").oninput = e => { state.blur = +e.target.value; save("blur", state.blur); paintLook(); };
 $("s-dim").oninput = e => { state.dim = +e.target.value; save("dim", state.dim); paintLook(); };
+$("s-lite").onchange = e => { state.lite = e.target.checked; save("lite", state.lite); paintLook(); };
 $("s-24h").onchange = e => { state.h24 = e.target.checked; save("h24", state.h24); tick(); };
 $("s-wall").onchange = e => { state.wall = e.target.checked; save("wall", state.wall); if (state.wall) sync(); else $("bg").classList.replace("ready", "plain"); };
 $("s-name").oninput = e => { state.name = e.target.value.trim(); save("name", state.name); setGreeting(); };

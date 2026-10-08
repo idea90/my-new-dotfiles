@@ -81,6 +81,7 @@ Singleton {
     property int panelBorder: 1
     property string panelColor: "surfaceLow"
     property string panelBorderColor: "outlineVariant"
+    property bool lowEnd: false             // low-end mode: no animations, shadows or heavy blur
     property real animSpeed: 1.0            // 0 = no animations
 
     property bool shadows: true             // drop shadows under panels

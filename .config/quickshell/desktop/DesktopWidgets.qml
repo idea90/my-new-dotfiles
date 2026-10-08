@@ -21,6 +21,7 @@ PanelWindow {
     readonly property var _slideshow: Slideshow
     readonly property var _nightLight: NightLight
     readonly property var _hyprTweaks: HyprTweaks
+    readonly property var _depth: Depth
 
     readonly property string pos: Config.widgetsPosition
 
@@ -100,6 +101,18 @@ PanelWindow {
             visible: Config.widgetClock
             sourceComponent: ({ aurora: aurora, stacked: stacked, analog: analog, glass: glass, line: line })[Config.widgetClockStyle] ?? aurora
         }
+    }
+
+    // The wallpaper's subject drawn over the clock, so the clock appears to sit behind it.
+    // Same crop as the wallpaper, so it lines up.
+    Image {
+        anchors.fill: parent
+        z: 5
+        visible: Config.clockDepth && Config.widgetClock && status === Image.Ready
+        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev + "-" + Wallpapers.imageRev : ""
+        cache: false
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
     }
 
     // ---- aurora: thin two-color time with a soft glow, date underneath ----------

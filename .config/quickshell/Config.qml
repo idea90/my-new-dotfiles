@@ -152,6 +152,7 @@ Singleton {
     property int widgetClockWeight: 300
     property string widgetsPosition: "top-left"  // top-left | top-right | bottom-left | bottom-right | center
     property bool widgetClock: true
+    property bool clockDepth: false         // clock sits behind the wallpaper's main subject (lock screen and desktop clock)
 
     // Wallpaper slideshow
     property bool slideshow: false

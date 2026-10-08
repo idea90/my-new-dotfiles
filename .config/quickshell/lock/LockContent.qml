@@ -18,6 +18,8 @@ Item {
     readonly property string user: Quickshell.env("USER")
     readonly property bool hasWall: wall.status === Image.Ready
     readonly property color c1: Qt.lighter(Theme.primary, 1.3)
+    // "Clock behind the subject": big centered clock, the wallpaper subject drawn over it
+    readonly property bool depth: Config.clockDepth && cutout.status === Image.Ready
     readonly property color cardColor: Theme.alpha(Theme.surfaceLow, 0.9)
     readonly property int edge: 48
     readonly property real s: Math.max(0.7, Math.min(1.3, root.height / 900))
@@ -59,7 +61,7 @@ Item {
         anchors.fill: parent
         source: wall
         visible: root.hasWall
-        blurEnabled: Config.lockBlur > 0 && !Config.lowEnd
+        blurEnabled: Config.lockBlur > 0 && !Config.lowEnd && !root.depth
         blurMax: 64
         blur: (Config.performance === "light" ? Math.min(Config.lockBlur, 12) : Config.lockBlur) / 64
         autoPaddingEnabled: false
@@ -177,6 +179,7 @@ Item {
     // ---- left: the clock -----------------------------------------------------
     Column {
         id: clockCol
+        visible: !root.depth
         anchors {
             left: parent.left
             leftMargin: root.edge
@@ -247,6 +250,42 @@ Item {
             font.pixelSize: 14
             color: Qt.rgba(1, 1, 1, 0.6)
         }
+    }
+
+    // ---- depth clock: iOS-style, behind the subject ----------------------------------
+    Column {
+        id: depthClock
+        visible: root.depth
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            top: parent.top
+            topMargin: Math.round(root.height * 0.07)
+        }
+        spacing: 0
+        BarText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: Qt.formatDateTime(Time.now, "ddd MMM d")
+            font.family: clockCol.fam
+            font.pixelSize: Math.round(root.height * 0.032)
+            font.weight: Font.DemiBold
+            color: Qt.rgba(1, 1, 1, 0.9)
+        }
+        BarText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: clockCol.hh + ":" + clockCol.mm
+            font.family: clockCol.fam
+            font.pixelSize: Math.round(root.height * 0.3)
+            font.weight: Font.DemiBold
+            color: "#ffffff"
+        }
+    }
+    Image {
+        id: cutout
+        anchors.fill: parent
+        source: Config.clockDepth ? "file://" + Depth.file + "?" + Depth.rev + "-" + Wallpapers.imageRev : ""
+        cache: false
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
     }
 
     // ---- right: cards -----------------------------------------------------------

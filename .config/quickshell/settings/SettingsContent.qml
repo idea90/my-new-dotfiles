@@ -241,6 +241,7 @@ Card {
         ]},
         { group: "Panels", name: "Lock screen", icon: 0xf033e, rows: [
             { type: "actions" },
+            { key: "clockDepth", label: "Clock behind the wallpaper subject (sets itself up the first time)", type: "bool" },
             { type: "header", label: "Clock" },
             { key: "lockClockSize", label: "Size", type: "int", min: 80, max: 260, step: 10 },
             { key: "lockClockWeight", label: "Weight", type: "int", min: 100, max: 900, step: 100 },
@@ -293,6 +294,7 @@ Card {
             { key: "widgetClockSize", label: "Size", type: "int", min: 60, max: 260, step: 10 },
             { key: "widgetClockWeight", label: "Weight", type: "int", min: 100, max: 900, step: 100 },
             { key: "widgetClock", label: "Show the clock", type: "bool" },
+            { key: "clockDepth", label: "Clock behind the wallpaper subject", type: "bool" },
             { type: "header", label: "Wallpaper slideshow" },
             { key: "slideshow", label: "Change the wallpaper by itself", type: "bool" },
             { type: "slideshow" },

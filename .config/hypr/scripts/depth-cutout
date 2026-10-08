@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Cut the main subject out of the wallpaper so the clock can sit behind it.
+
+  depth-cutout IMAGE      writes ~/.cache/wallpaper-cutout.png (transparent except the subject)
+
+Uses a small salient-object model (u2netp) through onnxruntime. Set up by
+setup-depth.sh, which creates
+~/.local/share/kaleido/depth/{venv,u2netp.onnx}.
+"""
+import os
+import sys
+
+import numpy as np
+import onnxruntime as ort
+from PIL import Image, ImageFilter
+
+DIR = os.path.expanduser("~/.local/share/kaleido/depth")
+OUT = os.path.expanduser("~/.cache/wallpaper-cutout.png")
+
+
+def main(path):
+    img = Image.open(path).convert("RGB")
+    w, h = img.size
+    small = img.resize((320, 320), Image.BILINEAR)
+    x = np.asarray(small, dtype=np.float32) / 255.0
+    x = (x - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
+    x = x.transpose(2, 0, 1)[None].astype(np.float32)
+    sess = ort.InferenceSession(os.path.join(DIR, "u2netp.onnx"), providers=["CPUExecutionProvider"])
+    y = sess.run(None, {sess.get_inputs()[0].name: x})[0][0, 0]
+    y = (y - y.min()) / max(1e-6, y.max() - y.min())
+    # sharpen the edge a little: soft threshold around 0.5
+    y = np.clip((y - 0.35) / 0.3, 0, 1)
+    mask = Image.fromarray((y * 255).astype(np.uint8)).resize((w, h), Image.BICUBIC).filter(ImageFilter.GaussianBlur(1.2))
+    # nothing worth cutting out (almost all or almost none of the picture): write an empty cutout
+    cover = float(np.asarray(mask).mean()) / 255.0
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    if cover < 0.02 or cover > 0.85:
+        # no clear subject: leave no cutout, the shell then shows the normal lock screen
+        if os.path.exists(OUT):
+            os.remove(OUT)
+        return
+    img.putalpha(mask)
+    tmp = OUT + ".tmp.png"
+    img.save(tmp)
+    os.replace(tmp, OUT)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

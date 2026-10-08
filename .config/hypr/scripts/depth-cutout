@@ -32,12 +32,17 @@ def main(path):
     os.makedirs(OUT_DIR, exist_ok=True)
     if os.path.exists(out) or os.path.exists(none):
         return
-    img = Image.open(path).convert("RGB")
-    img.thumbnail((2560, 2560))
+    img = Image.open(path)
+    img.draft("RGB", (2560, 2560))      # JPEGs decode at reduced size
+    img = img.convert("RGB")
+    img.thumbnail((1920, 1920))
     w, h = img.size
     x = np.asarray(img.resize((518, 518), Image.BICUBIC), dtype=np.float32) / 255.0
     x = ((x - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]).transpose(2, 0, 1)[None].astype(np.float32)
-    sess = ort.InferenceSession(os.path.join(DIR, "depth_q.onnx"), providers=["CPUExecutionProvider"])
+    opts = ort.SessionOptions()
+    opts.intra_op_num_threads = 1       # background work: one core, never the whole machine
+    opts.inter_op_num_threads = 1
+    sess = ort.InferenceSession(os.path.join(DIR, "depth_q.onnx"), opts, providers=["CPUExecutionProvider"])
     d = sess.run(None, {sess.get_inputs()[0].name: x})[0][0]      # larger = nearer
     d = (d - d.min()) / max(1e-6, d.max() - d.min())
     far = float(np.percentile(d, 2))                                 # the sky / far background
@@ -51,7 +56,7 @@ def main(path):
         return
     img.putalpha(mask)
     tmp = out + ".tmp.png"
-    img.save(tmp)
+    img.save(tmp, compress_level=1)
     os.replace(tmp, out)
 
 

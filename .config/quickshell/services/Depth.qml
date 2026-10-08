@@ -23,7 +23,8 @@ Singleton {
     property bool busy: false
     property bool failed: false
     property string started: ""
-    readonly property bool wanted: Config.clockDepth
+    // not in light / lowest performance mode: the model is the heaviest thing the shell runs
+    readonly property bool wanted: Config.clockDepth && !Config.lightMode
 
     function refresh() {
         if (!wanted || busy || current === "")
@@ -32,7 +33,7 @@ Singleton {
         failed = false;
         started = current;
         run.command = ["sh", "-c",
-            '[ -x "$1" ] && [ "$(stat -c%s "$HOME/.local/share/kaleido/depth/depth_q.onnx" 2>/dev/null || echo 0)" -gt 20000000 ] || "$2/setup-depth.sh" || exit 1; "$1" "$2/depth-cutout" "$3"',
+            '[ -x "$1" ] && [ "$(stat -c%s "$HOME/.local/share/kaleido/depth/depth_q.onnx" 2>/dev/null || echo 0)" -gt 20000000 ] || "$2/setup-depth.sh" || exit 1; nice -n 19 ionice -c 3 "$1" "$2/depth-cutout" "$3"',
             "sh", py, scripts, current];
         run.running = true;
     }

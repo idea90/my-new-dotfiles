@@ -19,6 +19,8 @@ WALLPAPERS_DIR="${WALLPAPERS_DIR:-$HOME/wallpapers}"
 THUMBS_DIR="$HOME/.cache/wallpaper-thumbs"
 CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper"
 LOCK_IMAGE="$HOME/.cache/lockscreen.png"   # sharp PNG, hyprlock blurs it itself
+LOCK_CACHE="$HOME/.cache/wallpaper-lock"     # one lock image per wallpaper, made once
+SMALL_CACHE="$HOME/.cache/wallpaper-small"   # tiny copy per wallpaper for matugen, made once
 ENV_FILE="$SCRIPT_PATH/.env"
 
 # shellcheck source=/dev/null
@@ -26,7 +28,7 @@ ENV_FILE="$SCRIPT_PATH/.env"
 MODE="${MODE:-dark}"
 TYPE="${TYPE:-scheme-tonal-spot}"
 
-mkdir -p "$WALLPAPERS_DIR" "$THUMBS_DIR"
+mkdir -p "$WALLPAPERS_DIR" "$THUMBS_DIR" "$LOCK_CACHE" "$SMALL_CACHE"
 
 save_env() {
     printf 'MODE=%s\nTYPE=%s\n' "$MODE" "$TYPE" > "$ENV_FILE"
@@ -84,11 +86,22 @@ apply_wallpaper() {
 
     # Show the new wallpaper right away, then recolor everything
     awww img "$wallpaper" --transition-type center
-    if ! matugen image "$wallpaper" -m "$MODE" -t "$TYPE" --source-color-index 0; then
+    # Colors come from a small copy of the picture (same palette, a fraction of the work);
+    # both the copy and the lock image are made once per wallpaper and reused after that
+    local base small lock
+    base="$(basename "$wallpaper")"
+    small="$SMALL_CACHE/$base.png"
+    lock="$LOCK_CACHE/$base.png"
+    [[ "$small" -nt "$wallpaper" ]] ||
+        gentle magick -define jpeg:size=640x640 "$wallpaper[0]" -resize "400x400>" "$small"
+    if ! gentle matugen image "$small" -m "$MODE" -t "$TYPE" --source-color-index 0; then
         notify-send -a Wallpaper -u critical "Failed to generate colors"
         exit 1
     fi
-    gentle magick -define jpeg:size=2560x2560 "$wallpaper[0]" -resize "2560x2560>" "$LOCK_IMAGE"
+    [[ "$lock" -nt "$wallpaper" ]] ||
+        gentle magick -define jpeg:size=2560x2560 "$wallpaper[0]" -resize "2560x2560>" \
+            -define png:compression-level=1 "$lock"
+    cp -f "$lock" "$LOCK_IMAGE"
     # Login screen follows too (no-op unless the sddm theme is installed)
     gentle "$SCRIPT_PATH/sddm-theme" sync >/dev/null 2>&1 &
     notify-send -a Wallpaper -i "$(thumb_of "$(basename "$wallpaper")")" "Theme updated" "$(basename "$wallpaper") · $MODE · ${TYPE#scheme-}"

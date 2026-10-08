@@ -15,7 +15,14 @@ Hyprland, the Quickshell shell, hyprlock, alacritty, the prompt, GTK and Qt apps
 | Terminal / shell | alacritty, fish + starship |
 
 # Install 📦
-Arch Linux only (uses pacman + an AUR helper; installs `yay` if you have none).
+Arch Linux only (uses pacman + an AUR helper; installs `yay` if you have none). On a fresh install, one line:
+
+```
+curl -fsSL https://raw.githubusercontent.com/idea90/kaleido/main/bootstrap.sh | bash
+```
+
+That clones the repo to `~/kaleido` and runs `install.sh` (add `-s -- --yes` after `bash` to skip every question).
+Or by hand:
 
 ```
 git clone https://github.com/idea90/kaleido.git
@@ -27,8 +34,10 @@ What it does:
 - installs every package the configs and scripts use
 - symlinks every folder in `.config/` into `~/.config`
 - moves anything it would overwrite into `~/.dotfiles-backup/<timestamp>/`
-- prepares the lock screen background from `~/wallpapers` (copies `Wallpapers/` there if the repo has one)
-- sets GTK theme/icons/cursor/fonts, points qt5ct/qt6ct at the matugen palette
+- draws a default wallpaper if `~/wallpapers` is empty, and prepares the lock screen background from it
+- installs the clock fonts, sets GTK theme/icons/cursor/fonts, points qt5ct/qt6ct at the matugen palette
+- picks the **light performance mode** on weak machines (2 cores or fewer, or under 5 GiB of memory)
+- sets up the browser start page server and the optional depth effect (see below)
 - offers to set fish as your shell and enable sddm
 
 Safe to run again. Useful flags:
@@ -40,9 +49,28 @@ Safe to run again. Useful flags:
 ./install.sh --help
 ```
 
-After install: put some images in `~/wallpapers`, log in to Hyprland and press `Super+W` to pick one and generate colors.
+After install: log in to Hyprland and press `Super+W` to pick a wallpaper (or use the Wallhaven tab in Settings).
 
 Optional: `./setup-git.sh` sets your global git name/email.
+
+**Other desktops.** The shell needs a Wayland compositor with layer-shell support, so it runs under Hyprland and
+not under XFCE (X11). The installer adds Hyprland as an extra session, so XFCE can stay as your lighter login. The
+browser start page and its color server work from any desktop.
+
+# Things worth knowing
+- **Theme packs** (Settings → Appearance): one click restyles the shell. More styles per part (bar, launcher,
+  control center, power menu) are in their own Settings pages.
+- **Lock screen:** a big clock, weather, sign-in / music / notification cards and a power dock. With the depth effect
+  on, the clock sits behind the wallpaper's foreground (mountains, trees, a person...).
+- **Depth effect:** `~/.config/hypr/scripts/setup-depth.sh` installs a small Python environment and a 27 MB depth model
+  (done by the installer, or by Settings the first time you turn it on). One cut-out is made per wallpaper, in the
+  background at lowest priority, and cached in `~/.cache/wallpaper-cutouts`.
+- **Browser start page:** `~/.config/startpage` holds a small local server (started with the session) and a Firefox /
+  Chrome new-tab extension that follows your matugen colors and wallpaper. Load `startpage/extension` as an unpacked
+  extension; see `startpage/README.md`.
+- **Slow machine?** Settings → Appearance → Panels → Motion → *Performance*: `light` shortens animations and cuts blur,
+  `lowest` turns animations, shadows and blur off everywhere (Hyprland included). Applying a wallpaper is cheap after the
+  first time: the small copy used for colors and the lock image are cached per wallpaper.
 
 # Keybinds ⌨️
 

@@ -45,7 +45,7 @@ PACKAGES=(
     curl grim slurp wl-clipboard playerctl cliphist wtype hyprsunset power-profiles-daemon bluez bluez-utils pavucontrol brightnessctl btop
     pipewire pipewire-pulse wireplumber
     networkmanager network-manager-applet libnotify jq xdg-user-dirs xdg-utils
-    python python-gobject
+    python python-gobject uv
     # editor
     vim
 )
@@ -359,6 +359,22 @@ install_fonts() {
     fi
 }
 
+# A fresh machine has no wallpapers, and without one nothing is themed. Draw a soft default
+# (needs only ImageMagick) so the lock screen, colors and picker work from the first login.
+seed_wallpaper() {
+    [[ -d "$WALLPAPER_DIR" ]] || run mkdir -p "$WALLPAPER_DIR"
+    if find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) 2>/dev/null | grep -q .; then
+        return 0
+    fi
+    command -v magick >/dev/null || { warn "imagemagick missing, no default wallpaper"; return 0; }
+    info "No wallpapers yet, drawing a default one"
+    # drawn small and scaled up: a soft gradient loses nothing, and a full-size blur takes minutes on weak CPUs
+    run magick -size 320x180 radial-gradient:'#6a4cff-#0d0a24' \
+        \( -size 320x180 xc:none -fill '#ff6ac1' -draw 'circle 250,40 250,-10' -blur 0x20 \) -compose screen -composite \
+        \( -size 320x180 xc:none -fill '#2ad4ff' -draw 'circle 50,150 50,100' -blur 0x20 \) -compose screen -composite \
+        -filter Gaussian -resize 2560x1440 "$WALLPAPER_DIR/kaleido-default.png"
+}
+
 # Lock screen reads a PNG copy of the current wallpaper (it blurs it itself). Create one so
 # hyprlock has a background before the first Super+W.
 seed_lockscreen() {
@@ -416,6 +432,55 @@ setup_qt() {
             "standard_dialogs=default" \
             "style=Fusion" > "$conf"
     done
+}
+
+# "Clock behind the wallpaper subject" runs a small depth model (about 60 MB of downloads,
+# done once). Skipped on weak machines, where Settings → Performance is better left on light.
+setup_depth() {
+    local setup="$REPO/.config/hypr/scripts/setup-depth.sh"
+    [[ -x "$setup" ]] || return 0
+    command -v uv >/dev/null || { warn "uv missing, skipping the depth effect"; return 0; }
+    [[ -x "$HOME/.local/share/kaleido/depth/venv/bin/python" ]] && return 0
+    if confirm "Set up the clock-behind-the-subject effect? (downloads about 60 MB)" yes; then
+        run "$setup" || warn "Depth setup failed; the lock screen still works without it"
+    fi
+}
+
+# The browser start page extension reads colors from a tiny local server. Start it with the
+# desktop session on anything that honors XDG autostart (XFCE, KDE, GNOME); Hyprland starts it itself.
+setup_startpage() {
+    local dir="$CONFIG_HOME/autostart" file="$CONFIG_HOME/autostart/kaleido-startpage.desktop"
+    [[ -f "$file" ]] && return 0
+    info "Autostart for the browser start page server"
+    run mkdir -p "$dir"
+    if (( DRY_RUN )); then
+        printf '    %s[dry-run]%s write %s\n' "$C_DIM" "$C_RESET" "$file"
+    else
+        printf '%s\n' "[Desktop Entry]" "Type=Application" "Name=Kaleido start page server" \
+            "Exec=python3 $CONFIG_HOME/startpage/server.py" "NoDisplay=true" > "$file"
+    fi
+    info "Browser extension: load ${CONFIG_HOME/#$HOME/\~}/startpage/extension (see startpage/README.md)"
+}
+
+# Weak hardware (2 cores or fewer, or under 5 GiB of memory): start with less blur and shorter
+# animations. Only written once, when config.json has no choice yet; change it in Settings.
+tune_for_hardware() {
+    local cfg="$CONFIG_HOME/quickshell/config.json" mem_kb cores
+    [[ -f "$cfg" ]] && command -v python3 >/dev/null || return 0
+    mem_kb="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+    cores="$(nproc)"
+    (( mem_kb < 5000000 || cores <= 2 )) || return 0
+    info "Modest hardware ($cores cores, $((mem_kb / 1024)) MiB): choosing the light performance mode"
+    (( DRY_RUN )) && return 0
+    python3 - "$cfg" <<'PY' || true
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+if d.get("performance") in (None, "normal"):
+    d["performance"] = "light"
+    d.pop("lowEnd", None)
+    json.dump(d, open(p, "w"), indent=2)
+PY
 }
 
 set_fish_shell() {
@@ -483,8 +548,8 @@ main() {
     if (( DO_WALLPAPERS )); then step "Wallpapers"; copy_wallpapers; fi
     if (( DO_EXTRAS )); then
         step "Fonts";             install_fonts
-        step "Theming";           seed_lockscreen; apply_gtk_settings; setup_qt
-        step "Shell and services"; set_fish_shell; enable_services
+        step "Theming";           seed_wallpaper; seed_lockscreen; apply_gtk_settings; setup_qt; tune_for_hardware
+        step "Shell and services"; set_fish_shell; enable_services; setup_startpage; setup_depth
     fi
 
     summary
